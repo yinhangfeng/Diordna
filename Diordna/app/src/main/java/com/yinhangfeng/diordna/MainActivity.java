@@ -8,32 +8,57 @@ import android.view.MenuItem;
 
 public class MainActivity extends ActionBarActivity {
 
+    private MyCanvasView myCanvasView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        myCanvasView = (MyCanvasView) findViewById(R.id.my_canvas_view);
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if(id == R.id.action_settings) {
-            return true;
+        switch(item.getItemId()) {
+        case R.id.test1:
+            test1();
+            break;
+        case R.id.test2:
+            test2();
+            break;
+        case R.id.test3:
+            test3();
+            break;
+        case R.id.test4:
+            break;
+        case R.id.test5:
+            break;
+        case R.id.test6:
+            break;
+        case R.id.test7:
+            break;
+        case R.id.test8:
+            break;
+        case R.id.test9:
+            break;
         }
-
         return super.onOptionsItemSelected(item);
     }
+
+    private void test1() {
+        myCanvasView.invalidate();
+    }
+
+    private void test2() {
+        myCanvasView.requestLayout();
+    }
+
+    private void test3() {}
+
 }

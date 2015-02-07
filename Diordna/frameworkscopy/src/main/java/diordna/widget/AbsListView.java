@@ -6229,6 +6229,7 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
         int viewType;
 
         /**
+         * GU:标记HeaderView FooterView 是否可recycle
          * When this boolean is set, the view has been added to the AbsListView
          * at least once. It is used to know whether headers/footers have already
          * been added to the list view and whether they should be treated as
@@ -6324,17 +6325,35 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
         private View[] mActiveViews = new View[0];
 
         /**
+         * 每种viewType的ScrapView占据数组的一项
+         * addScrapView()时添加
+         * 如果View.hasTransientState()则会添加到mSkippedScrap或mTransientStateViews或mTransientStateViewsById
          * Unsorted views that can be used by the adapter as a convert view.
          */
         private ArrayList<View>[] mScrapViews;
 
         private int mViewTypeCount;
 
+        /**
+         * 当前的Scrap
+         */
         private ArrayList<View> mCurrentScrap;
 
+        /**
+         * addScrapView()中添加
+         * 在mDataChanged == true时
+         */
         private ArrayList<View> mSkippedScrap;
 
+        /**
+         * addScrapView()中添加
+         * 在HasStableIds == false时使用
+        */
         private SparseArray<View> mTransientStateViews;
+        /**
+         * addScrapView()中添加
+         * 在HasStableIds == true时使用
+         */
         private LongSparseArray<View> mTransientStateViewsById;
 
         public void setViewTypeCount(int viewTypeCount) {
@@ -6351,6 +6370,9 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
             mScrapViews = scrapViews;
         }
 
+        /**
+         * 执行所有mScrapViews的forceLayout()
+         */
         public void markChildrenDirty() {
             if (mViewTypeCount == 1) {
                 final ArrayList<View> scrap = mCurrentScrap;
@@ -6382,6 +6404,10 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
             }
         }
 
+        /**
+         * 是否需要回收viewType，对>=0的都回收
+         * ITEM_VIEW_TYPE_HEADER_OR_FOOTER = -2
+         */
         public boolean shouldRecycleViewType(int viewType) {
             return viewType >= 0;
         }
@@ -6405,6 +6431,7 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
         }
 
         /**
+         * 将childCount个子View装入mActiveViews 不包括Header Footer View
          * Fill ActiveViews with all of the children of the AbsListView.
          *
          * @param childCount The minimum number of views mActiveViews should hold
@@ -6432,6 +6459,7 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
         }
 
         /**
+         * 从mActiveViews获取position处的View 并置该处为null
          * Get the view corresponding to the specified position. The view will be removed from
          * mActiveViews if it is found.
          *
@@ -6507,6 +6535,8 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
         }
 
         /**
+         * 将view 添加到mScrapViews[viewType].add(view)
+         * viewType 在view 对应的LayoutParams中有
          * Puts a view into the list of scrap views.
          * <p>
          * If the list data hasn't changed or the adapter has stable IDs, views
@@ -6591,6 +6621,8 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
         }
 
         /**
+         * 将所有mActiveViews添加到mScrapViews规则同addScrapView(View scrap, int position);
+         * 除了不会添加到mSkippedScrap
          * Move all views remaining in mActiveViews to mScrapViews.
          */
         void scrapActiveViews() {
@@ -6654,6 +6686,9 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
         }
 
         /**
+         * 1.确保mActiveViews的总容量不超过 viewTypeCount * viewTypeCount
+         * 2.mTransientStateViews
+         * 3.mTransientStateViewsById
          * Makes sure that the size of mScrapViews does not exceed the size of
          * mActiveViews, which can happen if an adapter does not recycle its
          * views. Removes cached transient state views that no longer have
@@ -6699,6 +6734,7 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
         }
 
         /**
+         * 将所有mScrapViews添加到 @param views
          * Puts all views in the scrap heap into the supplied list.
          */
         void reclaimScrapViews(List<View> views) {
@@ -6715,6 +6751,7 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
         }
 
         /**
+         * 为所有mScrapViews mActiveViews setDrawingCacheBackgroundColor
          * Updates the cache color hint of all known views.
          *
          * @param color The new cache color hint.
@@ -6747,6 +6784,11 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
             }
         }
 
+        /**
+         * 检索scrapView
+         * 优先取itemId相同或移除时position与 @param position相同的view
+         * 否则取最后一个
+         */
         private View retrieveFromScrap(ArrayList<View> scrapViews, int position) {
             final int size = scrapViews.size();
             if (size > 0) {
@@ -6789,6 +6831,11 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
             view.setAccessibilityDelegate(null);
         }
 
+        /**
+         * 处于RecycleBin中的view 都调用本函数remove
+         * @param child
+         * @param animate
+         */
         private void removeDetachedView(View child, boolean animate) {
             child.setAccessibilityDelegate(null);
             AbsListView.this.removeDetachedView(child, animate);

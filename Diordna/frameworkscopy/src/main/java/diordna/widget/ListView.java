@@ -64,6 +64,33 @@ import java.util.ArrayList;
  *     position - index of the items in the cursor
  */
 
+/**
+ * 中文注释
+ * 1.GU:表示还不确定，只是猜测其功能
+ */
+
+/**
+ * Scrap:废料
+ * scrapped:报废
+ * opaque:不透明
+ * transient:短暂的
+ * retrieve: 检索
+ */
+
+/**
+ * ListAdapter
+ *  areAllItemsEnabled() 是否所有item都selectable
+ *  isEnabled(int position) item是否selectable
+ */
+
+/**
+ * 1.HeaderView FooterView 通过HeaderViewListAdapter包装原Adapter实现,对于ListView来说相当于普通item,
+ *  对于HeaderView FooterView getItemId默认返回-1, getItemViewType默认返回AdapterView.ITEM_VIEW_TYPE_HEADER_OR_FOOTER
+ * 2.DataSetObserver onChanged onInvalidated最终都会调用requestLayout();
+ * 3.ListView.getAdapter 返回的Adapter可能是HeaderViewListAdapter（有HeaderView或FooterView时）,对返回的Adapter操作时position要考虑Header Footer
+ * 4.通过AbsListView.LayoutParams 存储跟itemViewi相关的一些状态信息
+ */
+
 
 /**
  * A view that shows items in a vertically scrolling list. The items
@@ -99,6 +126,7 @@ public class ListView extends AbsListView {
     private static final int MIN_SCROLL_PREVIEW_PIXELS = 2;
 
     /**
+     * HeaderView FooterView封装
      * A class that represents a fixed view in a list, for example a header at the top
      * or a footer at the bottom.
      */
@@ -111,7 +139,13 @@ public class ListView extends AbsListView {
         public boolean isSelectable;
     }
 
+    /**
+     * HeaderView 集合
+     */
     private ArrayList<FixedViewInfo> mHeaderViewInfos = Lists.newArrayList();
+    /**
+     * FooterView 集合
+     */
     private ArrayList<FixedViewInfo> mFooterViewInfos = Lists.newArrayList();
 
     Drawable mDivider;
@@ -120,6 +154,7 @@ public class ListView extends AbsListView {
     Drawable mOverScrollHeader;
     Drawable mOverScrollFooter;
 
+    //Opaque:不透明
     private boolean mIsCacheColorOpaque;
     private boolean mDividerIsOpaque;
 
@@ -130,15 +165,19 @@ public class ListView extends AbsListView {
 
     private boolean mItemsCanFocus = false;
 
-    // used for temporary calculations.
+    /** used for temporary calculations. */
     private final Rect mTempRect = new Rect();
     private Paint mDividerPaint;
 
-    // the single allocated result per list view; kinda cheesey but avoids
-    // allocating these thingies too often.
+    /**
+     * the single allocated result per list view; kinda cheesey but avoids
+     * allocating these thingies too often.
+     */
     private final ArrowScrollFocusResult mArrowScrollFocusResult = new ArrowScrollFocusResult();
 
-    // Keeps focused children visible through resizes
+    /**
+     * Keeps focused children visible through resizes
+     */
     private FocusSelector mFocusSelector;
 
     public ListView(Context context) {
@@ -156,6 +195,7 @@ public class ListView extends AbsListView {
     public ListView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
 
+        //android:entries配置的默认数据源
         final TypedArray a = context.obtainStyledAttributes(
                 attrs, com.android.internal.R.styleable.ListView, defStyleAttr, defStyleRes);
 
@@ -166,6 +206,7 @@ public class ListView extends AbsListView {
                     com.android.internal.R.layout.simple_list_item_1, entries));
         }
 
+        //android:divider
         final Drawable d = a.getDrawable(com.android.internal.R.styleable.ListView_divider);
         if (d != null) {
             // If a divider is specified use its intrinsic height for divider height
@@ -184,6 +225,7 @@ public class ListView extends AbsListView {
             setOverscrollFooter(osFooter);
         }
 
+        //android:dividerHeight
         // Use the height specified, zero being the default
         final int dividerHeight = a.getDimensionPixelSize(
                 com.android.internal.R.styleable.ListView_dividerHeight, 0);
@@ -191,6 +233,7 @@ public class ListView extends AbsListView {
             setDividerHeight(dividerHeight);
         }
 
+        //android:headerDividersEnabled
         mHeaderDividersEnabled = a.getBoolean(R.styleable.ListView_headerDividersEnabled, true);
         mFooterDividersEnabled = a.getBoolean(R.styleable.ListView_footerDividersEnabled, true);
 
@@ -198,6 +241,8 @@ public class ListView extends AbsListView {
     }
 
     /**
+     * GU:一次Scroll的最大步长
+     * 默认ListView 高度的1/3
      * @return The maximum amount a list view will scroll in response to
      *   an arrow event.
      */
@@ -206,6 +251,7 @@ public class ListView extends AbsListView {
     }
 
     /**
+     * XXXX
      * Make sure views are touching the top or bottom edge, as appropriate for
      * our gravity
      */
@@ -253,6 +299,7 @@ public class ListView extends AbsListView {
     }
 
     /**
+     * 添加HeaderView 如果mAdapter不是HeaderViewListAdapter的子类则创建HeaderViewListAdapter包装mAdapter
      * Add a fixed view to appear at the top of the list. If this method is
      * called more than once, the views will appear in the order they were
      * added. Views added using this call can take focus if they want.
@@ -284,6 +331,7 @@ public class ListView extends AbsListView {
 
             // In the case of re-adding a header view, or adding one later on,
             // we need to notify the observer.
+            //XXXX
             if (mDataSetObserver != null) {
                 mDataSetObserver.onChanged();
             }
@@ -522,6 +570,7 @@ public class ListView extends AbsListView {
     }
 
     /**
+     * 重置List
      * The list is empty. Clear everything out.
      */
     @Override
