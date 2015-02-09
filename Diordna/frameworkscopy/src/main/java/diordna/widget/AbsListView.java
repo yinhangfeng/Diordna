@@ -2326,6 +2326,7 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
      * @param position The position to display
      * @param isScrap Array of at least 1 boolean, the first entry will become true if
      *                the returned view was taken from the scrap heap, false if otherwise.
+     *                输出参数 因为java没有指针所以用数组,标记返回的View是否来自scrapViews
      *
      * @return A view displaying the data associated with the specified position
      */
@@ -6253,7 +6254,8 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
 
         /**
          * GU:如果当前LayoutParams是属于HeaderView FooterView的如果当前LayoutParams是属于HeaderView
-         * 则标记是否被添加到ListView
+         * 标记是否被添加到ListView
+         * 在resetList之后被置为false
          * When this boolean is set, the view has been added to the AbsListView
          * at least once. It is used to know whether headers/footers have already
          * been added to the list view and whether they should be treated as
@@ -6624,6 +6626,7 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
                 if (mViewTypeCount == 1) {
                     mCurrentScrap.add(scrap);
                 } else {
+                    //Adapter.getItemViewType 返回错误值时引起崩溃的地方
                     mScrapViews[viewType].add(scrap);
                 }
 
