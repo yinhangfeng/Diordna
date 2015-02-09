@@ -439,6 +439,7 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
     int mSelectedTop = 0;
 
     /**
+     * 数据是从下到上还是从上到下
      * Indicates whether the list is stacked from the bottom edge or
      * the top edge.
      */
@@ -2213,6 +2214,9 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
         return focusedView;
     }
 
+    /**
+     * 更新是否可上下滚动指示器的可见性
+     */
     void updateScrollIndicators() {
         if (mScrollUp != null) {
             mScrollUp.setVisibility(canScrollUp() ? View.VISIBLE : View.INVISIBLE);
@@ -2562,6 +2566,11 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
         }
     }
 
+    /**
+     * 使用sel的位置更新mSelectorRect mSelector位置,调用refreshDrawableState() 刷新
+     * @param position
+     * @param sel
+     */
     void positionSelector(int position, View sel) {
         if (position != INVALID_POSITION) {
             mSelectorPosition = position;

@@ -140,11 +140,13 @@ public abstract class AdapterView<T extends Adapter> extends ViewGroup {
     OnItemLongClickListener mOnItemLongClickListener;
 
     /**
+     * 最后一次layout 之后数据是否有变
      * True if the data has changed since the last layout
      */
     boolean mDataChanged;
 
     /**
+     * 下次layout需要被选中的position
      * The position within the adapter's data set of the item to select
      * during the next layout.
      */
@@ -157,6 +159,7 @@ public abstract class AdapterView<T extends Adapter> extends ViewGroup {
     long mNextSelectedRowId = INVALID_ROW_ID;
 
     /**
+     * 当前选中的position,改制外部不能获取
      * The position within the adapter's data set of the currently selected item.
      */
     @ViewDebug.ExportedProperty(category = "list")
@@ -1151,6 +1154,7 @@ public abstract class AdapterView<T extends Adapter> extends ViewGroup {
     }
 
     /**
+     * 设置mSelectedPosition与mSelectedRowId
      * Utility to keep mSelectedPosition and mSelectedRowId in sync
      * @param position Our current position
      */

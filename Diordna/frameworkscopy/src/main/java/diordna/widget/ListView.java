@@ -228,7 +228,9 @@ public class ListView extends AbsListView {
     }
 
     /**
-     * XXXX
+     * 调整子view layout
+     * 如果mStackFromBottom使最后一个子view getBottom()与mListPadding.bottom对齐
+     * 否则使第一个子view getTop()与mListPadding.top对齐
      * Make sure views are touching the top or bottom edge, as appropriate for
      * our gravity
      */
@@ -741,6 +743,7 @@ public class ListView extends AbsListView {
     }
 
     /**
+     * 填充list item 从pos向上()到第一个可见的item
      * Fills the list from pos up to the top of the list view.
      *
      * @param pos The first position to put in the list
@@ -748,7 +751,7 @@ public class ListView extends AbsListView {
      * @param nextBottom The location where the bottom of the item associated
      *        with pos should be drawn
      *
-     * @return The view that is currently selected
+     * @return The view that is currently selected fill的view中当前选中的view
      */
     private View fillUp(int pos, int nextBottom) {
         View selectedView = null;
@@ -775,6 +778,7 @@ public class ListView extends AbsListView {
     }
 
     /**
+     * 从mFirstPosition开始填充item
      * Fills the list from top to bottom, starting with mFirstPosition
      *
      * @param nextTop The location where the top of the first item should be
@@ -793,6 +797,8 @@ public class ListView extends AbsListView {
 
 
     /**
+     * 从选中item(或者mResurrectToPosition或者0)开始填充
+     * 使第一个处于可见区域中间
      * Put mSelectedPosition in the middle of the screen and then build up and
      * down from there. This method forces mSelectedPosition to the center.
      *
@@ -828,6 +834,7 @@ public class ListView extends AbsListView {
     }
 
     /**
+     * 在selected view添加layout完毕之后，添加其上下的其他item
      * Once the selected view as been placed, fill up the visible area above and
      * below it.
      *
@@ -837,8 +844,11 @@ public class ListView extends AbsListView {
     private void fillAboveAndBelow(View sel, int position) {
         final int dividerHeight = mDividerHeight;
         if (!mStackFromBottom) {
+            //填充position上部的view
             fillUp(position - 1, sel.getTop() - dividerHeight);
+            //调整第一个view与top对齐
             adjustViewsUpOrDown();
+            //填充position下部的view
             fillDown(position + 1, sel.getBottom() + dividerHeight);
         } else {
             fillDown(position + 1, sel.getBottom() + dividerHeight);
@@ -849,6 +859,7 @@ public class ListView extends AbsListView {
 
 
     /**
+     * 从当前选中item开始添加子view(保证重新填充子view后选中item在可见区域的top值不变)
      * Fills the grid based on positioning the new selection at a specific
      * location. The selection may be moved so that it does not intersect the
      * faded edges. The grid is then filled upwards and downwards from there.
@@ -864,6 +875,7 @@ public class ListView extends AbsListView {
 
         View sel;
 
+        //1.makeAndAddView选中item layout到正确位置
         final int topSelectionPixel = getTopSelectionPixel(childrenTop, fadingEdgeLength,
                 selectedPosition);
         final int bottomSelectionPixel = getBottomSelectionPixel(childrenBottom, fadingEdgeLength,
@@ -872,6 +884,7 @@ public class ListView extends AbsListView {
         sel = makeAndAddView(selectedPosition, selectedTop, true, mListPadding.left, true);
 
 
+        //2.调整选中item layout
         // Some of the newly selected item extends below the bottom of the list
         if (sel.getBottom() > bottomSelectionPixel) {
             // Find space available above the selection into which we can scroll
@@ -899,6 +912,7 @@ public class ListView extends AbsListView {
             sel.offsetTopAndBottom(offset);
         }
 
+        //填充选中item上下的所有可见view
         // Fill in views above and below
         fillAboveAndBelow(sel, selectedPosition);
 
@@ -966,6 +980,7 @@ public class ListView extends AbsListView {
     }
 
     /**
+     * 使newSel的上一个item的top与oldSel.getTop()相同，再添加newSel,最后填充上下
      * Fills the list based on positioning the new selection relative to the old
      * selection. The new selection will be placed at, above, or below the
      * location of the new selection depending on how the selection is moving.
@@ -1361,6 +1376,7 @@ public class ListView extends AbsListView {
     }
 
     /**
+     * 从特殊item开始填充 保证其top值 然后填充上下item
      * Put a specific item at a specific location on the screen and then build
      * up and down from there.
      *
@@ -1411,6 +1427,7 @@ public class ListView extends AbsListView {
     }
 
     /**
+     * 如果当前已填充的item view 最后一个是lastPosition 且距底部有空白则将上部的view往下调整并填充上部
      * Check if we have dragged the bottom of the list too high (we have pushed the
      * top element off the top of the screen when we did not need to). Correct by sliding
      * everything back down.
@@ -1460,6 +1477,7 @@ public class ListView extends AbsListView {
     }
 
     /**
+     * 如果当前已填充的item view 第一个是0 Position 且距顶部有空白则将下部的view往上调整并填充下部
      * Check if we have dragged the bottom of the list too low (we have pushed the
      * bottom element off the bottom of the screen when we did not need to). Correct by sliding
      * everything back up.
@@ -1516,6 +1534,16 @@ public class ListView extends AbsListView {
 
     /**
      * AbsListView onLayout时调用
+     * 1.判断是否mBlockLayoutRequests调用过程置mBlockLayoutRequests=true
+     * 2.触发重绘
+     * 3.根据不同mLayoutMode 获取一个有特殊位置要求的viewXXX(如selected view 保证layout之后与原位置top相同)
+     * 4.setSelectedPositionInt() 将SelectedPosition置为nextSelectedPosition
+     * 5.将所有子view放入RecycleBin detachAllViewsFromParent();
+     * 6.将viewXXX放入特殊位置并填充上下,调整位置
+     * 7.将未重用的RecycleBin中的activeViews放入scrapViews
+     * 8.设置focus
+     * 9.设置nextSelectedPosition与当前mSelectedPosition相同
+     * 10.调用scroll listener
      */
     @Override
     protected void layoutChildren() {
@@ -1524,6 +1552,7 @@ public class ListView extends AbsListView {
             return;
         }
 
+        //置mBlockLayoutRequests为true在下面try{}finally{中只为false}
         mBlockLayoutRequests = true;
 
         try {
@@ -1544,10 +1573,11 @@ public class ListView extends AbsListView {
             int index = 0;
             int delta = 0;
 
-            View sel;
+            View sel;//填充起点的特殊view,填充后返回，该view的位置有特殊要求
+            //下面3个在填充过程中先被回收，之后不一定重用，对象存在只为填充式getTop() 或getBottom()
             View oldSel = null;
             View oldFirst = null;
-            View newSel = null;
+            View newSel = null;//当前的子view(可见的item)中，新的选中项
 
             //根据不同mLayoutMode获取oldSel oldFirst newSel
             // Remember stuff we will need down below
@@ -1603,6 +1633,7 @@ public class ListView extends AbsListView {
                         + ") with Adapter(" + mAdapter.getClass() + ")]");
             }
 
+            //更新mSelectedPosition为mNextSelectedPosition与下面setNextSelectedPositionInt()对应
             setSelectedPositionInt(mNextSelectedPosition);
 
             AccessibilityNodeInfo accessibilityFocusLayoutRestoreNode = null;
@@ -1659,7 +1690,7 @@ public class ListView extends AbsListView {
                 requestFocus();
             }
 
-            //将所有children添加到RecycleBin
+            //将所有children添加到RecycleBin xxx 对应下面scrapActiveViews()
             // Pull all children into the RecycleBin.
             // These views will be reused if possible
             final int firstPosition = mFirstPosition;
@@ -1681,6 +1712,7 @@ public class ListView extends AbsListView {
             switch (mLayoutMode) {
             case LAYOUT_SET_SELECTION:
                 if (newSel != null) {
+                    //从选中item开始填充保证选中item位置不变
                     sel = fillFromSelection(newSel.getTop(), childrenTop, childrenBottom);
                 } else {
                     sel = fillFromMiddle(childrenTop, childrenBottom);
@@ -1729,10 +1761,12 @@ public class ListView extends AbsListView {
                 break;
             }
 
+            //将所有mActiveViews添加到mScrapViews xxx 对应上面fillActiveViews()
             // Flush any cached views that did not get reused above
             recycleBin.scrapActiveViews();
 
             if (sel != null) {
+                //当前选中的item需要获取焦点如果可以
                 // The current selected item should get focus if items are
                 // focusable.
                 if (mItemsCanFocus && hasFocus() && !sel.hasFocus()) {
@@ -1829,6 +1863,7 @@ public class ListView extends AbsListView {
                 mPositionScrollAfterLayout = null;
             }
             mNeedSync = false;
+            //更新mNextSelectedPosition为mSelectedPosition与上面setSelectedPositionInt()对应
             setNextSelectedPositionInt(mSelectedPosition);
 
             updateScrollIndicators();
@@ -1837,6 +1872,7 @@ public class ListView extends AbsListView {
                 checkSelectionChanged();
             }
 
+            //调用scroll listener
             invokeOnItemScrollListener();
         } finally {
             if (!blockLayoutRequests) {
@@ -1870,8 +1906,14 @@ public class ListView extends AbsListView {
     }
 
     /**
-     * TODO xxxxxxxxxxxxxxxxxxxxxx
-     * GU:获取position处的itemView 并添加到ListView
+     * 获取position处的itemView 并添加到ListView
+     * 优先级
+     *  RecyclerBin
+     *  ActiveView
+     *  ScrapView
+     *  new View
+     * TransientStateView
+     * 之后调用setupChild
      * Obtain the view and add it to our list of children. The view can be made
      * fresh, converted from an unused view, or used as is if it was in the
      * recycle bin.
@@ -1880,6 +1922,7 @@ public class ListView extends AbsListView {
      * @param y Top or bottom edge of the view to add
      * @param flow If flow is true, align top edge to y. If false, align bottom
      *        edge to y.
+     *             true 子View添加到末尾 false 添加到第一个
      * @param childrenLeft Left edge where children should be positioned
      * @param selected Is this position selected?
      * @return View that was added
@@ -2039,6 +2082,8 @@ public class ListView extends AbsListView {
     }
 
     /**
+     * 设置selectedPositon 主要由调用layoutChildren()实现
+     * 一般调用之后被选中的item会处于顶部
      * Makes the item at the supplied position selected.
      * 
      * @param position the position of the item to select
@@ -2070,6 +2115,8 @@ public class ListView extends AbsListView {
     }
 
     /**
+     * 从position开始查找可selected的(adapter.isEnabled(position)) 的position
+     * 如果mAreAllItemsSelectable 则就是position
      * Find a position that can be selected (i.e., is not a separator).
      *
      * @param position The starting position to look at.
