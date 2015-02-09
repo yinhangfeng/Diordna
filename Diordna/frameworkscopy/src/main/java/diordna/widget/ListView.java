@@ -70,29 +70,6 @@ import java.util.ArrayList;
  */
 
 /**
- * Scrap:废料
- * scrapped:报废
- * opaque:不透明
- * transient:短暂的
- * retrieve: 检索
- */
-
-/**
- * ListAdapter
- *  areAllItemsEnabled() 是否所有item都selectable
- *  isEnabled(int position) item是否selectable
- */
-
-/**
- * 1.HeaderView FooterView 通过HeaderViewListAdapter包装原Adapter实现,对于ListView来说相当于普通item,
- *  对于HeaderView FooterView getItemId默认返回-1, getItemViewType默认返回AdapterView.ITEM_VIEW_TYPE_HEADER_OR_FOOTER
- * 2.DataSetObserver onChanged onInvalidated最终都会调用requestLayout();
- * 3.ListView.getAdapter 返回的Adapter可能是HeaderViewListAdapter（有HeaderView或FooterView时）,对返回的Adapter操作时position要考虑Header Footer
- * 4.通过AbsListView.LayoutParams 存储跟itemViewi相关的一些状态信息
- */
-
-
-/**
  * A view that shows items in a vertically scrolling list. The items
  * come from the {@link android.widget.ListAdapter} associated with this view.
  *
@@ -1537,6 +1514,9 @@ public class ListView extends AbsListView {
         }
     }
 
+    /**
+     * AbsListView onLayout时调用
+     */
     @Override
     protected void layoutChildren() {
         final boolean blockLayoutRequests = mBlockLayoutRequests;
@@ -1569,6 +1549,7 @@ public class ListView extends AbsListView {
             View oldFirst = null;
             View newSel = null;
 
+            //根据不同mLayoutMode获取oldSel oldFirst newSel
             // Remember stuff we will need down below
             switch (mLayoutMode) {
             case LAYOUT_SET_SELECTION:
@@ -1678,15 +1659,18 @@ public class ListView extends AbsListView {
                 requestFocus();
             }
 
+            //将所有children添加到RecycleBin
             // Pull all children into the RecycleBin.
             // These views will be reused if possible
             final int firstPosition = mFirstPosition;
             final RecycleBin recycleBin = mRecycler;
             if (dataChanged) {
+                //dataChanged则添加到ScrapViews
                 for (int i = 0; i < childCount; i++) {
                     recycleBin.addScrapView(getChildAt(i), firstPosition+i);
                 }
             } else {
+                //否则添加到activeViews
                 recycleBin.fillActiveViews(childCount, firstPosition);
             }
 
@@ -1906,7 +1890,7 @@ public class ListView extends AbsListView {
 
 
         if (!mDataChanged) {
-            //从mRecycler获取
+            //从mRecycler Active获取
             // Try to use an existing view for this position
             child = mRecycler.getActiveView(position);
             if (child != null) {
@@ -1918,7 +1902,7 @@ public class ListView extends AbsListView {
             }
         }
 
-        //创建一个新的child
+        //从scrapViews获取或创建一个新的child
         // Make a new view for this position, or convert an unused view if possible
         child = obtainView(position, mIsScrap);
 
@@ -1975,6 +1959,7 @@ public class ListView extends AbsListView {
             addViewInLayout(child, flowDown ? -1 : 0, p, true);
         }
 
+        //2.设置selected Pressed Choice
         if (updateChildSelected) {
             child.setSelected(isSelected);
         }
@@ -1983,7 +1968,6 @@ public class ListView extends AbsListView {
             child.setPressed(isPressed);
         }
 
-        //2.设置Choice
         if (mChoiceMode != CHOICE_MODE_NONE && mCheckStates != null) {
             //如果child被选中CHOICE 且为Checkable则setChecked, >= 3.0 则设置setActivated
             if (child instanceof Checkable) {

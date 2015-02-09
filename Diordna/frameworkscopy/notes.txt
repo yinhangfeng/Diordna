@@ -1,0 +1,29 @@
+=====单词
+Scrap:废料
+scrapped:报废
+opaque:不透明
+transient:短暂的
+retrieve: 检索
+
+
+
+========View ViewGroup相关
+1.调用forceLayout() 会设置标记PFLAG_FORCE_LAYOUT PFLAG_INVALIDATED 在下一次layout时会被layout,同时其isLayoutRequested()会返回true
+2.ViewGroup.getChildMeasureSpec(int spec, int padding, int childDimension) 是方便的构建MeasureSpec的方法,
+ 用于在某个方向上去除padding后的空间都可以给一个子View的情况,如ListView的width
+3.attachViewToParent 与 detachViewFromParent对应 都只是简单的改变ViewGroup mChildren[]数组
+ 
+
+
+=======ListAdapter
+areAllItemsEnabled() 是否所有item都selectable
+isEnabled(int position) item是否selectable
+ 
+
+=======ListView
+1.HeaderView FooterView 通过HeaderViewListAdapter包装原Adapter实现,对于ListView来说相当于普通item,
+ 对于HeaderView FooterView getItemId默认返回-1, getItemViewType默认返回AdapterView.ITEM_VIEW_TYPE_HEADER_OR_FOOTER
+2.DataSetObserver onChanged onInvalidated最终都会调用requestLayout();
+3.ListView.getAdapter 返回的Adapter可能是HeaderViewListAdapter（有HeaderView或FooterView时）,对返回的Adapter操作时position要考虑Header Footer
+4.通过AbsListView.LayoutParams 存储跟itemViewi相关的一些状态信息
+ 

@@ -350,6 +350,7 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
 
     /**
      * This view's padding
+     * AbsListView的Padding 与View 的mPaddingLeft ... mPaddingBottom的区别是多了selector的padding mSelectionLeftPadding ...
      */
     Rect mListPadding = new Rect();
 
@@ -504,6 +505,7 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
 
     /**
      * Maximum distance to record overscroll
+     * 在onLayout中会设置为height/OVERSCROLL_LIMIT_DIVISOR
      */
     int mOverscrollMax;
 
@@ -2145,6 +2147,7 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
 
         mInLayout = true;
 
+        //如果changed 则对所有子View与在mRecycler中的view调用forceLayout()
         final int childCount = getChildCount();
         if (changed) {
             for (int i = 0; i < childCount; i++) {
@@ -2156,6 +2159,7 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
         layoutChildren();
         mInLayout = false;
 
+        //设置mOverscrollMax
         mOverscrollMax = (b - t) / OVERSCROLL_LIMIT_DIVISOR;
 
         // TODO: Move somewhere sane. This doesn't belong in onLayout().
@@ -2326,12 +2330,14 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
 
         isScrap[0] = false;
 
+        //1.从TransientStateViews中获取
         // Check whether we have a transient state view. Attempt to re-bind the
         // data and discard the view if we fail.
         final View transientView = mRecycler.getTransientStateView(position);
         if (transientView != null) {
             final LayoutParams params = (LayoutParams) transientView.getLayoutParams();
 
+            //如果viewType相同
             // If the view type hasn't changed, attempt to re-bind the data.
             if (params.viewType == mAdapter.getItemViewType(position)) {
                 final View updatedView = mAdapter.getView(position, transientView, this);
@@ -2348,6 +2354,7 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
             return transientView;
         }
 
+        //2.从从TransientStateViews获取失败 则从ScrapViews中获取
         final View scrapView = mRecycler.getScrapView(position);
         final View child = mAdapter.getView(position, scrapView, this);
         if (scrapView != null) {
@@ -2370,6 +2377,7 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
             child.setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_YES);
         }
 
+        //3.设置LayoutParams
         setItemViewLayoutParams(child, position);
 
         if (AccessibilityManager.getInstance(mContext).isEnabled()) {
@@ -2386,6 +2394,11 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
         return child;
     }
 
+    /**
+     * 确保child LayoutParams为AbsListView.LayoutParams
+     * 在LayoutParams上设置itemId(如果HasStableIds)
+     * 设置viewType
+     */
     private void setItemViewLayoutParams(View child, int position) {
         final ViewGroup.LayoutParams vlp = child.getLayoutParams();
         LayoutParams lp;
@@ -6231,7 +6244,7 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
 
         /**
          * GU:如果当前LayoutParams是属于HeaderView FooterView的如果当前LayoutParams是属于HeaderView
-         * 则标记是否被recycle
+         * 则标记是否被添加到ListView
          * When this boolean is set, the view has been added to the AbsListView
          * at least once. It is used to know whether headers/footers have already
          * been added to the list view and whether they should be treated as
