@@ -1886,6 +1886,8 @@ public class ListView extends AbsListView {
     }
 
     /**
+     * TODO xxxxxxxxxxxxxxxxxxxxxx
+     * GU:获取position处的itemView 并添加到ListView
      * Obtain the view and add it to our list of children. The view can be made
      * fresh, converted from an unused view, or used as is if it was in the
      * recycle bin.
@@ -1904,6 +1906,7 @@ public class ListView extends AbsListView {
 
 
         if (!mDataChanged) {
+            //从mRecycler获取
             // Try to use an existing view for this position
             child = mRecycler.getActiveView(position);
             if (child != null) {
@@ -1915,6 +1918,7 @@ public class ListView extends AbsListView {
             }
         }
 
+        //创建一个新的child
         // Make a new view for this position, or convert an unused view if possible
         child = obtainView(position, mIsScrap);
 
@@ -1933,6 +1937,7 @@ public class ListView extends AbsListView {
      * @param y The y position relative to which this view will be positioned
      * @param flowDown If true, align top edge to y. If false, align bottom
      *        edge to y.
+     *        true 子View添加到末尾 false 添加到第一个
      * @param childrenLeft Left edge where children should be positioned
      * @param selected Is this position selected?
      * @param recycled Has this view been pulled from the recycle bin? If so it
@@ -1950,6 +1955,7 @@ public class ListView extends AbsListView {
         final boolean updateChildPressed = isPressed != child.isPressed();
         final boolean needToMeasure = !recycled || updateChildSelected || child.isLayoutRequested();
 
+        //1.添加子View
         // Respect layout params that are already in the view. Otherwise make some up...
         // noinspection unchecked
         LayoutParams p = (LayoutParams) child.getLayoutParams();
@@ -1977,7 +1983,9 @@ public class ListView extends AbsListView {
             child.setPressed(isPressed);
         }
 
+        //2.设置Choice
         if (mChoiceMode != CHOICE_MODE_NONE && mCheckStates != null) {
+            //如果child被选中CHOICE 且为Checkable则setChecked, >= 3.0 则设置setActivated
             if (child instanceof Checkable) {
                 ((Checkable) child).setChecked(mCheckStates.get(position));
             } else if (getContext().getApplicationInfo().targetSdkVersion
@@ -1986,6 +1994,7 @@ public class ListView extends AbsListView {
             }
         }
 
+        //3.measure 子View
         if (needToMeasure) {
             int childWidthSpec = ViewGroup.getChildMeasureSpec(mWidthMeasureSpec,
                     mListPadding.left + mListPadding.right, p.width);
@@ -1996,11 +2005,13 @@ public class ListView extends AbsListView {
             } else {
                 childHeightSpec = MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED);
             }
+            //调用child measure
             child.measure(childWidthSpec, childHeightSpec);
         } else {
             cleanupLayoutState(child);
         }
 
+        //4.layout 子View
         final int w = child.getMeasuredWidth();
         final int h = child.getMeasuredHeight();
         final int childTop = flowDown ? y : y - h;

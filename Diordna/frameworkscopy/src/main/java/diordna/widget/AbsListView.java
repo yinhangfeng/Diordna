@@ -2352,6 +2352,7 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
         final View child = mAdapter.getView(position, scrapView, this);
         if (scrapView != null) {
             if (child != scrapView) {
+                //Adapter 没有重用scrapView 则将其放回scrapViews
                 // Failed to re-bind the data, return scrap to the heap.
                 mRecycler.addScrapView(scrapView, position);
             } else {
@@ -6229,7 +6230,8 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
         int viewType;
 
         /**
-         * GU:标记HeaderView FooterView 是否可recycle
+         * GU:如果当前LayoutParams是属于HeaderView FooterView的如果当前LayoutParams是属于HeaderView
+         * 则标记是否被recycle
          * When this boolean is set, the view has been added to the AbsListView
          * at least once. It is used to know whether headers/footers have already
          * been added to the list view and whether they should be treated as
@@ -6341,17 +6343,20 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
 
         /**
          * addScrapView()中添加
+         * View.hasTransientState() == true
          * 在mDataChanged == true时
          */
         private ArrayList<View> mSkippedScrap;
 
         /**
          * addScrapView()中添加
+         * View.hasTransientState() == true
          * 在HasStableIds == false时使用
         */
         private SparseArray<View> mTransientStateViews;
         /**
          * addScrapView()中添加
+         * View.hasTransientState() == true
          * 在HasStableIds == true时使用
          */
         private LongSparseArray<View> mTransientStateViewsById;
