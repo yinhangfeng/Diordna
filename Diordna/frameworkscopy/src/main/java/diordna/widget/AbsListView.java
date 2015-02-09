@@ -273,6 +273,7 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
     LongSparseArray<Integer> mCheckedIdStates;
 
     /**
+     * 下一次layout的mode
      * Controls how the next layout will happen
      */
     int mLayoutMode = LAYOUT_NORMAL;
@@ -377,6 +378,7 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
     boolean mCachingActive;
 
     /**
+     * ACTION_DOWN时所处的item position
      * The position of the view that received the down motion event
      */
     int mMotionPosition;
@@ -1980,6 +1982,9 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
         }
     }
 
+    /**
+     * 由mBlockLayoutRequests mInLayout限制的requestLayout
+     */
     @Override
     public void requestLayout() {
         if (!mBlockLayoutRequests && !mInLayout) {
@@ -3326,6 +3331,9 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
         }
     }
 
+    /**
+     * 如果y方向移动足够mTouchSlop 则scrollIfNeeded 并返回true
+     */
     private boolean startScrollIfNeeded(int x, int y, MotionEvent vtev) {
         // Check if we have moved far enough that it looks more like a
         // scroll than a tap
@@ -3343,6 +3351,7 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
                 mMotionCorrection = deltaY > 0 ? mTouchSlop : -mTouchSlop;
             }
             removeCallbacks(mPendingCheckForLongPress);
+            //去除ListView与ACTION_DOWN时item的pressed状态
             setPressed(false);
             final View motionView = getChildAt(mMotionPosition - mFirstPosition);
             if (motionView != null) {
@@ -3353,6 +3362,7 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
             // steal from us
             final ViewParent parent = getParent();
             if (parent != null) {
+                //让ListView的父View 无法通过onInterceptTouchEvent拦截事件
                 parent.requestDisallowInterceptTouchEvent(true);
             }
             scrollIfNeeded(x, y, vtev);
@@ -4288,6 +4298,10 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
         return false;
     }
 
+    /**
+     * ACTION_POINTER_UP是调用 如果松开的手指正好是mActivePointerId
+     * 则改变mActivePointerId 同时改变相应的mMotionX mMotionY
+     */
     private void onSecondaryPointerUp(MotionEvent ev) {
         final int pointerIndex = (ev.getAction() & MotionEvent.ACTION_POINTER_INDEX_MASK) >>
                 MotionEvent.ACTION_POINTER_INDEX_SHIFT;
@@ -4327,6 +4341,7 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
     }
 
     /**
+     * 调用mOnScrollListener 发送ScrollStateChange 事件
      * Fires an "on scroll state changed" event to the registered
      * {@link android.widget.AbsListView.OnScrollListener}, if any. The state change
      * is fired only if the specified state is different from the previously known state.
@@ -4874,17 +4889,21 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
         }
 
          // FIXME account for grid vertical spacing too?
+        //第一个item top 与顶部的距离 在这个范围内向下滚动不需要填充view
         final int spaceAbove = effectivePaddingTop - firstTop;
         final int end = getHeight() - effectivePaddingBottom;
+        //最后一个item bottom 与底部的距离 这个范围内向上滚动不需要填充view
         final int spaceBelow = lastBottom - end;
 
         final int height = getHeight() - mPaddingBottom - mPaddingTop;
+        //使deltaY绝对值不超过height - 1
         if (deltaY < 0) {
             deltaY = Math.max(-(height - 1), deltaY);
         } else {
             deltaY = Math.min(height - 1, deltaY);
         }
 
+        //使incrementalDeltaY绝对值不超过height - 1
         if (incrementalDeltaY < 0) {
             incrementalDeltaY = Math.max(-(height - 1), incrementalDeltaY);
         } else {
@@ -4905,6 +4924,7 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
             mLastPositionDistanceGuess += incrementalDeltaY;
         }
 
+        //是否可上下滚动
         final boolean cannotScrollDown = (firstPosition == 0 &&
                 firstTop >= listPadding.top && incrementalDeltaY >= 0);
         final boolean cannotScrollUp = (firstPosition + childCount == mItemCount &&
@@ -4924,9 +4944,10 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
         final int headerViewsCount = getHeaderViewsCount();
         final int footerViewsStart = mItemCount - getFooterViewsCount();
 
-        int start = 0;
-        int count = 0;
+        int start = 0;//由于滚动变得不可见而需要回收的第一个view position
+        int count = 0;//由于滚动变得不可见而需要回收的 view 数量
 
+        //将滚动变得不可见的view添加到mRecycler
         if (down) {
             int top = -incrementalDeltaY;
             if ((mGroupFlags & CLIP_TO_PADDING_MASK) == CLIP_TO_PADDING_MASK) {
@@ -4978,6 +4999,7 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
 
         mBlockLayoutRequests = true;
 
+        //移除被回收的view
         if (count > 0) {
             detachViewsFromParent(start, count);
             mRecycler.removeSkippedScrap();
@@ -4989,6 +5011,7 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
            invalidate();
         }
 
+        //竖直方向上所有子view偏移incrementalDeltaY (listView 滚动不是通过scroll实现！！！)
         offsetChildrenTopAndBottom(incrementalDeltaY);
 
         if (down) {
@@ -4997,9 +5020,11 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
 
         final int absIncrementalDeltaY = Math.abs(incrementalDeltaY);
         if (spaceAbove < absIncrementalDeltaY || spaceBelow < absIncrementalDeltaY) {
+            //如果需要填充则填充由滚动留出的空白
             fillGap(down);
         }
 
+        //更新mSelector位置
         if (!inTouchMode && mSelectedPosition != INVALID_POSITION) {
             final int childIndex = mSelectedPosition - mFirstPosition;
             if (childIndex >= 0 && childIndex < getChildCount()) {
@@ -5016,6 +5041,7 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
 
         mBlockLayoutRequests = false;
 
+        //调用OnItemScrollListener
         invokeOnItemScrollListener();
 
         return false;
@@ -5066,6 +5092,7 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
     }
 
     /**
+     * 获取当前选中
      * @return A position to select. First we try mSelectedPosition. If that has been clobbered by
      * entering touch mode, we then try mResurrectToPosition. Values are pinned to the range
      * of items available in the adapter
@@ -6637,6 +6664,7 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
         }
 
         /**
+         * 在detachViewsFromParent detachAllViewsFromParent之后调用
          * Finish the removal of any views that skipped the scrap heap.
          */
         void removeSkippedScrap() {
@@ -6897,6 +6925,8 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
     }
 
     /**
+     * 设置position为新的选中项(如果position出的无法选中则为position之后的第一个可选中项)
+     * 并使选中项位于距ListView顶部y处 requestLayout() 在下一次layout时实现
      * Sets the selected item and positions the selection y pixels from the top edge
      * of the ListView. (If in touch mode, the item will not be selected but it will
      * still be positioned appropriately.)

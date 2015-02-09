@@ -681,6 +681,7 @@ public class ListView extends AbsListView {
     }
 
     /**
+     * 滚动时填充上不或下部空隙
      * {@inheritDoc}
      */
     @Override
@@ -743,7 +744,7 @@ public class ListView extends AbsListView {
     }
 
     /**
-     * 填充list item 从pos向上()到第一个可见的item
+     * 填充list item 从pos向上到第一个可见的item
      * Fills the list from pos up to the top of the list view.
      *
      * @param pos The first position to put in the list
@@ -834,7 +835,7 @@ public class ListView extends AbsListView {
     }
 
     /**
-     * 在selected view添加layout完毕之后，添加其上下的其他item
+     * 在sel view添加layout完毕之后，添加其上下的其他item
      * Once the selected view as been placed, fill up the visible area above and
      * below it.
      *
@@ -1162,7 +1163,10 @@ public class ListView extends AbsListView {
             setSelectionFromTop(mPosition, mPositionTop);
         }
     }
-    
+
+    /**
+     * 在SizeChanged时postFocusSelector 使得当前focusedChild相对于ListView 的top不变
+     */
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         if (getChildCount() > 0) {
@@ -1352,6 +1356,9 @@ public class ListView extends AbsListView {
         return returnedHeight;
     }
 
+    /**
+     * 查找相对ListView坐标y处的item position
+     */
     @Override
     int findMotionRow(int y) {
         int childCount = getChildCount();
@@ -2070,6 +2077,9 @@ public class ListView extends AbsListView {
     }
 
     /**
+     * 调用setSelectionFromTop(position, 0)实现，选中项处于顶部
+     * 通过LAYOUT_SPECIFIC 在下一次layoutChild()时实现
+     * position的计算要包括HeaderView FooterView
      * Sets the currently selected item. If in touch mode, the item will not be selected
      * but it will still be positioned appropriately. If the specified selection position
      * is less than 0, then the item at position 0 will be selected.
@@ -2202,6 +2212,7 @@ public class ListView extends AbsListView {
     }
 
     /**
+     * 设置选中HeaderView之后的第一个
      * setSelectionAfterHeaderView set the selection to be the first list item
      * after the header views.
      */
