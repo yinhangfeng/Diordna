@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 
 /**
@@ -77,4 +78,10 @@ public class MyCanvasView extends View {
         super.invalidate();
     }
 
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        Log.i(TAG, "onTouchEvent event=" + event);
+        //return true;
+        return super.onTouchEvent(event);
+    }
 }

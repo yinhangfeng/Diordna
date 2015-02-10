@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.widget.LinearLayout;
 
 /**
@@ -69,5 +70,18 @@ public class MyLinearLayout extends LinearLayout {
     public void invalidate() {
         Log.i(TAG, "invalidate");
         super.invalidate();
+    }
+
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent event) {
+        Log.i(TAG, "onInterceptTouchEvent event=" + event);
+        return super.onInterceptTouchEvent(event);
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        Log.i(TAG, "onTouchEvent event=" + event);
+        return true;
+        //return super.onTouchEvent(event);
     }
 }

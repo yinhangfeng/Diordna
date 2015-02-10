@@ -31,6 +31,7 @@ isEnabled(int position) item是否selectable
 4.通过AbsListView.LayoutParams 存储跟itemViewi相关的一些状态信息
 5. 变量名 childrenTop值ListView可见区域的最顶部出去padding childrenBottom反之
 6.setSelection(int position)  setSelectionFromTop(int position, int y) position 是包括HeaderView FooterView的
+7.ListView滚动不是通过scroll实现，而是通过offsetChildrenTopAndBottom实现
 
 ============MotionEvent
 1.MotionEvent.transform(Matrix matrix) 矩阵转化touchEvent的坐标 如果view在绘制的时候有一个转换则对事件也做一个转换可使时间仍旧对应

@@ -51,7 +51,7 @@ public class MainActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void test1() {
+    public void test1() {
         myCanvasView.invalidate();
     }
 
