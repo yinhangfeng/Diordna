@@ -135,6 +135,7 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
     public static final int TRANSCRIPT_MODE_ALWAYS_SCROLL = 2;
 
     /**
+     * 默认模式
      * Indicates that we are not in the middle of a touch gesture
      */
     static final int TOUCH_MODE_REST = -1;
@@ -1103,6 +1104,9 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
         }
     }
 
+    /**
+     * 处理mChoiceMode 调用mOnItemClickListener
+     */
     @Override
     public boolean performItemClick(View view, int position, long id) {
         boolean handled = false;
@@ -3440,6 +3444,7 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
                     motionIndex = getChildCount() / 2;
                 }
 
+                //获取跟随手指滚动的view
                 int motionViewPrevTop = 0;
                 View motionView = this.getChildAt(motionIndex);
                 if (motionView != null) {
@@ -3816,7 +3821,7 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
             case TOUCH_MODE_DOWN:
             case TOUCH_MODE_TAP:
             case TOUCH_MODE_DONE_WAITING:
-                //进入scroll如果需要 TOUCH_MODE_OVERSCROLL或TOUCH_MODE_SCROLL
+                //进入scroll如果需要 进入TOUCH_MODE_OVERSCROLL或TOUCH_MODE_SCROLL模式
                 // Check if we have moved far enough that it looks more like a
                 // scroll than a tap. If so, we'll enter scrolling mode.
                 if (startScrollIfNeeded((int) ev.getX(pointerIndex), y, vtev)) {
@@ -3840,6 +3845,7 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
                 break;
             case TOUCH_MODE_SCROLL:
             case TOUCH_MODE_OVERSCROLL:
+                //已经处于滚动状态则继续滚动
                 scrollIfNeeded((int) ev.getX(pointerIndex), y, vtev);
                 break;
         }
@@ -3850,6 +3856,7 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
         case TOUCH_MODE_DOWN:
         case TOUCH_MODE_TAP:
         case TOUCH_MODE_DONE_WAITING:
+            //ACTION_UP时未进入scroll模式，则在显示一段时间的press效果之后触发performClick xxxxxxxxxxxxxxxx
             final int motionPosition = mMotionPosition;
             final View child = getChildAt(motionPosition - mFirstPosition);
             if (child != null) {
@@ -3859,12 +3866,13 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
 
                 final float x = ev.getX();
                 final boolean inList = x > mListPadding.left && x < getWidth() - mListPadding.right;
-                if (inList && !child.hasFocusable()) {
+                if (inList && !child.hasFocusable()) {//松开时处于ListView内部且child不可获取焦点
                     if (mPerformClick == null) {
                         mPerformClick = new PerformClick();
                     }
 
                     final PerformClick performClick = mPerformClick;
+                    //设置要被触发itemClick的item position 为ACTION_DOWN时的position
                     performClick.mClickMotionPosition = motionPosition;
                     performClick.rememberWindowAttachCount();
 
@@ -3875,6 +3883,7 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
                                 mPendingCheckForTap : mPendingCheckForLongPress);
                         mLayoutMode = LAYOUT_NORMAL;
                         if (!mDataChanged && mAdapter.isEnabled(motionPosition)) {
+                            //刷新ListView 为press状态
                             mTouchMode = TOUCH_MODE_TAP;
                             setSelectedPositionInt(mMotionPosition);
                             layoutChildren();
@@ -3903,6 +3912,7 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
                                     }
                                 }
                             };
+                            //一段时间之后重置为TOUCH_MODE_REST
                             postDelayed(mTouchModeReset,
                                     ViewConfiguration.getPressedStateDuration());
                         } else {
@@ -3934,6 +3944,7 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
                     final VelocityTracker velocityTracker = mVelocityTracker;
                     velocityTracker.computeCurrentVelocity(1000, mMaximumVelocity);
 
+                    //计算放手时的速度
                     final int initialVelocity = (int)
                             (velocityTracker.getYVelocity(mActivePointerId) * mVelocityScale);
                     // Fling if we have enough velocity and we aren't at a boundary.
@@ -3946,11 +3957,13 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
                                     firstChildTop == contentTop - mOverscrollDistance) ||
                               (mFirstPosition + childCount == mItemCount &&
                                     lastChildBottom == contentBottom + mOverscrollDistance))) {
+                        //达到fling速度且可以fling
                         if (!dispatchNestedPreFling(0, -initialVelocity)) {
                             if (mFlingRunnable == null) {
                                 mFlingRunnable = new FlingRunnable();
                             }
                             reportScrollStateChange(OnScrollListener.SCROLL_STATE_FLING);
+                            //启动fling动画
                             mFlingRunnable.start(-initialVelocity);
                             dispatchNestedFling(0, -initialVelocity, true);
                         } else {
@@ -3987,8 +4000,10 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
 
             reportScrollStateChange(OnScrollListener.SCROLL_STATE_FLING);
             if (Math.abs(initialVelocity) > mMinimumVelocity) {
+                //放手时速度足够则启动overfling
                 mFlingRunnable.startOverfling(-initialVelocity);
             } else {
+                //否则启动overscroll回弹
                 mFlingRunnable.startSpringback();
             }
 
@@ -4429,9 +4444,14 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
         private static final int FLYWHEEL_TIMEOUT = 40; // milliseconds
 
         FlingRunnable() {
+            //传入OverScroller 的参数 startxy minxy maxxy 与当前ListView逻辑无关
+            //通过mLastFlingY来计算距上一次滚动的偏差
             mScroller = new OverScroller(getContext());
         }
 
+        /**
+         * 启动fling动画
+         */
         void start(int initialVelocity) {
             int initialY = initialVelocity < 0 ? Integer.MAX_VALUE : 0;
             mLastFlingY = initialY;
@@ -4453,6 +4473,9 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
             }
         }
 
+        /**
+         * 启动overscroll回弹动画
+         */
         void startSpringback() {
             if (mScroller.springBack(0, mScrollY, 0, 0, 0, 0)) {
                 mTouchMode = TOUCH_MODE_OVERFLING;
@@ -4537,6 +4560,7 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
                 }
                 // Fall through
             case TOUCH_MODE_FLING: {
+                //基于trackMotionScroll滚动
                 if (mDataChanged) {
                     layoutChildren();
                 }
@@ -4552,6 +4576,7 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
 
                 // Flip sign to convert finger direction to list items direction
                 // (e.g. finger moving down means list is moving towards the top)
+                //initialVelocity>0 则delta<0 反之delta>0  其实就是所有子view top bottom需要偏移的值
                 int delta = mLastFlingY - y;
 
                 // Pretend that each frame of a fling scroll is a touch scroll
@@ -4582,6 +4607,7 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
                     oldTop = motionView.getTop();
                 }
 
+                //执行滚动
                 // Don't stop just because delta is zero (it could have been rounded)
                 final boolean atEdge = trackMotionScroll(delta, delta);
                 final boolean atEnd = atEdge && (delta != 0);
@@ -4589,6 +4615,7 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
                     if (motionView != null) {
                         // Tweak the scroll for how far we overshot
                         int overshoot = -(delta - (motionView.getTop() - oldTop));
+                        //fling到边缘启动overScroll
                         overScrollBy(0, overshoot, 0, mScrollY, 0, 0,
                                 0, mOverflingDistance, false);
                     }
@@ -4621,6 +4648,7 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
             }
 
             case TOUCH_MODE_OVERFLING: {
+                //基于overScrollBy滚动
                 final OverScroller scroller = mScroller;
                 if (scroller.computeScrollOffset()) {
                     final int scrollY = mScrollY;
@@ -7012,6 +7040,7 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
 
     /**
      * Default position scroller that simulates a fling.
+     * 主要调用FlingRunnable实现
      */
     class PositionScroller extends AbsPositionScroller implements Runnable {
         private static final int SCROLL_DURATION = 200;

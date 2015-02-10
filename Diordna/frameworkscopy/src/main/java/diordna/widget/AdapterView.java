@@ -288,6 +288,7 @@ public abstract class AdapterView<T extends Adapter> extends ViewGroup {
     }
 
     /**
+     * 调用mOnItemClickListener
      * Call the OnItemClickListener, if it is defined. Performs all normal
      * actions associated with clicking: reporting accessibility event, playing
      * a sound, etc.
