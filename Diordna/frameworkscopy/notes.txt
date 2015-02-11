@@ -16,12 +16,10 @@ Batch: 批处理
 3.attachViewToParent 与 detachViewFromParent对应 都只是简单的改变ViewGroup mChildren[]数组
 4.@hide ViewGroup.offsetChildrenTopAndBottom(int offset) 调整所有子view上下方向偏移offset
  
-
-
 =======ListAdapter
 areAllItemsEnabled() 是否所有item都selectable
-isEnabled(int position) item是否selectable
- 
+isEnabled(int position) 可用于决定item是否有效 如item是否selectable item是否可触发click longClick
+
 
 =======ListView
 1.HeaderView FooterView 通过HeaderViewListAdapter包装原Adapter实现,对于ListView来说相当于普通item,

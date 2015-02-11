@@ -688,6 +688,7 @@ public class ListView extends AbsListView {
     void fillGap(boolean down) {
         final int count = getChildCount();
         if (down) {
+            //底部出现空白，填充下部
             int paddingTop = 0;
             if ((mGroupFlags & CLIP_TO_PADDING_MASK) == CLIP_TO_PADDING_MASK) {
                 paddingTop = getListPaddingTop();
@@ -709,6 +710,7 @@ public class ListView extends AbsListView {
     }
 
     /**
+     * 从nextTop位置开始向下填充，position 从pos开始的item view
      * Fills the list from pos down to the end of the list view.
      *
      * @param pos The first position to put in the list
@@ -1916,10 +1918,10 @@ public class ListView extends AbsListView {
      * 获取position处的itemView 并添加到ListView
      * 优先级
      *  RecyclerBin
-     *  ActiveView
-     *  ScrapView
+     *      ActiveView
+     *      TransientStateView
+     *      ScrapView
      *  new View
-     * TransientStateView
      * 之后调用setupChild
      * Obtain the view and add it to our list of children. The view can be made
      * fresh, converted from an unused view, or used as is if it was in the
@@ -1963,15 +1965,18 @@ public class ListView extends AbsListView {
     }
 
     /**
+     * 将一个view 添加到ListView
      * Add a view as a child and make sure it is measured (if necessary) and
      * positioned properly.
      *
      * @param child The view to add
      * @param position The position of this child
      * @param y The y position relative to which this view will be positioned
+     *          子view要添加位置的y值
      * @param flowDown If true, align top edge to y. If false, align bottom
      *        edge to y.
      *        true 子View添加到末尾 false 添加到第一个
+     *        true y值是子view的top 反之bottom
      * @param childrenLeft Left edge where children should be positioned
      * @param selected Is this position selected?
      * @param recycled Has this view been pulled from the recycle bin? If so it
@@ -3331,6 +3336,9 @@ public class ListView extends AbsListView {
         canvas.restore();
     }
 
+    /**
+     * 主要是在super.dispatchDraw之前画divider
+     */
     @Override
     protected void dispatchDraw(Canvas canvas) {
         if (mCachingStarted) {
