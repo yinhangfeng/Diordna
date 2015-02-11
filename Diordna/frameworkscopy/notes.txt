@@ -34,3 +34,7 @@ isEnabled(int position) 可用于决定item是否有效 如item是否selectable 
 ============MotionEvent
 1.MotionEvent.transform(Matrix matrix) 矩阵转化touchEvent的坐标 如果view在绘制的时候有一个转换则对事件也做一个转换可使时间仍旧对应
 2.MotionEvent.toString()
+
+
+=================PagerAdapter
+1.PagerAdapter.getPageWidth(int position) 获取position处的item 宽度占ViewPager的比例
