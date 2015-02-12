@@ -1528,7 +1528,7 @@ public class ViewPager extends ViewGroup {
             }
         }
 
-        //对于item view 采用绝对的MeasureSpec 填充剩余宽高
+        //对于item view 采用绝对的MeasureSpec 填充剩余高
         mChildWidthMeasureSpec = MeasureSpec.makeMeasureSpec(childWidthSize, MeasureSpec.EXACTLY);
         mChildHeightMeasureSpec = MeasureSpec.makeMeasureSpec(childHeightSize, MeasureSpec.EXACTLY);
 
@@ -1567,6 +1567,9 @@ public class ViewPager extends ViewGroup {
         }
     }
 
+    /**
+     * 重新计算scroll位置
+     */
     private void recomputeScrollPosition(int width, int oldWidth, int margin, int oldMargin) {
         if (oldWidth > 0 && !mItems.isEmpty()) {
             final int widthWithMargin = width - getPaddingLeft() - getPaddingRight() + margin;
@@ -2226,7 +2229,7 @@ public class ViewPager extends ViewGroup {
             rightBound = lastItem.offset * width;
         }
 
-        //在drag过程中无法drag到为populate区域
+        //在drag过程中无法drag到未populate区域
         if (scrollX < leftBound) {
             if (leftAbsolute) {
                 float over = leftBound - scrollX;
