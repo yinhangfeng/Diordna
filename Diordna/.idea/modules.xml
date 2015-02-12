@@ -5,6 +5,8 @@
       <module fileurl="file://$PROJECT_DIR$/Diordna.iml" filepath="$PROJECT_DIR$/Diordna.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/frameworkscopy/frameworkscopy.iml" filepath="$PROJECT_DIR$/frameworkscopy/frameworkscopy.iml" />
+      <module fileurl="file://$PROJECT_DIR$/testlibrary/testlibrary.iml" filepath="$PROJECT_DIR$/testlibrary/testlibrary.iml" />
+      <module fileurl="file://$PROJECT_DIR$/viewpagertest/viewpagertest.iml" filepath="$PROJECT_DIR$/viewpagertest/viewpagertest.iml" />
     </modules>
   </component>
 </project>

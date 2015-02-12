@@ -1624,6 +1624,7 @@ public class ListView extends AbsListView {
 
             boolean dataChanged = mDataChanged;
             if (dataChanged) {
+                //处理数据源改变
                 handleDataChanged();
             }
 

@@ -15,6 +15,9 @@ Batch: 批处理
  用于在某个方向上去除padding后的空间都可以给一个子View的情况,如ListView的width
 3.attachViewToParent 与 detachViewFromParent对应 都只是简单的改变ViewGroup mChildren[]数组
 4.@hide ViewGroup.offsetChildrenTopAndBottom(int offset) 调整所有子view上下方向偏移offset
+5.canScrollHorizontally canScrollVertically 及相关函数computeHorizontalScrollOffset computeHorizontalScrollRange computeHorizontalScrollExtent
+    等可通过重写实现自己的是否可scroll逻辑判断，一般兼容性良好的ViewGroup子类会在触摸事件时(onInterceptTouchEvent)
+    调用其子view的canScrollHorizontally(canScrollVertically) 来决定是否拦截触摸事件
  
 =======ListAdapter
 areAllItemsEnabled() 是否所有item都selectable

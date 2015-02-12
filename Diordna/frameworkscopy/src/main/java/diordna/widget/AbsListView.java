@@ -5409,6 +5409,7 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
         // TODO: In the future we can recycle these views based on stable ID instead.
         mRecycler.clearTransientStateViews();
 
+        //主要处理数据源改变后显示位置的同步
         if (count > 0) {
             int newPos;
             int selectablePos;

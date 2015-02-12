@@ -122,6 +122,12 @@ public class ViewPager extends ViewGroup {
         int position;
         boolean scrolling;
         float widthFactor;
+        /**
+         * item的offset position为0的item,offset为0 之后的item offset都是相对于第一个的
+         * 数值是 item相对于0的偏移量/ViewPager宽度去掉padding与isDecor占据的左右方向宽度之后剩余宽度
+         * 由onLayout可知第0个item如果widthFactor<1 会处于左边而不会居中
+         * 同时也是item为mCurItem时的scrollX值(mCurItem不会居中)
+         */
         float offset;
     }
 
@@ -404,6 +410,7 @@ public class ViewPager extends ViewGroup {
         mScrollState = newState;
         if (mPageTransformer != null) {
             // PageTransformers can do complex things that benefit from hardware layers.
+            //在scroll非空闲时 启用LAYER_TYPE_HARDWARE
             enableLayers(newState != SCROLL_STATE_IDLE);
         }
         if (mOnPageChangeListener != null) {
@@ -462,6 +469,9 @@ public class ViewPager extends ViewGroup {
         }
     }
 
+    /**
+     * 清除原Adapter添加的view
+     */
     private void removeNonDecorViews() {
         for (int i = 0; i < getChildCount(); i++) {
             final View child = getChildAt(i);
@@ -521,6 +531,10 @@ public class ViewPager extends ViewGroup {
         setCurrentItemInternal(item, smoothScroll, always, 0);
     }
 
+    /**
+     * 最后结果是新的mCurItem的左边缘与ViewPager去除paddingLeft之后的左边缘对齐
+     * @param always 在触摸事件up时 当前item可能还是mCurItem always 为true 让其强制执行动画
+     */
     void setCurrentItemInternal(int item, boolean smoothScroll, boolean always, int velocity) {
         if (mAdapter == null || mAdapter.getCount() <= 0) {
             setScrollingCacheEnabled(false);
@@ -538,6 +552,8 @@ public class ViewPager extends ViewGroup {
         }
         final int pageLimit = mOffscreenPageLimit;
         if (item > (mCurItem + pageLimit) || item < (mCurItem - pageLimit)) {
+            //目标item位置不在pageLimit内,标记scrolling
+            //滚动动画过程中可能会出现空白
             // We are doing a jump by more than one page.  To avoid
             // glitches, we want to keep all current pages in the view
             // until the scroll ends.
@@ -559,14 +575,23 @@ public class ViewPager extends ViewGroup {
             }
             requestLayout();
         } else {
+            //先填充目标item左右 smoothScroll==false时这一次populate有些浪费
             populate(item);
+            //调用scrollToItem前mCurItem已由populate设置
             scrollToItem(item, smoothScroll, velocity, dispatchSelected);
         }
     }
 
+    /**
+     * scroll到目标item
+     * 1.计算要偏移的值
+     * 2.调用回调
+     * 3.执行scroll(动画或非动画)
+     */
     private void scrollToItem(int item, boolean smoothScroll, int velocity,
             boolean dispatchSelected) {
         final ItemInfo curInfo = infoForPosition(item);
+        //通过offst与width scroll值
         int destX = 0;
         if (curInfo != null) {
             final int width = getClientWidth();
@@ -575,6 +600,7 @@ public class ViewPager extends ViewGroup {
         }
         if (smoothScroll) {
             smoothScrollTo(destX, 0, velocity);
+            //动画刚开始时就调用onPageSelected
             if (dispatchSelected && mOnPageChangeListener != null) {
                 mOnPageChangeListener.onPageSelected(item);
             }
@@ -631,6 +657,9 @@ public class ViewPager extends ViewGroup {
         }
     }
 
+    /**
+     * 对低API兼容的setChildrenDrawingOrderEnabled
+     */
     void setChildrenDrawingOrderEnabledCompat(boolean enable) {
         if (Build.VERSION.SDK_INT >= 7) {
             if (mSetChildrenDrawingOrderEnabled == null) {
@@ -817,8 +846,10 @@ public class ViewPager extends ViewGroup {
         setScrollingCacheEnabled(true);
         setScrollState(SCROLL_STATE_SETTLING);
 
+        //计算scroll持续时间
         final int width = getClientWidth();
         final int halfWidth = width / 2;
+        //distanceRatio (0, 1]
         final float distanceRatio = Math.min(1f, 1.0f * Math.abs(dx) / width);
         final float distance = halfWidth + halfWidth *
                 distanceInfluenceForSnapDuration(distanceRatio);
@@ -828,12 +859,14 @@ public class ViewPager extends ViewGroup {
         if (velocity > 0) {
             duration = 4 * Math.round(1000 * Math.abs(distance / velocity));
         } else {
+            //调用smoothScrollTo 目标位置肯定是mCurItem
             final float pageWidth = width * mAdapter.getPageWidth(mCurItem);
             final float pageDelta = (float) Math.abs(dx) / (pageWidth + mPageMargin);
             duration = (int) ((pageDelta + 1) * 100);
         }
         duration = Math.min(duration, MAX_SETTLE_DURATION);
 
+        //开始scroll动画
         mScroller.startScroll(sx, sy, dx, dy, duration);
         ViewCompat.postInvalidateOnAnimation(this);
     }
@@ -857,6 +890,9 @@ public class ViewPager extends ViewGroup {
         return ii;
     }
 
+    /**
+     * 数据源改变
+     */
     void dataSetChanged() {
         // This method only gets called if our observer is attached, so mAdapter is non-null.
 
@@ -866,16 +902,19 @@ public class ViewPager extends ViewGroup {
                 mItems.size() < adapterCount;
         int newCurrItem = mCurItem;
 
+        //通过Adapter.getItemPosition 判断ItemInfo对应的position是否改变
         boolean isUpdating = false;
         for (int i = 0; i < mItems.size(); i++) {
             final ItemInfo ii = mItems.get(i);
             final int newPos = mAdapter.getItemPosition(ii.object);
 
             if (newPos == PagerAdapter.POSITION_UNCHANGED) {
+                //PagerAdapter默认值，在notifyDataSetChanged时position不变
                 continue;
             }
 
             if (newPos == PagerAdapter.POSITION_NONE) {
+                //强制使原item无效
                 mItems.remove(i);
                 i--;
 
@@ -887,6 +926,7 @@ public class ViewPager extends ViewGroup {
                 mAdapter.destroyItem(this, ii.position, ii.object);
                 needPopulate = true;
 
+                //处理时选中item情况
                 if (mCurItem == ii.position) {
                     // Keep the current item in the valid range
                     newCurrItem = Math.max(0, Math.min(mCurItem, adapterCount - 1));
@@ -896,6 +936,8 @@ public class ViewPager extends ViewGroup {
             }
 
             if (ii.position != newPos) {
+                //position更新
+                //处理选中item情况
                 if (ii.position == mCurItem) {
                     // Our current item changed position. Follow it.
                     newCurrItem = newPos;
@@ -910,10 +952,12 @@ public class ViewPager extends ViewGroup {
             mAdapter.finishUpdate(this);
         }
 
+        //因为position可能有变，所以按positon重新排序
         Collections.sort(mItems, COMPARATOR);
 
         if (needPopulate) {
             // Reset our known page widths; populate will recompute them.
+            //数据原改变重置原widthFactor
             final int childCount = getChildCount();
             for (int i = 0; i < childCount; i++) {
                 final View child = getChildAt(i);
@@ -923,6 +967,7 @@ public class ViewPager extends ViewGroup {
                 }
             }
 
+            //上面将widthFactor置为0 setCurrentItemInternal不会出错?
             setCurrentItemInternal(newCurrItem, false, true);
             requestLayout();
         }
@@ -932,6 +977,9 @@ public class ViewPager extends ViewGroup {
         populate(mCurItem);
     }
 
+    /**
+     * @param newCurrentItem 新的mCurItem 处于中间的item position
+     */
     void populate(int newCurrentItem) {
         ItemInfo oldCurInfo = null;
         int focusDirection = View.FOCUS_FORWARD;
@@ -986,6 +1034,7 @@ public class ViewPager extends ViewGroup {
                     " Problematic adapter: " + mAdapter.getClass());
         }
 
+        //查找mCurItem是否存在于mItems 并得到curIndex
         // Locate the currently focused item or add it if needed.
         int curIndex = -1;
         ItemInfo curItem = null;
@@ -1021,6 +1070,8 @@ public class ViewPager extends ViewGroup {
                     if (ii == null) {
                         break;
                     }
+                    //在setCurrentItemInternal中被标记为scrolling的不能移除,等到scroll动画结束之后
+                    //将scrolling设为false重新populate时被移除
                     if (pos == ii.position && !ii.scrolling) {
                         mItems.remove(itemIndex);
                         mAdapter.destroyItem(this, pos, ii.object);
@@ -1079,6 +1130,7 @@ public class ViewPager extends ViewGroup {
                 }
             }
 
+            //通过相对于oldCurInfo的offset值计算mItems中所有item的offset
             calculatePageOffsets(curItem, curIndex, oldCurInfo);
         }
 
@@ -1147,35 +1199,46 @@ public class ViewPager extends ViewGroup {
         }
     }
 
+    //通过相对于oldCurInfo的offset值计算mItems中所有item的offset
     private void calculatePageOffsets(ItemInfo curItem, int curIndex, ItemInfo oldCurInfo) {
         final int N = mAdapter.getCount();
         final int width = getClientWidth();
         final float marginOffset = width > 0 ? (float) mPageMargin / width : 0;
+        //通过oldCurInfo 计算curItem的offset
         // Fix up offsets for later layout.
         if (oldCurInfo != null) {
+            //新的item position 与原来的不同oldCurPosition < curItem.position oldCurPosition > curItem.position
+            //计算新的item的offset
             final int oldCurPosition = oldCurInfo.position;
             // Base offsets off of oldCurInfo.
             if (oldCurPosition < curItem.position) {
+                //从oldCurPosition后一个开始到curItem.position,计算之间所有item的offset
                 int itemIndex = 0;
                 ItemInfo ii = null;
+                //初始offset值为oldCurPosition后一个item的offset
                 float offset = oldCurInfo.offset + oldCurInfo.widthFactor + marginOffset;
                 for (int pos = oldCurPosition + 1;
                         pos <= curItem.position && itemIndex < mItems.size(); pos++) {
                     ii = mItems.get(itemIndex);
+                    //查找pos或pos的后一个item
                     while (pos > ii.position && itemIndex < mItems.size() - 1) {
                         itemIndex++;
                         ii = mItems.get(itemIndex);
                     }
+                    //计算找到item的offset
                     while (pos < ii.position) {
                         // We don't have an item populated for this,
                         // ask the adapter for an offset.
                         offset += mAdapter.getPageWidth(pos) + marginOffset;
                         pos++;
                     }
+                    //设置找到item的offset
                     ii.offset = offset;
+                    //计算下一个offset
                     offset += ii.widthFactor + marginOffset;
                 }
             } else if (oldCurPosition > curItem.position) {
+                //同上反向
                 int itemIndex = mItems.size() - 1;
                 ItemInfo ii = null;
                 float offset = oldCurInfo.offset;
@@ -1205,6 +1268,7 @@ public class ViewPager extends ViewGroup {
         mFirstOffset = curItem.position == 0 ? curItem.offset : -Float.MAX_VALUE;
         mLastOffset = curItem.position == N - 1 ?
                 curItem.offset + curItem.widthFactor - 1 : Float.MAX_VALUE;
+        //curItem向前计算mItems中item 的offset 与上面部分item重复计算
         // Previous pages
         for (int i = curIndex - 1; i >= 0; i--, pos--) {
             final ItemInfo ii = mItems.get(i);
@@ -1217,6 +1281,7 @@ public class ViewPager extends ViewGroup {
         }
         offset = curItem.offset + curItem.widthFactor + marginOffset;
         pos = curItem.position + 1;
+        //curItem向后
         // Next pages
         for (int i = curIndex + 1; i < itemCount; i++, pos++) {
             final ItemInfo ii = mItems.get(i);
@@ -1544,7 +1609,7 @@ public class ViewPager extends ViewGroup {
 
         int decorCount = 0;
 
-        //layout 非item view
+        //layout isDecor view
         // First pass - decor views. We need to do this in two passes so that
         // we have the proper offsets for non-decor views later.
         for (int i = 0; i < count; i++) {
@@ -1599,7 +1664,7 @@ public class ViewPager extends ViewGroup {
             }
         }
 
-        //layout Adapter获取的item
+        //layout 非isDecor
         final int childWidth = width - paddingLeft - paddingRight;
         // Page views. Do this once we have the right padding offsets from above.
         for (int i = 0; i < count; i++) {
@@ -1608,6 +1673,7 @@ public class ViewPager extends ViewGroup {
                 final LayoutParams lp = (LayoutParams) child.getLayoutParams();
                 ItemInfo ii;
                 if (!lp.isDecor && (ii = infoForChild(child)) != null) {
+                    //根据offset得到childLeft
                     int loff = (int) (childWidth * ii.offset);
                     int childLeft = paddingLeft + loff;
                     int childTop = paddingTop;
@@ -1668,6 +1734,9 @@ public class ViewPager extends ViewGroup {
         completeScroll(true);
     }
 
+    /**
+     * @param xpos 当前x scroll值
+     */
     private boolean pageScrolled(int xpos) {
         if (mItems.size() == 0) {
             mCalledSuper = false;
@@ -1678,11 +1747,13 @@ public class ViewPager extends ViewGroup {
             }
             return false;
         }
+        //查找当前scroll位置可见的第一个item
         final ItemInfo ii = infoForCurrentScrollPosition();
         final int width = getClientWidth();
         final int widthWithMargin = width + mPageMargin;
         final float marginOffset = (float) mPageMargin / width;
         final int currentPage = ii.position;
+        //计算第一个可见item 的不可见比例[0, 1)
         final float pageOffset = (((float) xpos / width) - ii.offset) /
                 (ii.widthFactor + marginOffset);
         final int offsetPixels = (int) (pageOffset * widthWithMargin);
@@ -1697,6 +1768,7 @@ public class ViewPager extends ViewGroup {
     }
 
     /**
+     * scroll改变时调用 调整isDecor view位置 调用onPageScrolled回调 调用mPageTransformer
      * This method will be invoked when the current page is scrolled, either as part
      * of a programmatically initiated smooth scroll or a user initiated touch scroll.
      * If you override this method you must call through to the superclass implementation
@@ -1709,6 +1781,7 @@ public class ViewPager extends ViewGroup {
      * @param offsetPixels Value in pixels indicating the offset from position.
      */
     protected void onPageScrolled(int position, float offset, int offsetPixels) {
+        //通过调用isDecor view的offsetLeftAndRight使得scroll之后isDecor view相对于可视区域的位置不变
         // Offset any decor views if needed - keep them on-screen at all times.
         if (mDecorChildCount > 0) {
             final int scrollX = getScrollX();
@@ -1756,6 +1829,7 @@ public class ViewPager extends ViewGroup {
             mInternalPageChangeListener.onPageScrolled(position, offset, offsetPixels);
         }
 
+        //调用mPageTransformer
         if (mPageTransformer != null) {
             final int scrollX = getScrollX();
             final int childCount = getChildCount();
@@ -1765,6 +1839,7 @@ public class ViewPager extends ViewGroup {
 
                 if (lp.isDecor) continue;
 
+                //transformPos为相对于可视区域左侧的偏移值与ClientWidth的比值
                 final float transformPos = (float) (child.getLeft() - scrollX) / getClientWidth();
                 mPageTransformer.transformPage(child, transformPos);
             }
@@ -1773,6 +1848,9 @@ public class ViewPager extends ViewGroup {
         mCalledSuper = true;
     }
 
+    /**
+     * 结束scroll 重置scroll状态 populate新位置附近item
+     */
     private void completeScroll(boolean postEvents) {
         boolean needPopulate = mScrollState == SCROLL_STATE_SETTLING;
         if (needPopulate) {
@@ -1788,6 +1866,7 @@ public class ViewPager extends ViewGroup {
             }
         }
         mPopulatePending = false;
+        //重置scrolling为false,下一次populate时会移除pageLimit之外的item
         for (int i=0; i<mItems.size(); i++) {
             ItemInfo ii = mItems.get(i);
             if (ii.scrolling) {
@@ -1795,6 +1874,7 @@ public class ViewPager extends ViewGroup {
                 ii.scrolling = false;
             }
         }
+        //设置scroll结束状态并重新populate
         if (needPopulate) {
             if (postEvents) {
                 ViewCompat.postOnAnimation(this, mEndScrollRunnable);
@@ -1804,10 +1884,16 @@ public class ViewPager extends ViewGroup {
         }
     }
 
+    /**
+     * 坐标是否处于ViewPager两侧
+     */
     private boolean isGutterDrag(float x, float dx) {
         return (x < mGutterSize && dx > 0) || (x > getWidth() - mGutterSize && dx < 0);
     }
 
+    /**
+     * 设置是否启用LAYER_TYPE_HARDWARE
+     */
     private void enableLayers(boolean enable) {
         final int childCount = getChildCount();
         for (int i = 0; i < childCount; i++) {
@@ -1829,6 +1915,7 @@ public class ViewPager extends ViewGroup {
 
         // Always take care of the touch gesture being complete.
         if (action == MotionEvent.ACTION_CANCEL || action == MotionEvent.ACTION_UP) {
+            //Touch事件结束,重置状态，释放资源
             // Release the drag.
             if (DEBUG) Log.v(TAG, "Intercept done!");
             mIsBeingDragged = false;
@@ -1836,6 +1923,7 @@ public class ViewPager extends ViewGroup {
             mActivePointerId = INVALID_POINTER;
             if (mVelocityTracker != null) {
                 mVelocityTracker.recycle();
+                //不置为null 可能更好?
                 mVelocityTracker = null;
             }
             return false;
@@ -1844,6 +1932,7 @@ public class ViewPager extends ViewGroup {
         // Nothing more to do here if we have decided whether or not we
         // are dragging.
         if (action != MotionEvent.ACTION_DOWN) {
+            //根据状态判断是否拦截事件
             if (mIsBeingDragged) {
                 if (DEBUG) Log.v(TAG, "Intercept returning true!");
                 return true;
@@ -1881,6 +1970,7 @@ public class ViewPager extends ViewGroup {
 
                 if (dx != 0 && !isGutterDrag(mLastMotionX, dx) &&
                         canScroll(this, false, (int) dx, (int) x, (int) y)) {
+                    //如果触摸点不在ViewPager两侧且子view可scroll则mIsUnableToDrag=true,让子view处理事件
                     // Nested view has scrollable area under this point. Let it be handled there.
                     mLastMotionX = x;
                     mLastMotionY = y;
@@ -1888,6 +1978,7 @@ public class ViewPager extends ViewGroup {
                     return false;
                 }
                 if (xDiff > mTouchSlop && xDiff * 0.5f > yDiff) {
+                    //x方向先达到mTouchSlop
                     if (DEBUG) Log.v(TAG, "Starting drag!");
                     mIsBeingDragged = true;
                     requestParentDisallowInterceptTouchEvent(true);
@@ -1897,6 +1988,7 @@ public class ViewPager extends ViewGroup {
                     mLastMotionY = y;
                     setScrollingCacheEnabled(true);
                 } else if (yDiff > mTouchSlop) {
+                    //y方向先达到mTouchSlop
                     // The finger has moved enough in the vertical
                     // direction to be counted as a drag...  abort
                     // any attempt to drag horizontally, to work correctly
@@ -1926,6 +2018,7 @@ public class ViewPager extends ViewGroup {
                 mScroller.computeScrollOffset();
                 if (mScrollState == SCROLL_STATE_SETTLING &&
                         Math.abs(mScroller.getFinalX() - mScroller.getCurrX()) > mCloseEnough) {
+                    //原来处于scroll 进入SCROLL_STATE_DRAGGING
                     // Let the user 'catch' the pager as it animates.
                     mScroller.abortAnimation();
                     mPopulatePending = false;
@@ -1934,6 +2027,7 @@ public class ViewPager extends ViewGroup {
                     requestParentDisallowInterceptTouchEvent(true);
                     setScrollState(SCROLL_STATE_DRAGGING);
                 } else {
+                    //结束原来的scroll
                     completeScroll(false);
                     mIsBeingDragged = false;
                 }
@@ -1991,6 +2085,7 @@ public class ViewPager extends ViewGroup {
 
         switch (action & MotionEventCompat.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN: {
+                //结束原scroll 初始化mActivePointerId
                 mScroller.abortAnimation();
                 mPopulatePending = false;
                 populate();
@@ -2016,6 +2111,7 @@ public class ViewPager extends ViewGroup {
                         mLastMotionX = x - mInitialMotionX > 0 ? mInitialMotionX + mTouchSlop :
                                 mInitialMotionX - mTouchSlop;
                         mLastMotionY = y;
+                        //进入SCROLL_STATE_DRAGGING
                         setScrollState(SCROLL_STATE_DRAGGING);
                         setScrollingCacheEnabled(true);
 
@@ -2043,6 +2139,7 @@ public class ViewPager extends ViewGroup {
                     mPopulatePending = true;
                     final int width = getClientWidth();
                     final int scrollX = getScrollX();
+                    //获取当前可见的第一个item
                     final ItemInfo ii = infoForCurrentScrollPosition();
                     final int currentPage = ii.position;
                     final float pageOffset = (((float) scrollX / width) - ii.offset) / ii.widthFactor;
@@ -2050,8 +2147,10 @@ public class ViewPager extends ViewGroup {
                             MotionEventCompat.findPointerIndex(ev, mActivePointerId);
                     final float x = MotionEventCompat.getX(ev, activePointerIndex);
                     final int totalDelta = (int) (x - mInitialMotionX);
+                    //计算目标item
                     int nextPage = determineTargetPage(currentPage, pageOffset, initialVelocity,
                             totalDelta);
+                    //滚动到目标item
                     setCurrentItemInternal(nextPage, true, true, initialVelocity);
 
                     mActivePointerId = INVALID_POINTER;
@@ -2061,6 +2160,7 @@ public class ViewPager extends ViewGroup {
                 break;
             case MotionEvent.ACTION_CANCEL:
                 if (mIsBeingDragged) {
+                    //滚动到原item
                     scrollToItem(mCurItem, true, 0, false);
                     mActivePointerId = INVALID_POINTER;
                     endDrag();
@@ -2068,6 +2168,7 @@ public class ViewPager extends ViewGroup {
                 }
                 break;
             case MotionEventCompat.ACTION_POINTER_DOWN: {
+                //更新mActivePointerId
                 final int index = MotionEventCompat.getActionIndex(ev);
                 final float x = MotionEventCompat.getX(ev, index);
                 mLastMotionX = x;
@@ -2075,6 +2176,7 @@ public class ViewPager extends ViewGroup {
                 break;
             }
             case MotionEventCompat.ACTION_POINTER_UP:
+                //更新mActivePointerId
                 onSecondaryPointerUp(ev);
                 mLastMotionX = MotionEventCompat.getX(ev,
                         MotionEventCompat.findPointerIndex(ev, mActivePointerId));
@@ -2093,6 +2195,10 @@ public class ViewPager extends ViewGroup {
         }
     }
 
+    /**
+     * 处理drag
+     * @return 是否要绘制到达边缘时的阴影效果
+     */
     private boolean performDrag(float x) {
         boolean needsInvalidate = false;
 
@@ -2103,6 +2209,7 @@ public class ViewPager extends ViewGroup {
         float scrollX = oldScrollX + deltaX;
         final int width = getClientWidth();
 
+        //计算leftBound rightBound
         float leftBound = width * mFirstOffset;
         float rightBound = width * mLastOffset;
         boolean leftAbsolute = true;
@@ -2119,6 +2226,7 @@ public class ViewPager extends ViewGroup {
             rightBound = lastItem.offset * width;
         }
 
+        //在drag过程中无法drag到为populate区域
         if (scrollX < leftBound) {
             if (leftAbsolute) {
                 float over = leftBound - scrollX;
@@ -2132,8 +2240,10 @@ public class ViewPager extends ViewGroup {
             }
             scrollX = rightBound;
         }
+        //防止出现误差
         // Don't lose the rounded component
         mLastMotionX += scrollX - (int) scrollX;
+        //执行scroll
         scrollTo((int) scrollX, getScrollY());
         pageScrolled((int) scrollX);
 
@@ -2141,6 +2251,7 @@ public class ViewPager extends ViewGroup {
     }
 
     /**
+     * 查找当前scroll位置可见的第一个item
      * @return Info about the page at the current scroll position.
      *         This can be synthetic for a missing middle page; the 'object' field can be null.
      */
@@ -2186,6 +2297,14 @@ public class ViewPager extends ViewGroup {
         return lastItem;
     }
 
+    /**
+     * 决定ACTION_UP时的目标page
+     * @param currentPage 当前可见的第一个item
+     * @param pageOffset (0,1] 第一个item不可见部分占该item宽度百分比
+     * @param velocity 放手时的速度
+     * @param deltaX 总共偏移量
+     * @return 目标page
+     */
     private int determineTargetPage(int currentPage, float pageOffset, int velocity, int deltaX) {
         int targetPage;
         if (Math.abs(deltaX) > mFlingDistance && Math.abs(velocity) > mMinimumVelocity) {
@@ -2199,6 +2318,7 @@ public class ViewPager extends ViewGroup {
             final ItemInfo firstItem = mItems.get(0);
             final ItemInfo lastItem = mItems.get(mItems.size() - 1);
 
+            //目标item 必须已经在mItems中
             // Only let the user target pages we have items for
             targetPage = Math.max(firstItem.position, Math.min(targetPage, lastItem.position));
         }
@@ -2211,6 +2331,7 @@ public class ViewPager extends ViewGroup {
         super.draw(canvas);
         boolean needsInvalidate = false;
 
+        //画overScroll效果
         final int overScrollMode = ViewCompat.getOverScrollMode(this);
         if (overScrollMode == ViewCompat.OVER_SCROLL_ALWAYS ||
                 (overScrollMode == ViewCompat.OVER_SCROLL_IF_CONTENT_SCROLLS &&
@@ -2242,8 +2363,10 @@ public class ViewPager extends ViewGroup {
             mRightEdge.finish();
         }
 
+        //overScroll效果动画
         if (needsInvalidate) {
             // Keep animating
+            //这边不希望引起computeScroll 但无法实现 所以scroll动画最好不用computeScroll实现
             ViewCompat.postInvalidateOnAnimation(this);
         }
     }
@@ -2252,6 +2375,7 @@ public class ViewPager extends ViewGroup {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
+        //画page之间的margin drawable
         // Draw the margin drawable between pages if needed.
         if (mPageMargin > 0 && mMarginDrawable != null && mItems.size() > 0 && mAdapter != null) {
             final int scrollX = getScrollX();
@@ -2293,6 +2417,7 @@ public class ViewPager extends ViewGroup {
     }
 
     /**
+     * 启动假的drag
      * Start a fake drag of the pager.
      *
      * <p>A fake drag can be useful if you want to synchronize the motion of the ViewPager
@@ -2330,6 +2455,7 @@ public class ViewPager extends ViewGroup {
     }
 
     /**
+     * 结束假的drag
      * End a fake drag of the pager.
      *
      * @see #beginFakeDrag()
@@ -2360,6 +2486,7 @@ public class ViewPager extends ViewGroup {
     }
 
     /**
+     * 设置假的drag x值
      * Fake drag by an offset in pixels. You must have called {@link #beginFakeDrag()} first.
      *
      * @param xOffset Offset in pixels to drag by.
@@ -2420,6 +2547,9 @@ public class ViewPager extends ViewGroup {
         return mFakeDragging;
     }
 
+    /**
+     * 切换mActivePointerId
+     */
     private void onSecondaryPointerUp(MotionEvent ev) {
         final int pointerIndex = MotionEventCompat.getActionIndex(ev);
         final int pointerId = MotionEventCompat.getPointerId(ev, pointerIndex);
@@ -2435,6 +2565,9 @@ public class ViewPager extends ViewGroup {
         }
     }
 
+    /**
+     * 结束drag 清除标记 释放资源
+     */
     private void endDrag() {
         mIsBeingDragged = false;
         mIsUnableToDrag = false;
@@ -2445,6 +2578,9 @@ public class ViewPager extends ViewGroup {
         }
     }
 
+    /**
+     * 设置DrawingCacheEnabled
+     */
     private void setScrollingCacheEnabled(boolean enabled) {
         if (mScrollingCacheEnabled != enabled) {
             mScrollingCacheEnabled = enabled;
@@ -2477,6 +2613,7 @@ public class ViewPager extends ViewGroup {
     }
 
     /**
+     * 检测ViewPager子view是否可以scroll
      * Tests scrollability within child views of v given a delta of dx.
      *
      * @param v View to test for horizontal scrollability
@@ -2506,7 +2643,6 @@ public class ViewPager extends ViewGroup {
                 }
             }
         }
-
         return checkV && ViewCompat.canScrollHorizontally(v, -dx);
     }
 
@@ -2659,6 +2795,7 @@ public class ViewPager extends ViewGroup {
     }
 
     /**
+     * 重写view 的重要方法
      * We only want the current page that is being shown to be focusable.
      */
     @Override
@@ -2703,6 +2840,7 @@ public class ViewPager extends ViewGroup {
     }
 
     /**
+     * 重写view 的重要方法
      * We only want the current page that is being shown to be touchable.
      */
     @Override
@@ -2710,6 +2848,7 @@ public class ViewPager extends ViewGroup {
         // Note that we don't call super.addTouchables(), which means that
         // we don't call View.addTouchables().  This is okay because a ViewPager
         // is itself not touchable.
+        //只有mCurItem才可touch
         for (int i = 0; i < getChildCount(); i++) {
             final View child = getChildAt(i);
             if (child.getVisibility() == VISIBLE) {
