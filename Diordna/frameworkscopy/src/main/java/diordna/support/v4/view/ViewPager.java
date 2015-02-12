@@ -3059,7 +3059,7 @@ public class ViewPager extends ViewGroup {
     }
 
     /**
-     * 比较器 isDecor最大 其他更具position比较
+     * 比较器 isDecor最大 其他根据position比较
      */
     static class ViewPositionComparator implements Comparator<View> {
         @Override
