@@ -9,11 +9,13 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
+import java.lang.reflect.Field;
+
 /**
  * Created by yhf on 2015/2/7.
  */
 public class MyCanvasView extends View {
-    static final String TAG = "MyCanvasView";
+    static final String TAG = MyCanvasView.class.getSimpleName();
 
     private int id;
 
@@ -81,7 +83,18 @@ public class MyCanvasView extends View {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         Log.i(TAG, "onTouchEvent event=" + event);
-        //return true;
-        return super.onTouchEvent(event);
+        return true;
+        //return super.onTouchEvent(event);
+    }
+
+    public void myOffsetLeftAndRight(int offset) {
+        try {
+            Field fieldmLeft = View.class.getDeclaredField("mLeft");
+            Field fieldmRight = View.class.getDeclaredField("mRight");
+            fieldmLeft.set(this, getLeft() + offset);
+            fieldmRight.set(this, getRight() + offset);
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
     }
 }

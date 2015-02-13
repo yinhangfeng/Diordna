@@ -23,6 +23,14 @@ Batch: 批处理
 8.View.setWillNotCacheDrawing 则不会建立DrawingCache 如ImageView
 9.继承ViewGroup时可以考虑重写dispatchSetPressed 当调用setPressed会调用该方法，在该方法内决定是否调用子view 的setPressed
 10.android:contentDescription 用于设置view的Description 用于findViewsWithText匹配查找
+11. View.generateViewId() 生成与R.id不冲突的id
+12. View.isShown() view本身与它的祖先是否都可见VISIBLE
+13. View.getDrawingRect() 获取view的可见绘制区域
+14. ViewGroup.getChildDrawingOrder(int childCount, int i) 可重写返回index为i的child的绘图顺序
+15. ViewGroup getChildStaticTransformation setStaticTransformationsEnabled 一般基于Gallery的CoverFlow实现
+16. View.setTranslationX setTransitionAlpha setScaleX等函数不会触发measure与layout,在设置之后子view在父view中占据的位置空间不变!!，下一次layout时也不会还原
+    这些是属于子view的属性,其会影响子view的显示，touch事件也会根据设置之后子view的位置传递
+    而offsetLeftAndRight会影响当前显示，事件传递，其在父view中的实际偏移值也会改变
  
 =======ListAdapter
 areAllItemsEnabled() 是否所有item都selectable

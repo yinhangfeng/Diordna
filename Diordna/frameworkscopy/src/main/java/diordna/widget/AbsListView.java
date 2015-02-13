@@ -2381,7 +2381,7 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
             return transientView;
         }
 
-        //2.从从TransientStateViews获取失败 则从ScrapViews中获取
+        //2.从TransientStateViews获取失败 则从ScrapViews中获取
         final View scrapView = mRecycler.getScrapView(position);
         final View child = mAdapter.getView(position, scrapView, this);
         if (scrapView != null) {
@@ -5097,7 +5097,7 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
         //竖直方向上所有子view偏移incrementalDeltaY (listView 滚动不是通过scroll实现！！！)
         offsetChildrenTopAndBottom(incrementalDeltaY);
 
-        //修改mFirstPosition 对于不是down的在填充时(fillGap)会修改
+        //修改mFirstPosition 对于不是down的 在填充时(fillGap)会修改
         if (down) {
             mFirstPosition += count;
         }

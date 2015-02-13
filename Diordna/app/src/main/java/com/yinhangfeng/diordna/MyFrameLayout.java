@@ -5,23 +5,24 @@ import android.graphics.Canvas;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
 /**
  * Created by yhf on 2015/2/7.
  */
-public class MyLinearLayout extends LinearLayout {
-    static final String TAG = "MyLinearLayout";
+public class MyFrameLayout extends LinearLayout {
+    static final String TAG = MyFrameLayout.class.getSimpleName();
 
-    public MyLinearLayout(Context context) {
+    public MyFrameLayout(Context context) {
         super(context);
     }
 
-    public MyLinearLayout(Context context, AttributeSet attrs) {
+    public MyFrameLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public MyLinearLayout(Context context, AttributeSet attrs, int defStyleAttr) {
+    public MyFrameLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
 

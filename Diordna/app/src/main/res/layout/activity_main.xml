@@ -4,17 +4,26 @@
                 android:layout_height="match_parent"
                 tools:context=".MainActivity">
 
-    <com.yinhangfeng.diordna.MyLinearLayout
+    <com.yinhangfeng.diordna.MyFrameLayout
         android:id="@+id/my_linear_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_margin="30dp">
+        android:orientation="horizontal"
+        android:layout_margin="50dp">
+
+
 
         <com.yinhangfeng.diordna.MyCanvasView
             android:id="@+id/my_canvas_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_width="200dp"
+            android:layout_height="match_parent"
+            android:background="#dddddd"/>
 
-    </com.yinhangfeng.diordna.MyLinearLayout>
+        <Button
+            android:layout_width="200px"
+            android:layout_height="match_parent"
+            android:text="xxx"/>
+
+    </com.yinhangfeng.diordna.MyFrameLayout>
 
 </RelativeLayout>

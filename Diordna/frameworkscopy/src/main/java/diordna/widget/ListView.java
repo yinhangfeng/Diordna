@@ -681,7 +681,7 @@ public class ListView extends AbsListView {
     }
 
     /**
-     * 滚动时填充上不或下部空隙
+     * 滚动时填充上部或下部空隙
      * {@inheritDoc}
      */
     @Override
@@ -1548,7 +1548,7 @@ public class ListView extends AbsListView {
      * 3.根据不同mLayoutMode 获取一个有特殊位置要求的viewXXX(如selected view 保证layout之后与原位置top相同)
      * 4.setSelectedPositionInt() 将SelectedPosition置为nextSelectedPosition
      * 5.将所有子view放入RecycleBin detachAllViewsFromParent();
-     * 6.将viewXXX放入特殊位置并填充上下,调整位置
+     * 6.从特殊位置开始填充上下,调整位置
      * 7.将未重用的RecycleBin中的activeViews放入scrapViews
      * 8.设置focus
      * 9.设置nextSelectedPosition与当前mSelectedPosition相同
@@ -1561,7 +1561,7 @@ public class ListView extends AbsListView {
             return;
         }
 
-        //置mBlockLayoutRequests为true在下面try{}finally{中只为false}
+        //置mBlockLayoutRequests为true在下面try{}finally{中置为false}
         mBlockLayoutRequests = true;
 
         try {
@@ -1583,7 +1583,7 @@ public class ListView extends AbsListView {
             int delta = 0;
 
             View sel;//填充起点的特殊view,填充后返回，该view的位置有特殊要求
-            //下面3个在填充过程中先被回收，之后不一定重用，对象存在只为填充式getTop() 或getBottom()
+            //下面3个在填充过程中先被回收，之后不一定重用，对象存在只为填充时getTop() 或getBottom()
             View oldSel = null;
             View oldFirst = null;
             View newSel = null;//当前的子view(可见的item)中，新的选中项
@@ -1715,10 +1715,12 @@ public class ListView extends AbsListView {
                 recycleBin.fillActiveViews(childCount, firstPosition);
             }
 
+            //清空子view
             // Clear out old views
             detachAllViewsFromParent();
             recycleBin.removeSkippedScrap();
 
+            //从某个位置如newSel开始填充
             switch (mLayoutMode) {
             case LAYOUT_SET_SELECTION:
                 if (newSel != null) {
