@@ -10,6 +10,7 @@ public class MainActivity extends ActionBarActivity {
 
     private MyFrameLayout myMyFrameLayout;
     private MyCanvasView myCanvasView;
+    private MyCanvasView myCanvasView2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -17,6 +18,7 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
         myMyFrameLayout = (MyFrameLayout) findViewById(R.id.my_linear_layout);
         myCanvasView = (MyCanvasView) findViewById(R.id.my_canvas_view);
+        myCanvasView2 = (MyCanvasView) findViewById(R.id.my_canvas_view2);
     }
 
     @Override
@@ -71,11 +73,11 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private void test4() {
-        myCanvasView.setTranslationX();
+        myCanvasView.setScaleY(0.5f);
     }
 
     private void test5() {
-        myCanvasView.myOffsetLeftAndRight(-200);
+        myCanvasView.setRotationY(30);
     }
 
     private void test8() {

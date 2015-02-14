@@ -2,6 +2,7 @@
                 xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:background="#fff"
                 tools:context=".MainActivity">
 
     <com.yinhangfeng.diordna.MyFrameLayout
@@ -9,20 +10,21 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="horizontal"
-        android:layout_margin="50dp">
-
-
+        android:layout_margin="30dp"
+        android:background="#ececff">
 
         <com.yinhangfeng.diordna.MyCanvasView
             android:id="@+id/my_canvas_view"
-            android:layout_width="200dp"
+            android:layout_width="100dp"
             android:layout_height="match_parent"
-            android:background="#dddddd"/>
+            android:background="#88ffdddd"/>
 
-        <Button
-            android:layout_width="200px"
+        <com.yinhangfeng.diordna.MyCanvasView
+            android:id="@+id/my_canvas_view2"
+            android:layout_width="100dp"
             android:layout_height="match_parent"
-            android:text="xxx"/>
+            android:layout_marginLeft="80dp"
+            android:background="#88ddffdd"/>
 
     </com.yinhangfeng.diordna.MyFrameLayout>
 

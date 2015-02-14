@@ -2,28 +2,40 @@ package com.yinhangfeng.diordna;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.View;
+import android.view.animation.Transformation;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 
 /**
  * Created by yhf on 2015/2/7.
  */
-public class MyFrameLayout extends LinearLayout {
+public class MyFrameLayout extends FrameLayout {
     static final String TAG = MyFrameLayout.class.getSimpleName();
 
     public MyFrameLayout(Context context) {
         super(context);
+        init();
     }
 
     public MyFrameLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
+        init();
     }
 
     public MyFrameLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        init();
+    }
+
+    private void init() {
+        setWillNotDraw(false);
+        setChildrenDrawingOrderEnabled(true);
+        setStaticTransformationsEnabled(true);
+        setClipChildren(false);
     }
 
     @Override
@@ -42,7 +54,8 @@ public class MyFrameLayout extends LinearLayout {
 
     @Override
     public void draw(Canvas canvas) {
-        Log.i(TAG, "draw before super");
+        Rect clipBounds = canvas.getClipBounds();
+        Log.i(TAG, "draw before super clipBounds=" + clipBounds);
         super.draw(canvas);
         Log.d(TAG, "draw after super");
     }
@@ -56,9 +69,8 @@ public class MyFrameLayout extends LinearLayout {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        Log.i(TAG, "onDraw before super");
+        Log.e(TAG, "onDraw");
         super.onDraw(canvas);
-        Log.d(TAG, "onDraw after super");
     }
 
     @Override
@@ -84,5 +96,42 @@ public class MyFrameLayout extends LinearLayout {
         Log.i(TAG, "onTouchEvent event=" + event);
         return true;
         //return super.onTouchEvent(event);
+    }
+
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        Log.i(TAG, "onSizeChanged w=" + w + " h=" + h + " oldw=" + oldw + " oldh=" + oldh);
+        super.onSizeChanged(w, h, oldw, oldh);
+    }
+
+    @Override
+    public boolean isOpaque() {
+        boolean isOpaque = super.isOpaque();
+        Log.i(TAG, "isOpaque result=" + isOpaque);
+        return isOpaque;
+    }
+
+    @Override
+    protected int getChildDrawingOrder(int childCount, int i) {
+        Log.i(TAG, "getChildDrawingOrder childCount=" + childCount + " i=" + i);
+        //return super.getChildDrawingOrder(childCount, i);
+        return childCount - 1 - i;
+    }
+
+    @Override
+    protected boolean drawChild(Canvas canvas, View child, long drawingTime) {
+        Rect clipBounds = canvas.getClipBounds();
+        Log.i(TAG, "drawChild clipBounds=" + clipBounds);
+        canvas.save();
+        canvas.scale(1f, 0.5f);
+        boolean ret = super.drawChild(canvas, child, drawingTime);
+        canvas.restore();
+        return ret;
+    }
+
+    @Override
+    protected boolean getChildStaticTransformation(View child, Transformation t) {
+        Log.i(TAG, "getChildStaticTransformation");
+        return super.getChildStaticTransformation(child, t);
     }
 }

@@ -2931,7 +2931,7 @@ public class ViewPager extends ViewGroup {
 
     @Override
     protected boolean checkLayoutParams(ViewGroup.LayoutParams p) {
-        return p instanceof LayoutParams && super.checkLayoutParams(p);
+        return p instanceof LayoutParams && super.checkLayoutParams(p);f
     }
 
     @Override

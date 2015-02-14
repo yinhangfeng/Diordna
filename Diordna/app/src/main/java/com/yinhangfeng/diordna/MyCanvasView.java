@@ -4,10 +4,12 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.Transformation;
 
 import java.lang.reflect.Field;
 
@@ -15,20 +17,29 @@ import java.lang.reflect.Field;
  * Created by yhf on 2015/2/7.
  */
 public class MyCanvasView extends View {
-    static final String TAG = MyCanvasView.class.getSimpleName();
+    private static int LAST_ID = 0;
 
-    private int id;
+    private final int id = LAST_ID++;
+    private final String TAG = MyCanvasView.class.getSimpleName() + id;
+    private int number;
 
     public MyCanvasView(Context context) {
         super(context);
+        init();
     }
 
     public MyCanvasView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        init();
     }
 
     public MyCanvasView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        init();
+    }
+
+    private void init() {
+        //setWillNotCacheDrawing(true);
     }
 
     @Override
@@ -47,7 +58,8 @@ public class MyCanvasView extends View {
 
     @Override
     public void draw(Canvas canvas) {
-        Log.i(TAG, "draw before super");
+        Rect clipBounds = canvas.getClipBounds();
+        Log.i(TAG, "draw before super clipBounds=" + clipBounds);
         super.draw(canvas);
         Log.d(TAG, "draw after super");
     }
@@ -64,8 +76,10 @@ public class MyCanvasView extends View {
         Log.e(TAG, "onDraw");
         Paint textPaint = new Paint();
         textPaint.setColor(Color.RED);
-        textPaint.setTextSize(50);
-        canvas.drawText(Integer.toString(id++), 50, 100, textPaint);
+        textPaint.setTextSize(160);
+        textPaint.setTextAlign(Paint.Align.CENTER);
+        canvas.drawText(id + ":" + Integer.toString(number++), getWidth() / 2, getHeight() / 2, textPaint);
+        canvas.drawText("X", getWidth(), getHeight() / 2 + 200, textPaint);
     }
 
     @Override
@@ -97,4 +111,19 @@ public class MyCanvasView extends View {
             e.printStackTrace();
         }
     }
+
+
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        Log.i(TAG, "onSizeChanged w=" + w + " h=" + h + " oldw=" + oldw + " oldh=" + oldh);
+        super.onSizeChanged(w, h, oldw, oldh);
+    }
+
+    @Override
+    public boolean isOpaque() {
+        boolean isOpaque = super.isOpaque();
+        Log.i(TAG, "isOpaque result=" + isOpaque);
+        return isOpaque;
+    }
+
 }
