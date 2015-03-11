@@ -20,7 +20,7 @@ Batch: 批处理
     调用其子view的canScrollHorizontally(canScrollVertically) 来决定是否拦截触摸事件
 6.performClick callOnClick 只需要触发事件应调用callOnClick
 7.View.setWillNotDraw 设为true则不会调用onDraw()
-8.View.setWillNotCacheDrawing 则不会建立DrawingCache 如ImageView
+8.View.setWillNotCacheDrawing 则不会建立DrawingCache 如ImageView 本生显示内容来自Bitmap就不需要了
 9.继承ViewGroup时可以考虑重写dispatchSetPressed 当调用setPressed会调用该方法，在该方法内决定是否调用子view 的setPressed
 10.android:contentDescription 用于设置view的Description 用于findViewsWithText匹配查找
 11. View.generateViewId() 生成与R.id不冲突的id

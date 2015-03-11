@@ -10,7 +10,9 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
+            <option value="$PROJECT_DIR$/applicationtest" />
             <option value="$PROJECT_DIR$/frameworkscopy" />
+            <option value="$PROJECT_DIR$/recyclerview" />
             <option value="$PROJECT_DIR$/testlibrary" />
             <option value="$PROJECT_DIR$/viewpagertest" />
           </set>

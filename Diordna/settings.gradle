@@ -1,1 +1,1 @@
-include ':app', ':frameworkscopy', ':viewpagertest', ':testlibrary'
+include ':app', ':frameworkscopy', ':viewpagertest', ':testlibrary', ':applicationtest', ':recyclerview'
