@@ -23,7 +23,7 @@
             android:id="@+id/my_canvas_view2"
             android:layout_width="100dp"
             android:layout_height="match_parent"
-            android:layout_marginLeft="80dp"
+            android:layout_marginLeft="1000dp"
             android:background="#88ddffdd"/>
 
     </com.yinhangfeng.diordna.MyFrameLayout>

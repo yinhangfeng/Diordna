@@ -1707,6 +1707,7 @@ public class ViewPager extends ViewGroup {
 
         if (mFirstLayout) {
             //第一次layout 滚动到mCurItem
+            //当前item就是mCurItem 调用scrollToItem的一个主要作用是为了调用onPageScrolled 使mPageTransformer生效
             scrollToItem(mCurItem, false, 0, false);
         }
         mFirstLayout = false;
