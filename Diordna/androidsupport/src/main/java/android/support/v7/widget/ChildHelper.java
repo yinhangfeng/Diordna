@@ -32,6 +32,15 @@ import java.util.List;
  * <p>
  * When RecyclerView needs direct access to the view group children, it can call unfiltered
  * methods like get getUnfilteredChildCount or getUnfilteredChildAt.
+ *
+ * 所有addView removeView 操作都通过mCallback 回调实现
+ * 本类维护mHiddenViews与mBucket
+ * mBucket从低到高的每一个bit位 对应在ViewGroup中childView的index 记录View是否hidden 1:hidden
+ * mHiddenViews 存储hidden的View
+ * 所有不带Unfiltered函数的index形参都表示不包括hidden的index
+ * 调用mCallback是传入的index offset都为真实的index
+ * regular perspective: 常规视角(不包括hidden的index)
+ * actual ViewGroup index: 包括hidden的index
  */
 class ChildHelper {
 
@@ -67,6 +76,7 @@ class ChildHelper {
      * @param child  View to add.
      * @param index  Index of the child from the regular perspective (excluding hidden views).
      *               ChildHelper offsets this index to actual ViewGroup index.
+     *               childView的index(不包括隐藏的View)
      * @param hidden If set to true, this item will be invisible from regular methods.
      */
     void addView(View child, int index, boolean hidden) {
@@ -86,6 +96,16 @@ class ChildHelper {
         }
     }
 
+    /**
+     * 计算不包括隐藏View的child index 对应的包括隐藏View的child offset
+     * 获取mBucket中从低到高第(index + 1)个0的位置
+     * 如
+     * mBucket: ...00101100
+     * index: 3
+     * 则返回: 6 (从低到高第4个0 offset为6)
+     * @param index 不包括hidden的index
+     * @return view 在ViewGroup中的真实index
+     */
     private int getOffset(int index) {
         if (index < 0) {
             return -1; //anything below 0 won't work as diff will be undefined.
@@ -93,9 +113,13 @@ class ChildHelper {
         final int limit = mCallback.getChildCount();
         int offset = index;
         while (offset < limit) {
+            //offset之前hidden数目
             final int removedBefore = mBucket.countOnesBefore(offset);
+            //offset去除hidden数后与index的差距
             final int diff = index - (offset - removedBefore);
             if (diff == 0) {
+                //当前已得到(index - 1)的offset
+                //掠过hidden 得到index的offset
                 while (mBucket.get(offset)) { // ensure this offset is not hidden
                     offset ++;
                 }
@@ -113,6 +137,7 @@ class ChildHelper {
      * @param view The view to remove.
      */
     void removeView(View view) {
+        //index: child在ViewGroup中的真实index
         int index = mCallback.indexOfChild(view);
         if (index < 0) {
             return;
@@ -131,6 +156,7 @@ class ChildHelper {
      *
      * @param index Index of the child from the regular perspective (excluding hidden views).
      *              ChildHelper offsets this index to actual ViewGroup index.
+     *              不包括hidden的index
      */
     void removeViewAt(int index) {
         final int offset = getOffset(index);
@@ -170,6 +196,7 @@ class ChildHelper {
     }
 
     /**
+     * 在mHiddenViews中查找item position 且type相同的View
      * This can be used to find a disappearing view by position.
      *
      * @param position The adapter position of the item.
@@ -214,6 +241,7 @@ class ChildHelper {
     }
 
     /**
+     * 获取不包括hidden的child count
      * Returns the number of children that are not hidden.
      *
      * @return Number of children that are not hidden.
@@ -224,6 +252,7 @@ class ChildHelper {
     }
 
     /**
+     * 获取真实的child count
      * Returns the total number of children.
      *
      * @return The total number of children including the hidden views.
@@ -234,6 +263,7 @@ class ChildHelper {
     }
 
     /**
+     * 获取真实index处的child
      * Returns a child by ViewGroup offset. ChildHelper won't offset this index.
      *
      * @param index ViewGroup index of the child to return.
@@ -258,6 +288,7 @@ class ChildHelper {
     }
 
     /**
+     * 获取child对应的不包括hidden的index
      * Returns the index of the child in regular perspective.
      *
      * @param child The child whose index will be returned.
@@ -342,6 +373,7 @@ class ChildHelper {
 
     /**
      * Bitset implementation that provides methods to offset indices.
+     * 存取index处的bit位  0<=index
      */
     static class Bucket {
 
@@ -440,6 +472,9 @@ class ChildHelper {
             }
         }
 
+        /**
+         * 获取index之前二进制1的数目
+         */
         int countOnesBefore(int index) {
             if (next == null) {
                 if (index >= BITS_PER_WORD) {

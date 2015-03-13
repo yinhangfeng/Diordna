@@ -311,6 +311,7 @@ public class RecyclerView extends ViewGroup {
     }
 
     private void initChildrenHelper() {
+        //Callback回调只是简单的调用ViewGroup View函数执行add remove...  只是多了对mAdapter的事件通知
         mChildHelper = new ChildHelper(new ChildHelper.Callback() {
             @Override
             public int getChildCount() {
@@ -2490,6 +2491,9 @@ public class RecyclerView extends ViewGroup {
         return getChildViewHolderInt(child);
     }
 
+    /**
+     * 获取child对应的ViewHolder 在LayoutParams中
+     */
     static ViewHolder getChildViewHolderInt(View child) {
         if (child == null) {
             return null;
@@ -7743,6 +7747,7 @@ public class RecyclerView extends ViewGroup {
     };
 
     /**
+     * item动画 包括动画时间设置获取 动画控制 结束回调
      * This class defines the animations that take place on items as changes are made
      * to the adapter.
      *

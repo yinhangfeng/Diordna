@@ -414,6 +414,12 @@ class AdapterHelper implements OpReorderer.Callback {
         return pos;
     }
 
+    /**
+     * 查找mPostponedList中是否存在一个ADD或MOVE操作的某个item,在mPostponedList
+     * 中所有操作都结束后，该item的位置为position
+     * @param position
+     * @return
+     */
     private boolean canFindInPreLayout(int position) {
         final int count = mPostponedList.size();
         for (int i = 0; i < count; i++) {
@@ -474,6 +480,8 @@ class AdapterHelper implements OpReorderer.Callback {
     /**
      * 获取在mPostponedList中(还未处理的操作?),从firstPostponedItem开始到最后所有操作都执行之后
      * 原来position位置的item的新position
+     * @param position 原position
+     * @return 新position
      */
     int findPositionOffset(int position, int firstPostponedItem) {
         int count = mPostponedList.size();
