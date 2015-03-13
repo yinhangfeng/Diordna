@@ -33,8 +33,8 @@ public class MyFrameLayout extends FrameLayout {
 
     private void init() {
         setWillNotDraw(false);
-        setChildrenDrawingOrderEnabled(true);
-        setStaticTransformationsEnabled(true);
+        //setChildrenDrawingOrderEnabled(true);
+        //setStaticTransformationsEnabled(true);
         setClipChildren(false);
     }
 
@@ -124,6 +124,9 @@ public class MyFrameLayout extends FrameLayout {
         Log.i(TAG, "drawChild clipBounds=" + clipBounds);
         canvas.save();
         canvas.scale(1f, 0.5f);
+        if(getChildAt(1) == child) {
+            canvas.translate(-1700, 0);
+        }
         boolean ret = super.drawChild(canvas, child, drawingTime);
         canvas.restore();
         return ret;
