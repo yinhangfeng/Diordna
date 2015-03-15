@@ -34,16 +34,19 @@ import java.util.List;
 public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
     private static final boolean DEBUG = false;
 
+    //==============正在等待的动画
     private ArrayList<ViewHolder> mPendingRemovals = new ArrayList<ViewHolder>();
     private ArrayList<ViewHolder> mPendingAdditions = new ArrayList<ViewHolder>();
     private ArrayList<MoveInfo> mPendingMoves = new ArrayList<MoveInfo>();
     private ArrayList<ChangeInfo> mPendingChanges = new ArrayList<ChangeInfo>();
 
+    //==============不在处于等待队列 但动画可能还没开始
     private ArrayList<ArrayList<ViewHolder>> mAdditionsList =
             new ArrayList<ArrayList<ViewHolder>>();
     private ArrayList<ArrayList<MoveInfo>> mMovesList = new ArrayList<ArrayList<MoveInfo>>();
     private ArrayList<ArrayList<ChangeInfo>> mChangesList = new ArrayList<ArrayList<ChangeInfo>>();
 
+    //==============正在执行相应动画
     private ArrayList<ViewHolder> mAddAnimations = new ArrayList<ViewHolder>();
     private ArrayList<ViewHolder> mMoveAnimations = new ArrayList<ViewHolder>();
     private ArrayList<ViewHolder> mRemoveAnimations = new ArrayList<ViewHolder>();
@@ -102,11 +105,13 @@ public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
             // nothing to animate
             return;
         }
+        //1.remove 动画
         // First, remove stuff
         for (ViewHolder holder : mPendingRemovals) {
             animateRemoveImpl(holder);
         }
         mPendingRemovals.clear();
+        //2.move 动画
         // Next, move stuff
         if (movesPending) {
             final ArrayList<MoveInfo> moves = new ArrayList<MoveInfo>();
@@ -125,12 +130,14 @@ public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
                 }
             };
             if (removalsPending) {
+                //如果前一步有remove动画要处理则在下一个动画周期开始所有move动画
                 View view = moves.get(0).holder.itemView;
                 ViewCompat.postOnAnimationDelayed(view, mover, getRemoveDuration());
             } else {
                 mover.run();
             }
         }
+        //3.change 动画
         // Next, change stuff, to run in parallel with move animations
         if (changesPending) {
             final ArrayList<ChangeInfo> changes = new ArrayList<ChangeInfo>();
@@ -154,6 +161,7 @@ public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
                 changer.run();
             }
         }
+        //4.add动画
         // Next, add stuff
         if (additionsPending) {
             final ArrayList<ViewHolder> additions = new ArrayList<ViewHolder>();
@@ -189,6 +197,9 @@ public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
         return true;
     }
 
+    /**
+     * 启动remove属性动画
+     */
     private void animateRemoveImpl(final ViewHolder holder) {
         final View view = holder.itemView;
         final ViewPropertyAnimatorCompat animation = ViewCompat.animate(view);
@@ -202,6 +213,7 @@ public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
             public void onAnimationEnd(View view) {
                 animation.setListener(null);
                 ViewCompat.setAlpha(view, 1);
+                //回调Listener onRemoveFinished
                 dispatchRemoveFinished(holder);
                 mRemoveAnimations.remove(holder);
                 dispatchFinishedWhenDone();
@@ -513,6 +525,7 @@ public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
     }
 
     /**
+     * 如果所有动画都已结束 则回调onAnimationsFinished
      * Check the state of currently pending and running animations. If there are none
      * pending/running, call {@link #dispatchAnimationsFinished()} to notify any
      * listeners.

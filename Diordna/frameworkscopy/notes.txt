@@ -6,6 +6,7 @@ transient:短暂的
 retrieve: 检索
 correct: 正确的
 Batch: 批处理
+Pending: 待定的; 即将发生的
 
 
 

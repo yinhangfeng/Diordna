@@ -2536,6 +2536,9 @@ public class RecyclerView extends ViewGroup {
         return findViewHolderForPosition(position, false);
     }
 
+    /**
+     * 获取position处item对应的ViewHolder
+     */
     ViewHolder findViewHolderForPosition(int position, boolean checkNewPosition) {
         final int childCount = mChildHelper.getUnfilteredChildCount();
         for (int i = 0; i < childCount; i++) {
@@ -2899,6 +2902,10 @@ public class RecyclerView extends ViewGroup {
     }
 
     private class RecyclerViewDataObserver extends AdapterDataObserver {
+
+        /**
+         * 在Adapter notifyDataSetChanged 时被调用
+         */
         @Override
         public void onChanged() {
             assertNotInLayoutOrScroll(null);
@@ -2960,6 +2967,8 @@ public class RecyclerView extends ViewGroup {
     }
 
     /**
+     * 手动创创建RecycledViewPool 可对多个RecyclerView setRecycledViewPool
+     * 实现多个RecyclerView共享回收缓冲池(前提是多个RecyclerView 相同的viewType对应的view是一样的)
      * RecycledViewPool lets you share Views between multiple RecyclerViews.
      * <p>
      * If you want to recycle views across RecyclerViews, create an instance of RecycledViewPool
@@ -2969,9 +2978,12 @@ public class RecyclerView extends ViewGroup {
      *
      */
     public static class RecycledViewPool {
+        /** key:viewtype value: scrapHeap*/
         private SparseArray<ArrayList<ViewHolder>> mScrap =
                 new SparseArray<ArrayList<ViewHolder>>();
+        /** 记录每一种ViewType 对应的最大可回收view数 */
         private SparseIntArray mMaxScrap = new SparseIntArray();
+        /** RecycledViewPool绑定的Adapter数 */
         private int mAttachCount = 0;
 
         private static final int DEFAULT_MAX_SCRAP = 5;
@@ -2995,6 +3007,7 @@ public class RecyclerView extends ViewGroup {
             if (scrapHeap != null && !scrapHeap.isEmpty()) {
                 final int index = scrapHeap.size() - 1;
                 final ViewHolder scrap = scrapHeap.get(index);
+                //直接return scrapHeap.remove(index)更好?
                 scrapHeap.remove(index);
                 return scrap;
             }
@@ -3012,6 +3025,10 @@ public class RecyclerView extends ViewGroup {
             return count;
         }
 
+        /**
+         * 如果scrap 对应的viewType存储的数量未超过最大值则加入到scrapHeap
+         * @param scrap
+         */
         public void putRecycledView(ViewHolder scrap) {
             final int viewType = scrap.getItemViewType();
             final ArrayList scrapHeap = getScrapHeapForType(viewType);
@@ -3022,6 +3039,10 @@ public class RecyclerView extends ViewGroup {
             scrapHeap.add(scrap);
         }
 
+        /**
+         * 将回收缓冲池绑定到Adapter
+         * 允许绑定多个
+         */
         void attach(Adapter adapter) {
             mAttachCount++;
         }
@@ -3032,6 +3053,7 @@ public class RecyclerView extends ViewGroup {
 
 
         /**
+         * Adapter改变时调用 更新attach
          * Detaches the old adapter and attaches the new one.
          * <p>
          * RecycledViewPool will clear its cache if it has only one adapter attached and the new
@@ -3055,6 +3077,10 @@ public class RecyclerView extends ViewGroup {
             }
         }
 
+        /**
+         * 获取viewType对应的scrapHeap
+         * 如果还未创建则创建并初始化viewType对应的mMaxScrap大小为DEFAULT_MAX_SCRAP
+         */
         private ArrayList<ViewHolder> getScrapHeapForType(int viewType) {
             ArrayList<ViewHolder> scrap = mScrap.get(viewType);
             if (scrap == null) {
@@ -3746,6 +3772,9 @@ public class RecyclerView extends ViewGroup {
             return null;
         }
 
+        /**
+         * 调度ViewHolder 回收事件
+         */
         void dispatchViewRecycled(ViewHolder holder) {
             if (mRecyclerListener != null) {
                 mRecyclerListener.onViewRecycled(holder);
@@ -6804,6 +6833,9 @@ public class RecyclerView extends ViewGroup {
             mFlags |= flags;
         }
 
+        /**
+         * 在加入到scrapHeap之前调用重置状态
+         */
         void resetInternal() {
             mFlags = 0;
             mPosition = NO_POSITION;
@@ -6865,6 +6897,7 @@ public class RecyclerView extends ViewGroup {
         }
 
         /**
+         * ViewHolder是否可回收
          * @see {@link #setIsRecyclable(boolean)}
          *
          * @return true if this item is available to be recycled, false otherwise.
@@ -7487,6 +7520,10 @@ public class RecyclerView extends ViewGroup {
          */
         private int mDeletedInvisibleItemCountSincePreviousLayout = 0;
 
+        /** 被置为true的情况
+         * 1.RecyclerViewDataObserver.onChange() (Adapter notifyDataSetChanged)
+         * 2.setAdapterInternal()
+         */
         private boolean mStructureChanged = false;
 
         private boolean mInPreLayout = false;
