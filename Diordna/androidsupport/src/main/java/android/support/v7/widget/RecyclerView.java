@@ -2538,6 +2538,7 @@ public class RecyclerView extends ViewGroup {
 
     /**
      * 获取position处item对应的ViewHolder
+     * 在所有childView中查找 position相同的
      */
     ViewHolder findViewHolderForPosition(int position, boolean checkNewPosition) {
         final int childCount = mChildHelper.getUnfilteredChildCount();
@@ -2969,6 +2970,7 @@ public class RecyclerView extends ViewGroup {
     /**
      * 手动创创建RecycledViewPool 可对多个RecyclerView setRecycledViewPool
      * 实现多个RecyclerView共享回收缓冲池(前提是多个RecyclerView 相同的viewType对应的view是一样的)
+     * 默认每个RecyclerView有自己单独的RecycledViewPool
      * RecycledViewPool lets you share Views between multiple RecyclerViews.
      * <p>
      * If you want to recycle views across RecyclerViews, create an instance of RecycledViewPool
@@ -3160,6 +3162,7 @@ public class RecyclerView extends ViewGroup {
         }
 
         /**
+         * 验证ViewHolder是否有效
          * Helper method for getViewForPosition.
          * <p>
          * Checks whether a given view holder can be used for the provided position.
@@ -3191,6 +3194,7 @@ public class RecyclerView extends ViewGroup {
         }
 
         /**
+         * 将view对应的ViewHolder(调用该函数是必须已存在)绑定到新position(通过调用{@link Adapter#bindViewHolder(android.support.v7.widget.RecyclerView.ViewHolder, int)}实现)
          * Binds the given View to the position. The View can be a View previously retrieved via
          * {@link #getViewForPosition(int)} or created by
          * {@link Adapter#onCreateViewHolder(ViewGroup, int)}.
@@ -3242,6 +3246,8 @@ public class RecyclerView extends ViewGroup {
         }
 
         /**
+         * 如果当前处于mState.isPreLayout()状态 则获取mAdapterHelper中所有未处理操作处理之后position
+         * 对一个的新位置
          * RecyclerView provides artificial position range (item count) in pre-layout state and
          * automatically maps these positions to {@link Adapter} positions when
          * {@link #getViewForPosition(int)} or {@link #bindViewToPosition(View, int)} is called.
@@ -3288,6 +3294,7 @@ public class RecyclerView extends ViewGroup {
             return getViewForPosition(position, false);
         }
 
+        // TODO xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
         View getViewForPosition(int position, boolean dryRun) {
             if (position < 0 || position >= mState.getItemCount()) {
                 throw new IndexOutOfBoundsException("Invalid item position " + position
@@ -3498,6 +3505,7 @@ public class RecyclerView extends ViewGroup {
         }
 
         /**
+         * viewHolder.isRecyclable()则将mCachedViews中一项放入RecycledViewPool
          * Tries to recyle a cached view and removes the view from the list if and only if it
          * is recycled.
          *
@@ -3635,6 +3643,9 @@ public class RecyclerView extends ViewGroup {
             mAttachedScrap.clear();
         }
 
+        /**
+         * 通过position 或StableId 在mChangedScrap中查找
+         */
         ViewHolder getChangedScrapViewForPosition(int position) {
             // If pre-layout, check the changed scrap for an exact match.
             final int changedScrapSize;
@@ -4067,6 +4078,7 @@ public class RecyclerView extends ViewGroup {
         }
 
         /**
+         * 将ViewHolder绑定到position 调用{@link #onBindViewHolder(ViewHolder, int)}
          * This method internally calls {@link #onBindViewHolder(ViewHolder, int)} to update the
          * {@link ViewHolder} contents with the item at the given position and also sets up some
          * private fields to be used by RecyclerView.
@@ -6825,6 +6837,9 @@ public class RecyclerView extends ViewGroup {
             return (mFlags & FLAG_REMOVED) != 0;
         }
 
+        /**
+         * 重置mask对应的状态位  设置flags对应的状态位
+         */
         void setFlags(int flags, int mask) {
             mFlags = (mFlags & ~mask) | (flags & mask);
         }

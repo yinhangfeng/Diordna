@@ -473,6 +473,9 @@ class AdapterHelper implements OpReorderer.Callback {
         return mPendingUpdates.size() > 0;
     }
 
+    /**
+     * {@link #findPositionOffset(int, int);
+     */
     int findPositionOffset(int position) {
         return findPositionOffset(position, 0);
     }
@@ -708,6 +711,7 @@ class AdapterHelper implements OpReorderer.Callback {
      */
     static interface Callback {
 
+        /** 调用RecyclerView.findViewHolderForPosition实现 */
         ViewHolder findViewHolder(int position);
 
         void offsetPositionsForRemovingInvisible(int positionStart, int itemCount);
