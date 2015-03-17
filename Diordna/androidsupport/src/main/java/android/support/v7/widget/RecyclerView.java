@@ -2493,6 +2493,7 @@ public class RecyclerView extends ViewGroup {
 
     /**
      * 获取child对应的ViewHolder 在LayoutParams中
+     * Int 应该指internal
      */
     static ViewHolder getChildViewHolderInt(View child) {
         if (child == null) {
@@ -3110,9 +3111,11 @@ public class RecyclerView extends ViewGroup {
      * may be repositioned by a LayoutManager without remeasurement.</p>
      */
     public final class Recycler {
+        //========== mAttachedScrap 与mChangedScrap 属于scrap层
         final ArrayList<ViewHolder> mAttachedScrap = new ArrayList<ViewHolder>();
         private ArrayList<ViewHolder> mChangedScrap = null;
 
+        //mCachedViews 是mRecyclerPool的上一层 按LRU当到达容量上限mViewCacheMax时放入mRecyclerPool
         final ArrayList<ViewHolder> mCachedViews = new ArrayList<ViewHolder>();
 
         private final List<ViewHolder>
@@ -3120,8 +3123,10 @@ public class RecyclerView extends ViewGroup {
 
         private int mViewCacheMax = DEFAULT_CACHE_SIZE;
 
+        //mCachedViews中淘汰下来的View
         private RecycledViewPool mRecyclerPool;
 
+        /** View 缓存扩展 在mCachedViews中未找到时先从mViewCacheExtension获取  再从mRecyclerPool获取 */
         private ViewCacheExtension mViewCacheExtension;
 
         private static final int DEFAULT_CACHE_SIZE = 2;
@@ -3163,6 +3168,7 @@ public class RecyclerView extends ViewGroup {
 
         /**
          * 验证ViewHolder是否有效
+         * 包括holder的position对应的type是否有效
          * Helper method for getViewForPosition.
          * <p>
          * Checks whether a given view holder can be used for the provided position.
@@ -3222,12 +3228,14 @@ public class RecyclerView extends ViewGroup {
                         + "position " + position + "(offset:" + offsetPosition + ")."
                         + "state:" + mState.getItemCount());
             }
+            //1. 调用bindViewHolder
             mAdapter.bindViewHolder(holder, offsetPosition);
             attachAccessibilityDelegate(view);
             if (mState.isPreLayout()) {
                 holder.mPreLayoutPosition = position;
             }
 
+            //2.确认LayoutParams
             final ViewGroup.LayoutParams lp = holder.itemView.getLayoutParams();
             final LayoutParams rvLayoutParams;
             if (lp == null) {
@@ -3277,6 +3285,9 @@ public class RecyclerView extends ViewGroup {
         }
 
         /**
+         * 获取ViewHolder 优先级:
+         * mChangedScrap > mAttachedScrap > mCachedViews > RecycledViewPool > mAdapter.createViewHolder
+         * 之后mAdapter.bindViewHolder并确认LayoutParams
          * Obtain a view initialized for the given position.
          *
          * This method should be used by {@link LayoutManager} implementations to obtain
@@ -3294,7 +3305,6 @@ public class RecyclerView extends ViewGroup {
             return getViewForPosition(position, false);
         }
 
-        // TODO xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
         View getViewForPosition(int position, boolean dryRun) {
             if (position < 0 || position >= mState.getItemCount()) {
                 throw new IndexOutOfBoundsException("Invalid item position " + position
@@ -3303,14 +3313,17 @@ public class RecyclerView extends ViewGroup {
             boolean fromScrap = false;
             ViewHolder holder = null;
             // 0) If there is a changed scrap, try to find from there
+            // 0. 从mChangedScrap中找
             if (mState.isPreLayout()) {
                 holder = getChangedScrapViewForPosition(position);
                 fromScrap = holder != null;
             }
             // 1) Find from scrap by position
+            // 1. 从mAttachedScrap 或mCachedViews中找
             if (holder == null) {
                 holder = getScrapViewForPosition(position, INVALID_TYPE, dryRun);
                 if (holder != null) {
+                    //验证holder是否有效 包括holder的position对应的type是否有效
                     if (!validateViewHolderForOffsetPosition(holder)) {
                         // recycle this scrap
                         if (!dryRun) {
@@ -3341,6 +3354,7 @@ public class RecyclerView extends ViewGroup {
 
                 final int type = mAdapter.getItemViewType(offsetPosition);
                 // 2) Find from scrap via stable ids, if exists
+                // 2. hasStableIds则从mAttachedScrap 或mCachedViews中找
                 if (mAdapter.hasStableIds()) {
                     holder = getScrapViewForId(mAdapter.getItemId(offsetPosition), type, dryRun);
                     if (holder != null) {
@@ -3373,6 +3387,7 @@ public class RecyclerView extends ViewGroup {
                         Log.d(TAG, "getViewForPosition(" + position + ") fetching from shared "
                                 + "pool");
                     }
+                    //3. 从RecycledViewPool找
                     holder = getRecycledViewPool()
                             .getRecycledView(mAdapter.getItemViewType(offsetPosition));
                     if (holder != null) {
@@ -3382,6 +3397,7 @@ public class RecyclerView extends ViewGroup {
                         }
                     }
                 }
+                //4. 未找到则调用mAdapter.createViewHolder
                 if (holder == null) {
                     holder = mAdapter.createViewHolder(RecyclerView.this,
                             mAdapter.getItemViewType(offsetPosition));
@@ -3390,6 +3406,8 @@ public class RecyclerView extends ViewGroup {
                     }
                 }
             }
+
+            //5.设置mPreLayoutPosition或绑定ViewHolder
             boolean bound = false;
             if (mState.isPreLayout() && holder.isBound()) {
                 // do not update unless we absolutely have to.
@@ -3400,6 +3418,7 @@ public class RecyclerView extends ViewGroup {
                             + " come here only in pre-layout. Holder: " + holder);
                 }
                 final int offsetPosition = mAdapterHelper.findPositionOffset(position);
+                //绑定ViewHolder
                 mAdapter.bindViewHolder(holder, offsetPosition);
                 attachAccessibilityDelegate(holder.itemView);
                 bound = true;
@@ -3408,6 +3427,7 @@ public class RecyclerView extends ViewGroup {
                 }
             }
 
+            //6.检测LayoutParams合法性 在LayoutParams上设置ViewHolder
             final ViewGroup.LayoutParams lp = holder.itemView.getLayoutParams();
             final LayoutParams rvLayoutParams;
             if (lp == null) {
@@ -3438,12 +3458,19 @@ public class RecyclerView extends ViewGroup {
             }
         }
 
+        /**
+         * 递归的刷新viewGroup.setVisibility
+         */
         private void invalidateDisplayListInt(ViewHolder holder) {
             if (holder.itemView instanceof ViewGroup) {
                 invalidateDisplayListInt((ViewGroup) holder.itemView, false);
             }
         }
 
+        /**
+         * 递归的刷新viewGroup.setVisibility
+         * @param invalidateThis 是否包括本View
+         */
         private void invalidateDisplayListInt(ViewGroup viewGroup, boolean invalidateThis) {
             for (int i = viewGroup.getChildCount() - 1; i >= 0; i--) {
                 final View view = viewGroup.getChildAt(i);
@@ -3466,6 +3493,7 @@ public class RecyclerView extends ViewGroup {
         }
 
         /**
+         * 调用recycleViewHolderInternal
          * Recycle a detached view. The specified view will be added to a pool of views
          * for later rebinding and reuse.
          *
@@ -3496,6 +3524,9 @@ public class RecyclerView extends ViewGroup {
             recycleViewHolderInternal(getChildViewHolderInt(view));
         }
 
+        /**
+         * 将所有mCachedViews 放入RecycledViewPool
+         */
         void recycleAndClearCachedViews() {
             final int count = mCachedViews.size();
             for (int i = count - 1; i >= 0; i--) {
@@ -3530,6 +3561,7 @@ public class RecyclerView extends ViewGroup {
         }
 
         /**
+         * 将holder放入mCachedViews 将mCachedViews在超过上限时的最老的holder放入RecycledViewPool(LRU)
          * internal implementation checks if view is scrapped or attached and throws an exception
          * if so.
          * Public version un-scraps before calling recycle.
@@ -3551,6 +3583,7 @@ public class RecyclerView extends ViewGroup {
                 if (!holder.isInvalid() && (mState.mInPreLayout || !holder.isRemoved()) &&
                         !holder.isChanged()) {
                     // Retire oldest cached views first
+                    //如果当前mCachedViews大小已达到上限，则将一个最老的可回收holder放入RecycledViewPool
                     if (mCachedViews.size() == mViewCacheMax && !mCachedViews.isEmpty()) {
                         for (int i = 0; i < mCachedViews.size(); i++) {
                             if (tryToRecycleCachedViewAt(i)) {
@@ -3558,11 +3591,13 @@ public class RecyclerView extends ViewGroup {
                             }
                         }
                     }
+                    //放入mCachedViews
                     if (mCachedViews.size() < mViewCacheMax) {
                         mCachedViews.add(holder);
                         cached = true;
                     }
                 }
+                //没有放入mCachedViews则放入RecycledViewPool
                 if (!cached) {
                     getRecycledViewPool().putRecycledView(holder);
                     dispatchViewRecycled(holder);
@@ -3589,6 +3624,7 @@ public class RecyclerView extends ViewGroup {
         }
 
         /**
+         * holder与Recycler绑定 并放入mAttachedScrap或mChangedScrap
          * Mark an attached view as scrap.
          *
          * <p>"Scrap" views are still attached to their parent RecyclerView but are eligible
@@ -3616,6 +3652,7 @@ public class RecyclerView extends ViewGroup {
         }
 
         /**
+         * 将holder从mAttachedScrap或mChangedScrap移除
          * Remove a previously scrapped view from the pool of eligible scrap.
          *
          * <p>This view will no longer be eligible for reuse until re-scrapped or
@@ -3678,6 +3715,7 @@ public class RecyclerView extends ViewGroup {
         }
 
         /**
+         * 先从mAttachedScrap中查找 没找到则从mCachedViews查找
          * Returns a scrap view for the position. If type is not INVALID_TYPE, it also checks if
          * ViewHolder's type matches the provided type.
          *
@@ -3733,6 +3771,11 @@ public class RecyclerView extends ViewGroup {
             return null;
         }
 
+        /**
+         * 在hasStableIds时 先从mAttachedScrap查找id与type相等的
+         * 没找到则从mCachedViews找
+         * 如果找到id相同但type不同则放入RecycledViewPool
+         */
         ViewHolder getScrapViewForId(long id, int type, boolean dryRun) {
             // Look in our attached views first
             final int count = mAttachedScrap.size();
@@ -3785,6 +3828,7 @@ public class RecyclerView extends ViewGroup {
 
         /**
          * 调度ViewHolder 回收事件
+         * 一般在{@link RecycledViewPool#putRecycledView}之后调用
          */
         void dispatchViewRecycled(ViewHolder holder) {
             if (mRecyclerListener != null) {
@@ -3887,6 +3931,7 @@ public class RecyclerView extends ViewGroup {
             }
         }
 
+        /** 设置View 缓存扩展 */
         void setViewCacheExtension(ViewCacheExtension extension) {
             mViewCacheExtension = extension;
         }
@@ -3908,6 +3953,9 @@ public class RecyclerView extends ViewGroup {
             return mRecyclerPool;
         }
 
+        /**
+         * 标记mCachedViews中处于变化区间的View ViewHolder.FLAG_UPDATE
+         */
         void viewRangeUpdate(int positionStart, int itemCount) {
             final int positionEnd = positionStart + itemCount;
             final int cachedCount = mCachedViews.size();
@@ -3926,6 +3974,9 @@ public class RecyclerView extends ViewGroup {
             }
         }
 
+        /**
+         * 标记mCachedViews ViewHolder.FLAG_UPDATE | ViewHolder.FLAG_INVALID
+         */
         void markKnownViewsInvalid() {
             if (mAdapter != null && mAdapter.hasStableIds()) {
                 final int cachedCount = mCachedViews.size();
@@ -3949,6 +4000,9 @@ public class RecyclerView extends ViewGroup {
 
         }
 
+        /**
+         * 调用mCachedViews  mAttachedScrap  mChangedScrap中holder的clearOldPosition()
+         */
         void clearOldPositions() {
             final int cachedCount = mCachedViews.size();
             for (int i = 0; i < cachedCount; i++) {
