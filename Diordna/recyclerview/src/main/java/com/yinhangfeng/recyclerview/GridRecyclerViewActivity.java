@@ -2,10 +2,9 @@ package com.yinhangfeng.recyclerview;
 
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.v7.widget.GridLayoutManager;
+import android.support.v17.leanback.widget.VerticalGridView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,8 +17,7 @@ import java.util.List;
 import java.util.Random;
 
 
-public class MainActivity extends BaseTestActivity {
-    private static final String TAG = "MainActivity";
+public class GridRecyclerViewActivity extends BaseTestActivity {
 
     private static List<String> data;
     static {
@@ -30,100 +28,26 @@ public class MainActivity extends BaseTestActivity {
             str = "ITEM:" + i;
             int lines = random.nextInt(5);
             for(int j = 0; j < lines; ++j) {
-                str += "|XXXX";
+                str += "\nXXX";
             }
             data.add(str);
         }
     }
 
-    private MyAdapter adapter;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_grid_recycler_view);
 
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view1);
-        recyclerView.setHasFixedSize(true);
+        VerticalGridView verticalGridView = (VerticalGridView) findViewById(R.id.vertical_grid_view);
+        verticalGridView.setHasFixedSize(true);
 
-//        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-//        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        verticalGridView.setLayoutManager(layoutManager);
+        verticalGridView.setNumColumns(3);
 
-//        GridLayoutManager layoutManager = new GridLayoutManager(this, 3);
-//        layoutManager.setOrientation(GridLayoutManager.VERTICAL);
-//        layoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
-//            @Override
-//            public int getSpanSize(int position) {
-//                return position % 3 + 1;
-//            }
-//        });
-//        layoutManager.setReverseLayout(true);
-
-        StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.HORIZONTAL);
-
-        recyclerView.setLayoutManager(layoutManager);
-
-        adapter = new MyAdapter();
-        recyclerView.setAdapter(adapter);
-    }
-
-    @Override
-    protected void test1() {
-        adapter.notifyDataSetChanged();
-    }
-
-    @Override
-    protected void test2() {
-        for(int i = 5; i < 5 + 7; ++i) {
-            data.set(i, data.get(i) + "\nCHANGE");
-        }
-        adapter.notifyItemRangeChanged(5, 7);
-    }
-
-    @Override
-    protected void test3() {
-        data.add(10, "Inserted");
-        data.add(10, "Inserted");
-        data.add(10, "Inserted");
-        adapter.notifyItemRangeInserted(10, 3);
-    }
-
-    @Override
-    protected void test4() {
-        data.remove(15);
-        data.remove(15);
-        data.remove(15);
-        adapter.notifyItemRangeRemoved(15, 3);
-    }
-
-    @Override
-    protected void test5() {
-        int i = 1;
-        String temp = data.get(i);
-        for(; i < 3; ++i) {
-            data.set(i, data.get(i + 1));
-        }
-        data.set(i, temp);
-        adapter.notifyItemMoved(1, 3);
-    }
-
-    @Override
-    protected void test6() {
-    }
-
-    @Override
-    protected void test7() {
-        super.test7();
-    }
-
-    @Override
-    protected void test8() {
-        super.test8();
-    }
-
-    @Override
-    protected void test9() {
-        super.test9();
+        verticalGridView.setAdapter(new MyAdapter());
     }
 
     private class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {

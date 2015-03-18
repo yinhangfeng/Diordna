@@ -27,3 +27,7 @@ proguard/
 
 # Android Studio
 .idea
+build
+gradle
+.gradle
+local.properties
