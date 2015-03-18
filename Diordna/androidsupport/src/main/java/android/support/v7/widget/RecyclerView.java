@@ -167,8 +167,11 @@ public class RecyclerView extends ViewGroup {
     private OnItemTouchListener mActiveOnItemTouchListener;
     private boolean mIsAttached;
     private boolean mHasFixedSize;
+    /** 标记onAttachedToWindow 之后是否一进行至少一次onLayout */
     private boolean mFirstLayoutComplete;
+    /** 是否拦截下一次RequestLayout */
     private boolean mEatRequestLayout;
+    /** 是否已拦截到一次RequestLayout */
     private boolean mLayoutRequestEaten;
     private boolean mAdapterUpdateDuringMeasure;
     private final boolean mPostUpdatesOnAnimation;
@@ -1087,7 +1090,9 @@ public class RecyclerView extends ViewGroup {
         return mLayout.canScrollVertically() ? mLayout.computeVerticalScrollRange(mState) : 0;
     }
 
-
+    /**
+     * 启动RequestLayout拦截
+     */
     void eatRequestLayout() {
         if (!mEatRequestLayout) {
             mEatRequestLayout = true;
@@ -1095,6 +1100,9 @@ public class RecyclerView extends ViewGroup {
         }
     }
 
+    /**
+     * 关闭RequestLayout拦截 并根据状态决定是否dispatchLayout
+     */
     void resumeRequestLayout(boolean performLayoutChildren) {
         if (mEatRequestLayout) {
             if (performLayoutChildren && mLayoutRequestEaten &&
@@ -2445,6 +2453,7 @@ public class RecyclerView extends ViewGroup {
     }
 
     /**
+     * 标记所有View 包括Recycler中的
      * Mark all known views as invalid. Used in response to a, "the whole world might have changed"
      * data change event.
      */
@@ -2959,6 +2968,7 @@ public class RecyclerView extends ViewGroup {
         }
 
         void triggerUpdateProcessor() {
+            //决定item该改变是通过动画实现还是通过重新布局实现
             if (mPostUpdatesOnAnimation && mHasFixedSize && mIsAttached) {
                 ViewCompat.postOnAnimation(RecyclerView.this, mUpdateChildViewsRunnable);
             } else {
