@@ -119,6 +119,7 @@ public class RecyclerView extends ViewGroup {
     ChildHelper mChildHelper;
 
     // we use this like a set
+    /** 在layout时添加的最终会消失的View?? */
     final List<View> mDisappearingViewsInLayoutPass = new ArrayList<View>();
 
     /**
@@ -242,6 +243,7 @@ public class RecyclerView extends ViewGroup {
     boolean mItemsChanged = false;
     private ItemAnimator.ItemAnimatorListener mItemAnimatorListener =
             new ItemAnimatorRestoreListener();
+    /** 标记最后post的mPostedAnimatorRunner是否还未执行  防止重复post */
     private boolean mPostedAnimatorRunner = false;
     private RecyclerViewAccessibilityDelegate mAccessibilityDelegate;
     private Runnable mItemAnimatorRunner = new Runnable() {
@@ -635,6 +637,7 @@ public class RecyclerView extends ViewGroup {
     }
 
     /**
+     * 将View 设为hidden
      * Adds a view to the animatingViews list.
      * mAnimatingViews holds the child views that are currently being kept around
      * purely for the purpose of being animated out of view. They are drawn as a regular
@@ -653,6 +656,7 @@ public class RecyclerView extends ViewGroup {
     }
 
     /**
+     * remove View并回收
      * Removes a view from the animatingViews list.
      * @param view The view to be removed
      * @see #addAnimatingView(View)
@@ -1828,6 +1832,7 @@ public class RecyclerView extends ViewGroup {
         }
         mDisappearingViewsInLayoutPass.clear();
         eatRequestLayout();
+        //标记正在Layout
         mRunningLayoutOrScroll = true;
 
         processAdapterUpdatesAndSetAnimationFlags();
@@ -1835,12 +1840,14 @@ public class RecyclerView extends ViewGroup {
         mState.mOldChangedHolders = mState.mRunSimpleAnimations && mItemsChanged
                 && supportsChangeAnimations() ? new ArrayMap<Long, ViewHolder>() : null;
         mItemsAddedOrRemoved = mItemsChanged = false;
+        //从不可见变为可见的View 的初始位置
         ArrayMap<View, Rect> appearingViewInitialBounds = null;
         mState.mInPreLayout = mState.mRunPredictiveAnimations;
         mState.mItemCount = mAdapter.getItemCount();
 
         if (mState.mRunSimpleAnimations) {
             // Step 0: Find out where all non-removed items are, pre-layout
+            // 在 pre-layout时将所有非hidden的item放入mState.mPreLayoutHolderMap
             mState.mPreLayoutHolderMap.clear();
             mState.mPostLayoutHolderMap.clear();
             int count = mChildHelper.getChildCount();
@@ -1850,6 +1857,7 @@ public class RecyclerView extends ViewGroup {
                     continue;
                 }
                 final View view = holder.itemView;
+                //将非hidden的childView放入mState.mPreLayoutHolderMap
                 mState.mPreLayoutHolderMap.put(holder, new ItemHolderInfo(holder,
                         view.getLeft(), view.getTop(), view.getRight(), view.getBottom()));
             }
@@ -1863,6 +1871,7 @@ public class RecyclerView extends ViewGroup {
             // Save old positions so that LayoutManager can run its mapping logic.
             saveOldPositions();
             // processAdapterUpdatesAndSetAnimationFlags already run pre-layout animations.
+            //将isChanged的holder发那个如mState.mOldChangedHolders 并从mState.mPreLayoutHolderMap移除
             if (mState.mOldChangedHolders != null) {
                 int count = mChildHelper.getChildCount();
                 for (int i = 0; i < count; ++i) {
@@ -1881,6 +1890,7 @@ public class RecyclerView extends ViewGroup {
             mLayout.onLayoutChildren(mRecycler, mState);
             mState.mStructureChanged = didStructureChange;
 
+            //存储将要从不可见位置进入可见位置的View的Bounds
             appearingViewInitialBounds = new ArrayMap<View, Rect>();
             for (int i = 0; i < mChildHelper.getChildCount(); ++i) {
                 boolean found = false;
@@ -1984,13 +1994,15 @@ public class RecyclerView extends ViewGroup {
                 }
             }
             // Step 6: Animate PERSISTENT items
+            //启动move之后仍旧可见的item 动画
             count = mState.mPostLayoutHolderMap.size();
             for (int i = 0; i < count; ++i) {
                 ViewHolder postHolder = mState.mPostLayoutHolderMap.keyAt(i);
                 ItemHolderInfo postInfo = mState.mPostLayoutHolderMap.valueAt(i);
                 ItemHolderInfo preInfo = mState.mPreLayoutHolderMap.get(postHolder);
-                if (preInfo != null && postInfo != null) {
+                if (preInfo != null && postInfo != null) {//layout前后都存在
                     if (preInfo.left != postInfo.left || preInfo.top != postInfo.top) {
+                        //位置有变
                         postHolder.setIsRecyclable(false);
                         if (DEBUG) {
                             Log.d(TAG, "PERSISTENT: " + postHolder +
@@ -2024,13 +2036,16 @@ public class RecyclerView extends ViewGroup {
             }
         }
         resumeRequestLayout(false);
+        //回收所有未重用scrap
         mLayout.removeAndRecycleScrapInt(mRecycler, !mState.mRunPredictiveAnimations);
         mState.mPreviousLayoutItemCount = mState.mItemCount;
+        //还原状态
         mDataSetHasChangedAfterLayout = false;
         mState.mRunSimpleAnimations = false;
         mState.mRunPredictiveAnimations = false;
         mRunningLayoutOrScroll = false;
         mLayout.mRequestedSimpleAnimations = false;
+        //清空未重用mChangedScrap
         if (mRecycler.mChangedScrap != null) {
             mRecycler.mChangedScrap.clear();
         }
@@ -2046,6 +2061,7 @@ public class RecyclerView extends ViewGroup {
     }
 
     /**
+     * 处理将要消失的列表 move出可是范围或remove
      * A LayoutManager may want to layout a view just to animate disappearance.
      * This method handles those views and triggers remove animation on them.
      */
@@ -2073,6 +2089,9 @@ public class RecyclerView extends ViewGroup {
         mDisappearingViewsInLayoutPass.clear();
     }
 
+    /**
+     * 启动add之后可见或move之后可见的动画
+     */
     private void animateAppearance(ViewHolder itemHolder, Rect beforeBounds, int afterLeft,
             int afterTop) {
         View newItemView = itemHolder.itemView;
@@ -2099,6 +2118,9 @@ public class RecyclerView extends ViewGroup {
         }
     }
 
+    /**
+     * 启动消失(move出界 remove)动画
+     */
     private void animateDisappearance(ItemHolderInfo disappearingItem) {
         View disappearingItemView = disappearingItem.holder.itemView;
         addAnimatingView(disappearingItemView);
@@ -2107,6 +2129,7 @@ public class RecyclerView extends ViewGroup {
         int newLeft = disappearingItemView.getLeft();
         int newTop = disappearingItemView.getTop();
         if (oldLeft != newLeft || oldTop != newTop) {
+            //消失动画前后位置不同  说明是移出可是范围的动画
             disappearingItem.holder.setIsRecyclable(false);
             disappearingItemView.layout(newLeft, newTop,
                     newLeft + disappearingItemView.getWidth(),
@@ -2120,6 +2143,7 @@ public class RecyclerView extends ViewGroup {
                 postAnimationRunner();
             }
         } else {
+            //消失动画前后位置相同  说明是remove动画
             if (DEBUG) {
                 Log.d(TAG, "REMOVED: " + disappearingItem.holder +
                         " with view " + disappearingItemView);
@@ -2131,6 +2155,9 @@ public class RecyclerView extends ViewGroup {
         }
     }
 
+    /**
+     * 启动change动画
+     */
     private void animateChange(ViewHolder oldHolder, ViewHolder newHolder) {
         oldHolder.setIsRecyclable(false);
         removeDetachedView(oldHolder.itemView, false);
@@ -2284,6 +2311,9 @@ public class RecyclerView extends ViewGroup {
         return mLayout.generateLayoutParams(p);
     }
 
+    /**
+     * 保存所有childView包括hidden，对应的holder的saveOldPosition
+     */
     void saveOldPositions() {
         final int childCount = mChildHelper.getUnfilteredChildCount();
         for (int i = 0; i < childCount; i++) {
@@ -4927,16 +4957,20 @@ public class RecyclerView extends ViewGroup {
             }
             final LayoutParams lp = (LayoutParams) child.getLayoutParams();
             if (holder.wasReturnedFromScrap() || holder.isScrap()) {
+                //child来自scrap
+                //清楚scrap标记
                 if (holder.isScrap()) {
                     holder.unScrap();
                 } else {
                     holder.clearReturnedFromScrapFlag();
                 }
+                //执行attach view
                 mChildHelper.attachViewToParent(child, index, child.getLayoutParams(), false);
                 if (DISPATCH_TEMP_DETACH) {
                     ViewCompat.dispatchFinishTemporaryDetach(child);
                 }
             } else if (child.getParent() == mRecyclerView) { // it was not a scrap but a valid child
+                //child来自原来的有效child
                 // ensure in correct position
                 int currentIndex = mChildHelper.indexOfChild(child);
                 if (index == -1) {
@@ -4947,10 +4981,12 @@ public class RecyclerView extends ViewGroup {
                             + " view is not a real child. Unfiltered index:"
                             + mRecyclerView.indexOfChild(child));
                 }
+                //调用更改view index
                 if (currentIndex != index) {
                     mRecyclerView.mLayout.moveView(currentIndex, index);
                 }
             } else {
+                //来自recyclerPool 或createViewHolder
                 mChildHelper.addView(child, index, false);
                 lp.mInsetsDirty = true;
                 if (mSmoothScroller != null && mSmoothScroller.isRunning()) {
@@ -5027,6 +5063,9 @@ public class RecyclerView extends ViewGroup {
         }
 
         /**
+         * 在可见View中查找position的View
+         * 默认实现为遍历查找
+         * 在LinearLayoutManager中根据第一个View的position快速查找
          * <p>
          * Finds the view which represents the given adapter position.
          * <p>
@@ -5436,6 +5475,7 @@ public class RecyclerView extends ViewGroup {
         }
 
         /**
+         * scrap或者Recycle所有View
          * Temporarily detach and scrap all currently attached child views. Views will be scrapped
          * into the given Recycler. The Recycler may prefer to reuse scrap views before
          * other views that were previously recycled.
@@ -5526,6 +5566,7 @@ public class RecyclerView extends ViewGroup {
         }
 
         /**
+         * 测量item 考虑canScrollHorizontally canScrollVertically
          * Measure a child view using standard measurement policy, taking the padding
          * of the parent RecyclerView, any added item decorations and the child margins
          * into account.
@@ -6945,6 +6986,7 @@ public class RecyclerView extends ViewGroup {
         }
 
         /**
+         * 标记是否可Recycleable 采用计数法 在状态改变时设置相应的FLAG
          * Informs the recycler whether this item can be recycled. Views which are not
          * recyclable will not be reused for other items until setIsRecyclable() is
          * later set to true. Calls to setIsRecyclable() should always be paired (one
@@ -6977,6 +7019,7 @@ public class RecyclerView extends ViewGroup {
 
         /**
          * ViewHolder是否可回收
+         * 在动画过程中不可回收??
          * @see {@link #setIsRecyclable(boolean)}
          *
          * @return true if this item is available to be recycled, false otherwise.
@@ -7562,6 +7605,7 @@ public class RecyclerView extends ViewGroup {
         };
     }
     /**
+     * 存储状态信息，使状态相关成员变量集中存放 也使得能够与{@link LayoutManager}共享状态
      * <p>Contains useful information about the current RecyclerView state like target scroll
      * position or view focus. State object can also keep arbitrary data, identified by resource
      * ids.</p>
@@ -7574,11 +7618,16 @@ public class RecyclerView extends ViewGroup {
     public static class State {
 
         private int mTargetPosition = RecyclerView.NO_POSITION;
+        /** 在Layout之前存在的item */
         ArrayMap<ViewHolder, ItemHolderInfo> mPreLayoutHolderMap =
                 new ArrayMap<ViewHolder, ItemHolderInfo>();
+        /** Layout之后存在的item mPreLayoutHolderMap有而mPostLayoutHolderMap没有的item 说明是remove了或move出可视范围了??
+         *  mPostLayoutHolderMap有而mPreLayoutHolderMap没有的 说明move进入或add进入
+         */
         ArrayMap<ViewHolder, ItemHolderInfo> mPostLayoutHolderMap =
                 new ArrayMap<ViewHolder, ItemHolderInfo>();
         // nullable
+        /** 要改变的原始item */
         ArrayMap<Long, ViewHolder> mOldChangedHolders = new ArrayMap<Long, ViewHolder>();
 
         private SparseArray<Object> mData;
@@ -8400,6 +8449,7 @@ public class RecyclerView extends ViewGroup {
     }
 
     /**
+     * 存储ViewHolder及ViewHolder对应的itemView的layout位置
      * Internal data structure that holds information about an item's bounds.
      * This information is used in calculating item animations.
      */

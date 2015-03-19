@@ -376,6 +376,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
     }
 
     /**
+     * 获取需要额外layout的空间
      * <p>Returns the amount of extra space that should be laid out by LayoutManager.
      * By default, {@link android.support.v7.widget.LinearLayoutManager} lays out 1 extra page of
      * items while smooth scrolling and 0 otherwise. You can override this method to implement your
@@ -447,6 +448,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         // resolve layout direction
         resolveShouldLayoutReverse();
 
+        //1.获取mAnchorInfo
         mAnchorInfo.reset();
         mAnchorInfo.mLayoutFromEnd = mShouldReverseLayout ^ mStackFromEnd;
         // calculate anchor position and coordinate
@@ -455,6 +457,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
             Log.d(TAG, "Anchor info:" + mAnchorInfo);
         }
 
+        //获取可见区域之外额外的需layout区域
         // LLM may decide to layout items for "extra" pixels to account for scrolling target,
         // caching or predictive animations.
         int extraForStart;
@@ -495,10 +498,12 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
                 }
             }
         }
-        int startOffset;
+        int startOffset;//记录第一个item 的start offset
         int endOffset;
         onAnchorReady(state, mAnchorInfo);
+        //detach所有View
         detachAndScrapAttachedViews(recycler);
+        //2.从Anchor开始填充上下
         mLayoutState.mIsPreLayout = state.isPreLayout();
         if (mAnchorInfo.mLayoutFromEnd) {
             // fill towards start
@@ -517,17 +522,21 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
             endOffset = mLayoutState.mOffset;
         } else {
             // fill towards end
+            //设置从anchor到end layout需要的mAnchorInfo
             updateLayoutStateToFillEnd(mAnchorInfo);
             mLayoutState.mExtra = extraForEnd;
+            //layout anchor到end
             fill(recycler, mLayoutState, state, false);
             endOffset = mLayoutState.mOffset;
             if (mLayoutState.mAvailable > 0) {
                 extraForStart += mLayoutState.mAvailable;
             }
             // fill towards start
+            //设置从anchor到start layout需要的mAnchorInfo
             updateLayoutStateToFillStart(mAnchorInfo);
             mLayoutState.mExtra = extraForStart;
             mLayoutState.mCurrentPosition += mLayoutState.mItemDirection;
+            //layout anchor到start
             fill(recycler, mLayoutState, state, false);
             startOffset = mLayoutState.mOffset;
         }
@@ -555,6 +564,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
                 endOffset += fixOffset;
             }
         }
+        //3.layout PredictiveAnimations需要的额外空间
         layoutForPredictiveAnimations(recycler, state, startOffset, endOffset);
         if (!state.isPreLayout()) {
             mPendingScrollPosition = NO_POSITION;
@@ -593,6 +603,8 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         }
 
         // to make the logic simpler, we calculate the size of children and call fill.
+        // scrapList中处于start或end 的item 的 size总和 为PredictiveAnimations item 需要layout的额外空间
+        //1.获取PredictiveAnimations需要layout的item的额外空间
         int scrapExtraStart = 0, scrapExtraEnd = 0;
         final List<RecyclerView.ViewHolder> scrapList = recycler.getScrapList();
         final int scrapSize = scrapList.size();
@@ -613,6 +625,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
             Log.d(TAG, "for unused scrap, decided to add " + scrapExtraStart
                     + " towards start and " + scrapExtraEnd + " towards end");
         }
+        //2.layout额外空间中的item
         mLayoutState.mScrapList = scrapList;
         if (scrapExtraStart > 0) {
             View anchor = getChildClosestToStart();
@@ -634,6 +647,9 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         mLayoutState.mScrapList = null;
     }
 
+    /**
+     * 获取anchor 并获取anchorInfo
+     */
     private void updateAnchorInfoForLayout(RecyclerView.State state, AnchorInfo anchorInfo) {
         if (updateAnchorFromPendingData(state, anchorInfo)) {
             if (DEBUG) {
@@ -651,6 +667,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         if (DEBUG) {
             Log.d(TAG, "deciding anchor info for fresh state");
         }
+        //启用默认值
         anchorInfo.assignCoordinateFromPadding();
         anchorInfo.mPosition = mStackFromEnd ? state.getItemCount() - 1 : 0;
     }
@@ -739,6 +756,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         if (mPendingScrollPositionOffset == INVALID_OFFSET) {
             View child = findViewByPosition(mPendingScrollPosition);
             if (child != null) {
+                //mPendingScrollPosition处的View存在当前可见childView中  从该view获取anchorInfo
                 final int childSize = mOrientationHelper.getDecoratedMeasurement(child);
                 if (childSize > mOrientationHelper.getTotalSpace()) {
                     // item does not fit. fix depending on layout direction
@@ -764,6 +782,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
                                 .getTotalSpaceChange())
                         : mOrientationHelper.getDecoratedStart(child);
             } else { // item is not visible.
+                //获取默认值
                 if (getChildCount() > 0) {
                     // get position of any child, does not matter
                     int pos = getPosition(getChildAt(0));
@@ -1113,6 +1132,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
     }
 
     /**
+     * removeAndRecycleViewAt startIndex到endIndex
      * Recycles children between given indices.
      *
      * @param startIndex inclusive
@@ -1177,6 +1197,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
 
 
     /**
+     * 将从end开始dt像素范围内的View remove并回收
      * Recycles views that went out of bounds after scrolling towards the start of the layout.
      *
      * @param recycler Recycler instance of {@link android.support.v7.widget.RecyclerView}
@@ -1246,6 +1267,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
      * @param state           Context passed by the RecyclerView to control scroll steps.
      * @param stopOnFocusable If true, filling stops in the first focusable new child
      * @return Number of pixels that it added. Useful for scoll functions.
+     * 返回填充item的总像素
      */
     int fill(RecyclerView.Recycler recycler, LayoutState layoutState,
             RecyclerView.State state, boolean stopOnFocusable) {
@@ -1258,10 +1280,13 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
             }
             recycleByLayoutState(recycler, layoutState);
         }
+        //需要填充的空间
         int remainingSpace = layoutState.mAvailable + layoutState.mExtra;
         LayoutChunkResult layoutChunkResult = new LayoutChunkResult();
+        //开始填充
         while (remainingSpace > 0 && layoutState.hasMore(state)) {
             layoutChunkResult.resetInternal();
+            //填充一个
             layoutChunk(recycler, state, layoutState, layoutChunkResult);
             if (layoutChunkResult.mFinished) {
                 break;
@@ -1288,6 +1313,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
                 recycleByLayoutState(recycler, layoutState);
             }
             if (stopOnFocusable && layoutChunkResult.mFocusable) {
+                //如需要则在Focusable出停止填充
                 break;
             }
         }
@@ -1297,8 +1323,14 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         return start - layoutState.mAvailable;
     }
 
+    /**
+     * layout {@link LayoutState#mCurrentPosition}对应的item
+     * 在调用该函数是已判断layoutState.hasMore 所以mCurrentPosition在合法范围内
+     * @param result 用于返回layout的状态信息
+     */
     void layoutChunk(RecyclerView.Recycler recycler, RecyclerView.State state,
             LayoutState layoutState, LayoutChunkResult result) {
+        //1.获取下一个item
         View view = layoutState.next(recycler);
         if (view == null) {
             if (DEBUG && layoutState.mScrapList == null) {
@@ -1310,6 +1342,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
             return;
         }
         RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) view.getLayoutParams();
+        //2. 调用addView
         if (layoutState.mScrapList == null) {
             if (mShouldReverseLayout == (layoutState.mLayoutDirection
                     == LayoutState.LAYOUT_START)) {
@@ -1325,7 +1358,9 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
                 addDisappearingView(view, 0);
             }
         }
+        //3.测量子view
         measureChildWithMargins(view, 0, 0);
+        //设置子view消耗的空间
         result.mConsumed = mOrientationHelper.getDecoratedMeasurement(view);
         int left, top, right, bottom;
         if (mOrientation == VERTICAL) {
@@ -1355,6 +1390,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
                 right = layoutState.mOffset + result.mConsumed;
             }
         }
+        //4.布局子view
         // We calculate everything with View's bounding box (which includes decor and margins)
         // To calculate correct layout position, we subtract margins.
         layoutDecorated(view, left + params.leftMargin, top + params.topMargin,
@@ -1488,6 +1524,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
                         outOfBoundsMatch = view; // item is not visible, less preferred
                     }
                 } else {
+                    //第一个可见的View
                     return view;
                 }
             }
@@ -1705,6 +1742,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
     }
 
     /**
+     * 记录layoutChild过程中的状态
      * Helper class that keeps temporary state while {LayoutManager} is filling out the empty
      * space.
      */
@@ -1784,6 +1822,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         List<RecyclerView.ViewHolder> mScrapList = null;
 
         /**
+         * mCurrentPosition 是否处于有效item position范围内
          * @return true if there are more items in the data adapter
          */
         boolean hasMore(RecyclerView.State state) {
@@ -1791,6 +1830,8 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         }
 
         /**
+         * 获取下一个item(mCurrentPosition对应的 来自scrap recyclerPool或createViewHolder)
+         * 并指向下一个mCurrentPosition
          * Gets the view for the next element that we should layout.
          * Also updates current item index to the next item, based on {@link #mItemDirection}
          *
@@ -1806,6 +1847,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         }
 
         /**
+         * 在mScrapList找positon最近的  一旦找到则设置mCurrentPosition=VH.itemPosition + mItemDirection
          * Returns next item from limited list.
          * <p>
          * Upon finding a valid VH, sets current item position to VH.itemPosition + mItemDirection
@@ -1909,6 +1951,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
 
     /**
      * Simple data class to keep Anchor information
+     * 保存锚点信息
      */
     class AnchorInfo {
         int mPosition;
@@ -1965,6 +2008,9 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         }
     }
 
+    /**
+     * 记录填充一个item 时的临时状态
+     */
     protected static class LayoutChunkResult {
         public int mConsumed;
         public boolean mFinished;
