@@ -457,7 +457,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
             Log.d(TAG, "Anchor info:" + mAnchorInfo);
         }
 
-        //获取可见区域之外额外的需layout区域
+        //2.获取可见区域之外额外的需layout区域
         // LLM may decide to layout items for "extra" pixels to account for scrolling target,
         // caching or predictive animations.
         int extraForStart;
@@ -501,9 +501,9 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         int startOffset;//记录第一个item 的start offset
         int endOffset;
         onAnchorReady(state, mAnchorInfo);
-        //detach所有View
+        //3.detach所有View
         detachAndScrapAttachedViews(recycler);
-        //2.从Anchor开始填充上下
+        //4.从Anchor开始填充上下
         mLayoutState.mIsPreLayout = state.isPreLayout();
         if (mAnchorInfo.mLayoutFromEnd) {
             // fill towards start
@@ -564,7 +564,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
                 endOffset += fixOffset;
             }
         }
-        //3.layout PredictiveAnimations需要的额外空间
+        //5.layout PredictiveAnimations需要的额外空间
         layoutForPredictiveAnimations(recycler, state, startOffset, endOffset);
         if (!state.isPreLayout()) {
             mPendingScrollPosition = NO_POSITION;
