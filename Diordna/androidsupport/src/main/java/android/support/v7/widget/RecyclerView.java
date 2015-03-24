@@ -3403,6 +3403,7 @@ public class RecyclerView extends ViewGroup {
                         fromScrap = true;
                     }
                 }
+                //在调用RecycledViewPool获取之前 从mViewCacheExtension获取
                 if (holder == null && mViewCacheExtension != null) {
                     // We are NOT sending the offsetPosition because LayoutManager does not
                     // know it.

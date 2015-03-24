@@ -390,6 +390,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
      */
     protected int getExtraLayoutSpace(RecyclerView.State state) {
         if (state.hasTargetScrollPosition()) {
+            //额外空间为这个View尺寸(VERTICAL HORI)
             return mOrientationHelper.getTotalSpace();
         } else {
             return 0;
@@ -457,9 +458,10 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
             Log.d(TAG, "Anchor info:" + mAnchorInfo);
         }
 
-        //2.获取可见区域之外额外的需layout区域
+        //2.计算可见区域之外额外的需layout区域
         // LLM may decide to layout items for "extra" pixels to account for scrolling target,
         // caching or predictive animations.
+        //根据 RecyclerView.State.mTargetPosition 决定额外空间是在start还是end
         int extraForStart;
         int extraForEnd;
         final int extra = getExtraLayoutSpace(state);
@@ -498,7 +500,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
                 }
             }
         }
-        int startOffset;//记录第一个item 的start offset
+        int startOffset;//记录填充完毕后 第一个item 的start offset
         int endOffset;
         onAnchorReady(state, mAnchorInfo);
         //3.detach所有View
@@ -529,6 +531,8 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
             fill(recycler, mLayoutState, state, false);
             endOffset = mLayoutState.mOffset;
             if (mLayoutState.mAvailable > 0) {
+                //向下填充时没有填充预计的空间(一般是从achor开始的item数量不足以填充所有)
+                //则将未填充空间加到extraForStart 保证尽量多的item可见
                 extraForStart += mLayoutState.mAvailable;
             }
             // fill towards start
@@ -648,7 +652,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
     }
 
     /**
-     * 获取anchor 并获取anchorInfo
+     * 寻找合适的anchor并获取anchorInfo
      */
     private void updateAnchorInfoForLayout(RecyclerView.State state, AnchorInfo anchorInfo) {
         if (updateAnchorFromPendingData(state, anchorInfo)) {
@@ -1282,6 +1286,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         }
         //需要填充的空间
         int remainingSpace = layoutState.mAvailable + layoutState.mExtra;
+        //填充过程中用于记录状态数据 该对象可以重用?
         LayoutChunkResult layoutChunkResult = new LayoutChunkResult();
         //开始填充
         while (remainingSpace > 0 && layoutState.hasMore(state)) {
@@ -1306,6 +1311,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
             }
 
             if (layoutState.mScrollingOffset != LayoutState.SCOLLING_OFFSET_NaN) {
+                //由onLayoutChildren()调用是不会执行这里
                 layoutState.mScrollingOffset += layoutChunkResult.mConsumed;
                 if (layoutState.mAvailable < 0) {
                     layoutState.mScrollingOffset += layoutState.mAvailable;
@@ -1783,18 +1789,21 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         int mCurrentPosition;
 
         /**
+         * 用于控制获取下一个item position
          * Defines the direction in which the data adapter is traversed.
          * Should be {@link #ITEM_DIRECTION_HEAD} or {@link #ITEM_DIRECTION_TAIL}
          */
         int mItemDirection;
 
         /**
+         * 用于控制下一个offset是+还是-
          * Defines the direction in which the layout is filled.
          * Should be {@link #LAYOUT_START} or {@link #LAYOUT_END}
          */
         int mLayoutDirection;
 
         /**
+         * 用于记录可以不构建item时的最大scroll量
          * Used when LayoutState is constructed in a scrolling state.
          * It should be set the amount of scrolling we can make without creating a new view.
          * Settings this is required for efficient view recycling.
@@ -2012,8 +2021,10 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
      * 记录填充一个item 时的临时状态
      */
     protected static class LayoutChunkResult {
+        /** item小号的layout空间 */
         public int mConsumed;
         public boolean mFinished;
+        /** 是否忽略item消耗的layout空间 */
         public boolean mIgnoreConsumed;
         public boolean mFocusable;
 
