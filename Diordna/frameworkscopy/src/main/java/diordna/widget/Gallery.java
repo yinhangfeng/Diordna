@@ -396,7 +396,7 @@ public class Gallery extends AbsSpinner implements GestureDetector.OnGestureList
         //2.移除不可见的view
         detachOffScreenChildren(toLeft);
 
-        //3.填充左或又空白
+        //3.填充左或右空白
         if (toLeft) {
             // If moved left, there will be empty space on the right
             fillToGalleryRight();

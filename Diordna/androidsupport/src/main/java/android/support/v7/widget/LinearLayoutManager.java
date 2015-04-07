@@ -445,6 +445,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         }
 
         ensureLayoutState();
+        //设置不允许recycle
         mLayoutState.mRecycle = false;
         // resolve layout direction
         resolveShouldLayoutReverse();
@@ -501,7 +502,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
             }
         }
         int startOffset;//记录填充完毕后 第一个item 的start offset
-        int endOffset;
+        int endOffset;//最后一个item 的 offset
         onAnchorReady(state, mAnchorInfo);
         //3.detach所有View
         detachAndScrapAttachedViews(recycler);
@@ -531,7 +532,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
             fill(recycler, mLayoutState, state, false);
             endOffset = mLayoutState.mOffset;
             if (mLayoutState.mAvailable > 0) {
-                //向下填充时没有填充预计的空间(一般是从achor开始的item数量不足以填充所有)
+                //向下填充时没有填充预完计的空间(一般是从achor开始的item数量不足以填充所有)
                 //则将未填充空间加到extraForStart 保证尽量多的item可见
                 extraForStart += mLayoutState.mAvailable;
             }
@@ -548,6 +549,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         // changes may cause gaps on the UI, try to fix them.
         // TODO we can probably avoid this if neither stackFromEnd/reverseLayout/RTL values have
         // changed
+        //调整已layout的所有子view位置(通过Scroll 或 offset) 防止start或end出现间隙(gap)
         if (getChildCount() > 0) {
             // because layout from end may be changed by scroll to position
             // we re-calculate it.
@@ -629,7 +631,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
             Log.d(TAG, "for unused scrap, decided to add " + scrapExtraStart
                     + " towards start and " + scrapExtraEnd + " towards end");
         }
-        //2.layout额外空间中的item
+        //2.fill额外空间中的item
         mLayoutState.mScrapList = scrapList;
         if (scrapExtraStart > 0) {
             View anchor = getChildClosestToStart();
@@ -835,13 +837,17 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
     }
 
     /**
+     * 调整开始的间隙
      * @return The final offset amount for children
+     * 返回 <= 0  为0则最开始的item处于StartAfterPadding之前 不需要调整
+     * 否则为调整的像素数
      */
     private int fixLayoutStartGap(int startOffset, RecyclerView.Recycler recycler,
             RecyclerView.State state, boolean canOffsetChildren) {
         int gap = startOffset - mOrientationHelper.getStartAfterPadding();
         int fixOffset = 0;
         if (gap > 0) {
+            //通过scroll调整(start距上部有空隙 需向上滚动填充下部调整)
             // check if we should fix this gap.
             fixOffset = -scrollBy(gap, recycler, state);
         } else {
@@ -849,6 +855,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         }
         startOffset += fixOffset;
         if (canOffsetChildren) {
+            //如果允许则通过offset调整
             // re-calculate gap, see if we could fix it
             gap = startOffset - mOrientationHelper.getStartAfterPadding();
             if (gap > 0) {
@@ -1103,16 +1110,27 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         mLayoutState.mScrollingOffset = fastScrollSpace;
     }
 
+    /**
+     * Horizontal或 Vertical方向scroll
+     * 下面说明都假设为 Vertical方向从上倒下
+     * @param dy >0 children向上滚动，下部出现空隙需要填充 <0反之 (offset值可能为-dy scroll跟offset概念上数值刚好相反)
+     * @param recycler
+     * @param state
+     * @return 滚动的数值 正负同dy
+     */
     int scrollBy(int dy, RecyclerView.Recycler recycler, RecyclerView.State state) {
         if (getChildCount() == 0 || dy == 0) {
             return 0;
         }
+        //设置滚动时允许recycle
         mLayoutState.mRecycle = true;
         ensureLayoutState();
         final int layoutDirection = dy > 0 ? LayoutState.LAYOUT_END : LayoutState.LAYOUT_START;
         final int absDy = Math.abs(dy);
+        //更新需要的layoutState
         updateLayoutState(layoutDirection, absDy, true, state);
         final int freeScroll = mLayoutState.mScrollingOffset;
+        //填充
         final int consumed = freeScroll + fill(recycler, mLayoutState, state, false);
         if (consumed < 0) {
             if (DEBUG) {
@@ -1121,6 +1139,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
             return 0;
         }
         final int scrolled = absDy > consumed ? layoutDirection * consumed : dy;
+        //offset所有child位置 产生动画
         mOrientationHelper.offsetChildren(-scrolled);
         if (DEBUG) {
             Log.d(TAG, "scroll req: " + dy + " scrolled: " + scrolled);
@@ -1136,7 +1155,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
     }
 
     /**
-     * removeAndRecycleViewAt startIndex到endIndex
+     * 从startIndex到endIndex 调用removeAndRecycleViewAt
      * Recycles children between given indices.
      *
      * @param startIndex inclusive
@@ -1161,6 +1180,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
     }
 
     /**
+     * 从start开始回收 使得回收之后 第一个item与dt相交
      * Recycles views that went out of bounds after scrolling towards the end of the layout.
      *
      * @param recycler Recycler instance of {@link android.support.v7.widget.RecyclerView}
@@ -1240,6 +1260,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
     }
 
     /**
+     * 根据layoutState.mScrollingOffset回收
      * Helper method to call appropriate recycle method depending on current layout direction
      *
      * @param recycler    Current recycler that is attached to RecyclerView
@@ -1257,11 +1278,13 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         if (layoutState.mLayoutDirection == LayoutState.LAYOUT_START) {
             recycleViewsFromEnd(recycler, layoutState.mScrollingOffset);
         } else {
+            //从start到end 回收
             recycleViewsFromStart(recycler, layoutState.mScrollingOffset);
         }
     }
 
     /**
+     * 由 layoutState.mAvailable + layoutState.mExtra 决定需要填充的空间大小
      * The magic functions :). Fills the given layout, defined by the layoutState. This is fairly
      * independent from the rest of the {@link android.support.v7.widget.LinearLayoutManager}
      * and with little change, can be made publicly available as a helper class.
@@ -1278,10 +1301,14 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         // max offset we should set is mFastScroll + available
         final int start = layoutState.mAvailable;
         if (layoutState.mScrollingOffset != LayoutState.SCOLLING_OFFSET_NaN) {
+            //scrollBy调用时会执行
             // TODO ugly bug fix. should not happen
             if (layoutState.mAvailable < 0) {
                 layoutState.mScrollingOffset += layoutState.mAvailable;
             }
+            //填充前回收将要变的不可见的item xxx
+            //不像ListView(具体代码在AbsListView trackMotionScroll) 滚动之前先计算滚动目标位置offset
+            //直接回收所有出界的再填充  在这里的fill中只知道remainingSpace 要填充之后才知道具体填充的量
             recycleByLayoutState(recycler, layoutState);
         }
         //需要填充的空间
@@ -1311,15 +1338,19 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
             }
 
             if (layoutState.mScrollingOffset != LayoutState.SCOLLING_OFFSET_NaN) {
-                //由onLayoutChildren()调用是不会执行这里
+                //scrollBy调用时会执行
+                //由onLayoutChildren()调用时不会执行这里
+                //更新mScrollingOffset
                 layoutState.mScrollingOffset += layoutChunkResult.mConsumed;
                 if (layoutState.mAvailable < 0) {
                     layoutState.mScrollingOffset += layoutState.mAvailable;
                 }
+                //每填充一个就执行回收 保证fill过程中最少内存占用(由于无法事先知道所有可回收的 只能填充一个回收一下)
+                //当前填充还未结束 当前mScrollingOffset部分肯定是可以回收的
                 recycleByLayoutState(recycler, layoutState);
             }
             if (stopOnFocusable && layoutChunkResult.mFocusable) {
-                //如需要则在Focusable出停止填充
+                //如需要则在Focusable处停止填充
                 break;
             }
         }
@@ -1344,6 +1375,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
             }
             // if we are laying out views in scrap, this may return null which means there is
             // no more items to layout.
+            //标记结束
             result.mFinished = true;
             return;
         }
@@ -1461,6 +1493,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
     }
 
     /**
+     * 获取最接近end的child
      * Convenience method to find the child closes to end. Caller should check it has enough
      * children.
      *
@@ -1770,15 +1803,18 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
 
         /**
          * We may not want to recycle children in some cases (e.g. layout)
+         * 是否允许recycle 已滚动出界的
          */
         boolean mRecycle = true;
 
         /**
+         * 当前已经fill的item 的offset
          * Pixel offset where layout should start
          */
         int mOffset;
 
         /**
+         * 需要填充的剩余空间
          * Number of pixels that we should fill, in the layout direction.
          */
         int mAvailable;
@@ -2021,7 +2057,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
      * 记录填充一个item 时的临时状态
      */
     protected static class LayoutChunkResult {
-        /** item小号的layout空间 */
+        /** item消耗的layout空间 */
         public int mConsumed;
         public boolean mFinished;
         /** 是否忽略item消耗的layout空间 */

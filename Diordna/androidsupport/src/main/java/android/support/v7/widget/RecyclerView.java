@@ -1871,7 +1871,7 @@ public class RecyclerView extends ViewGroup {
             // Save old positions so that LayoutManager can run its mapping logic.
             saveOldPositions();
             // processAdapterUpdatesAndSetAnimationFlags already run pre-layout animations.
-            //将isChanged的holder发那个如mState.mOldChangedHolders 并从mState.mPreLayoutHolderMap移除
+            //将isChanged的holder放入mState.mOldChangedHolders中 并从mState.mPreLayoutHolderMap移除
             if (mState.mOldChangedHolders != null) {
                 int count = mChildHelper.getChildCount();
                 for (int i = 0; i < count; ++i) {
@@ -1994,7 +1994,7 @@ public class RecyclerView extends ViewGroup {
                 }
             }
             // Step 6: Animate PERSISTENT items
-            //启动move之后仍旧可见的item 动画
+            //启动 move之后仍旧可见的item 动画
             count = mState.mPostLayoutHolderMap.size();
             for (int i = 0; i < count; ++i) {
                 ViewHolder postHolder = mState.mPostLayoutHolderMap.keyAt(i);
@@ -2061,7 +2061,7 @@ public class RecyclerView extends ViewGroup {
     }
 
     /**
-     * 处理将要消失的列表 move出可是范围或remove
+     * 处理将要消失的列表 move出可视范围或remove
      * A LayoutManager may want to layout a view just to animate disappearance.
      * This method handles those views and triggers remove animation on them.
      */
@@ -3158,6 +3158,7 @@ public class RecyclerView extends ViewGroup {
         //mCachedViews 是mRecyclerPool的上一层 按LRU当到达容量上限mViewCacheMax时放入mRecyclerPool
         final ArrayList<ViewHolder> mCachedViews = new ArrayList<ViewHolder>();
 
+        //给外部使用的不可修改的AttachedScrap getScrapList 如在LayoutManager中使用
         private final List<ViewHolder>
                 mUnmodifiableAttachedScrap = Collections.unmodifiableList(mAttachedScrap);
 
@@ -3166,7 +3167,7 @@ public class RecyclerView extends ViewGroup {
         //mCachedViews中淘汰下来的View
         private RecycledViewPool mRecyclerPool;
 
-        /** View 缓存扩展 在mCachedViews中未找到时先从mViewCacheExtension获取  再从mRecyclerPool获取 */
+        /** View 缓存扩展 如果设置 在mCachedViews中未找到时 先尝试从mViewCacheExtension获取  再从mRecyclerPool获取 */
         private ViewCacheExtension mViewCacheExtension;
 
         private static final int DEFAULT_CACHE_SIZE = 2;
@@ -3240,7 +3241,7 @@ public class RecyclerView extends ViewGroup {
         }
 
         /**
-         * 将view对应的ViewHolder(调用该函数是必须已存在)绑定到新position(通过调用{@link Adapter#bindViewHolder(android.support.v7.widget.RecyclerView.ViewHolder, int)}实现)
+         * 将view对应的ViewHolder(调用该函数时必须已存在)绑定到新position(通过调用{@link Adapter#bindViewHolder(android.support.v7.widget.RecyclerView.ViewHolder, int)}实现)
          * Binds the given View to the position. The View can be a View previously retrieved via
          * {@link #getViewForPosition(int)} or created by
          * {@link Adapter#onCreateViewHolder(ViewGroup, int)}.
@@ -3890,6 +3891,11 @@ public class RecyclerView extends ViewGroup {
             getRecycledViewPool().onAdapterChanged(oldAdapter, newAdapter, compatibleWithPrevious);
         }
 
+        /**
+         * 在from到to的MOVE事件发生时 偏移所有mCachedViews中受影响的holder的position
+         * @param from
+         * @param to
+         */
         void offsetPositionRecordsForMove(int from, int to) {
             final int start, end, inBetweenOffset;
             if (from < to) {
@@ -3919,6 +3925,11 @@ public class RecyclerView extends ViewGroup {
             }
         }
 
+        /**
+         * 在INSERT时 偏移mCachedViews中所有手影响的holder
+         * @param insertedAt
+         * @param count
+         */
         void offsetPositionRecordsForInsert(int insertedAt, int count) {
             final int cachedCount = mCachedViews.size();
             for (int i = 0; i < cachedCount; i++) {
@@ -4959,7 +4970,7 @@ public class RecyclerView extends ViewGroup {
             final LayoutParams lp = (LayoutParams) child.getLayoutParams();
             if (holder.wasReturnedFromScrap() || holder.isScrap()) {
                 //child来自scrap
-                //清楚scrap标记
+                //清除scrap标记
                 if (holder.isScrap()) {
                     holder.unScrap();
                 } else {
@@ -5409,6 +5420,7 @@ public class RecyclerView extends ViewGroup {
         }
 
         /**
+         * Horizontal方向调整所有子view
          * Offset all child views attached to the parent RecyclerView by dx pixels along
          * the horizontal axis.
          *
@@ -5421,6 +5433,7 @@ public class RecyclerView extends ViewGroup {
         }
 
         /**
+         * vertical方向调整所有子view
          * Offset all child views attached to the parent RecyclerView by dy pixels along
          * the vertical axis.
          *
@@ -6832,6 +6845,11 @@ public class RecyclerView extends ViewGroup {
             mPosition = mNewPosition;
         }
 
+        /**
+         * 偏移ViewHolder对应的position
+         * @param offset
+         * @param applyToPreLayout
+         */
         void offsetPosition(int offset, boolean applyToPreLayout) {
             if (mOldPosition == NO_POSITION) {
                 mOldPosition = mPosition;
@@ -7619,7 +7637,7 @@ public class RecyclerView extends ViewGroup {
     public static class State {
 
         private int mTargetPosition = RecyclerView.NO_POSITION;
-        /** 在Layout之前存在的item */
+        /** 在Layout之前存在的item 不包括mOldChangedHolders */
         ArrayMap<ViewHolder, ItemHolderInfo> mPreLayoutHolderMap =
                 new ArrayMap<ViewHolder, ItemHolderInfo>();
         /** Layout之后存在的item mPreLayoutHolderMap有而mPostLayoutHolderMap没有的item 说明是remove了或move出可视范围了??
