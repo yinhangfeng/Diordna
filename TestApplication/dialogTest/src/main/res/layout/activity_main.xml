@@ -1,0 +1,63 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <FrameLayout
+        android:id="@+id/test_frame"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="50dp"
+        android:layout_marginTop="150dp"
+        android:layout_marginRight="20dp"
+        android:background="#aaaaaa" >
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical" >
+
+        <Button
+            android:id="@+id/alert_dlg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="alert_dlg" />
+
+        <Button
+            android:id="@+id/tpd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="TimePickerDialog" />
+
+        <Button
+            android:id="@+id/dpd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="DatePickerDialog" />
+
+        <Button
+            android:id="@+id/set"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="set" />
+        
+        <Button
+            android:id="@+id/test1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="test1" />
+        
+        <Button
+            android:id="@+id/test2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="test2" />
+        
+        <Button
+            android:id="@+id/test3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="test3" />
+    </LinearLayout>
+
+</RelativeLayout>

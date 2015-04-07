@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 手机与平板的兼容 -->
+<resources>
+    <bool name="ispad">false</bool>
+    <item name="aaa" type="id" >@id/text_view1</item>
+    <item name="bbb" type="layout" >@layout/fragment1</item>
+</resources>
