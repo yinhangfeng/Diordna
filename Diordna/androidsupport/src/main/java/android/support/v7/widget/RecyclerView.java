@@ -201,18 +201,22 @@ public class RecyclerView extends ViewGroup {
     private static final int INVALID_POINTER = -1;
 
     /**
+     * 空闲
      * The RecyclerView is not currently scrolling.
      * @see #getScrollState()
      */
     public static final int SCROLL_STATE_IDLE = 0;
 
     /**
+     * 拖动中
+     * 进入该状态都会 getParent().requestDisallowInterceptTouchEvent(true); 使父级不拦截事件
      * The RecyclerView is currently being dragged by outside input such as user touch input.
      * @see #getScrollState()
      */
     public static final int SCROLL_STATE_DRAGGING = 1;
 
     /**
+     * 滚动动画中
      * The RecyclerView is currently animating to a final position while not under
      * outside control.
      * @see #getScrollState()
@@ -744,6 +748,10 @@ public class RecyclerView extends ViewGroup {
         return mScrollState;
     }
 
+    /**
+     * 设置新的scroll state 处理SCROLL_STATE_SETTLING状态 通知listener
+     * @param state
+     */
     private void setScrollState(int state) {
         if (state == mScrollState) {
             return;
@@ -753,6 +761,7 @@ public class RecyclerView extends ViewGroup {
         }
         mScrollState = state;
         if (state != SCROLL_STATE_SETTLING) {
+            //进入非滚动状态 取消原滚动
             stopScrollersInternal();
         }
         if (mScrollListener != null) {
@@ -906,6 +915,7 @@ public class RecyclerView extends ViewGroup {
     }
 
     /**
+     * 执行滚动
      * Does not perform bounds checking. Used by internal methods that have already validated input.
      */
     void scrollByInternal(int x, int y) {
@@ -914,8 +924,10 @@ public class RecyclerView extends ViewGroup {
         consumePendingUpdateOperations();
         if (mAdapter != null) {
             eatRequestLayout();
+            //标记正在scroll
             mRunningLayoutOrScroll = true;
             if (x != 0) {
+                //调用mLayout执行scroll
                 hresult = mLayout.scrollHorizontallyBy(x, mRecycler, mState);
                 overscrollX = x - hresult;
             }
@@ -924,6 +936,7 @@ public class RecyclerView extends ViewGroup {
                 overscrollY = y - vresult;
             }
             if (supportsChangeAnimations()) {
+                //滚动时调整所有子view mShadowingHolder对应的view的位置
                 // Fix up shadow views used by changing animations
                 int count = mChildHelper.getChildCount();
                 for (int i = 0; i < count; i++) {
@@ -945,12 +958,14 @@ public class RecyclerView extends ViewGroup {
                 }
             }
             mRunningLayoutOrScroll = false;
+            //关闭RequestLayout拦截 但不允许dispatchLayout()
             resumeRequestLayout(false);
         }
         if (!mItemDecorations.isEmpty()) {
             invalidate();
         }
         if (ViewCompat.getOverScrollMode(this) != ViewCompat.OVER_SCROLL_NEVER) {
+            //处理overScroll 只支持glows??
             considerReleasingGlowsOnScroll(x, y);
             pullGlows(overscrollX, overscrollY);
         }
@@ -1131,6 +1146,7 @@ public class RecyclerView extends ViewGroup {
     }
 
     /**
+     * 判断并进入fling
      * Begin a standard fling with an initial velocity along each axis in pixels per second.
      * If the velocity given is below the system-defined minimum this method will return false
      * and no fling will occur.
@@ -1197,6 +1213,9 @@ public class RecyclerView extends ViewGroup {
         }
     }
 
+    /**
+     * 释放拖动边缘淡入动画
+     */
     private void releaseGlows() {
         boolean needsInvalidate = false;
         if (mLeftGlow != null) needsInvalidate = mLeftGlow.onRelease();
@@ -1208,6 +1227,9 @@ public class RecyclerView extends ViewGroup {
         }
     }
 
+    /**
+     * 边缘淡入淡出相关
+     */
     private void considerReleasingGlowsOnScroll(int dx, int dy) {
         boolean needsInvalidate = false;
         if (mLeftGlow != null && !mLeftGlow.isFinished() && dx > 0) {
@@ -1457,6 +1479,7 @@ public class RecyclerView extends ViewGroup {
     private boolean dispatchOnItemTouch(MotionEvent e) {
         final int action = e.getAction();
         if (mActiveOnItemTouchListener != null) {
+            //将事件分发到mActiveOnItemTouchListener
             if (action == MotionEvent.ACTION_DOWN) {
                 // Stale state from a previous gesture, we're starting a new one. Clear it.
                 mActiveOnItemTouchListener = null;
@@ -1485,8 +1508,14 @@ public class RecyclerView extends ViewGroup {
         return false;
     }
 
+    /**
+     * 拦截事件的情况：
+     * 1. ACTION_DOWN 时原状态为SCROLL_STATE_SETTLING
+     * 2. ACTION_MOVE 时达到mTouchSlop
+     */
     @Override
     public boolean onInterceptTouchEvent(MotionEvent e) {
+        //调用外部事件处理
         if (dispatchOnItemTouchIntercept(e)) {
             cancelTouch();
             return true;
@@ -1510,12 +1539,15 @@ public class RecyclerView extends ViewGroup {
                 mInitialTouchY = mLastTouchY = (int) (e.getY() + 0.5f);
 
                 if (mScrollState == SCROLL_STATE_SETTLING) {
+                    //进入SCROLL_STATE_DRAGGING 拦截事件
+                    //设置不允许上层view拦截事件
                     getParent().requestDisallowInterceptTouchEvent(true);
                     setScrollState(SCROLL_STATE_DRAGGING);
                 }
                 break;
 
             case MotionEventCompat.ACTION_POINTER_DOWN:
+                //改变激活的PointerId
                 mScrollPointerId = MotionEventCompat.getPointerId(e, actionIndex);
                 mInitialTouchX = mLastTouchX = (int) (MotionEventCompat.getX(e, actionIndex) + 0.5f);
                 mInitialTouchY = mLastTouchY = (int) (MotionEventCompat.getY(e, actionIndex) + 0.5f);
@@ -1536,6 +1568,7 @@ public class RecyclerView extends ViewGroup {
                     final int dy = y - mInitialTouchY;
                     boolean startScroll = false;
                     if (canScrollHorizontally && Math.abs(dx) > mTouchSlop) {
+                        //第一次进入scroll 时 设置起点为mTouchSlop处的
                         mLastTouchX = mInitialTouchX + mTouchSlop * (dx < 0 ? -1 : 1);
                         startScroll = true;
                     }
@@ -1544,7 +1577,10 @@ public class RecyclerView extends ViewGroup {
                         startScroll = true;
                     }
                     if (startScroll) {
+                        //进入SCROLL_STATE_DRAGGING 拦截事件
+                        //设置不允许上层view拦截事件
                         getParent().requestDisallowInterceptTouchEvent(true);
+                        //进入SCROLL_STATE_DRAGGING
                         setScrollState(SCROLL_STATE_DRAGGING);
                     }
                 }
@@ -1555,10 +1591,12 @@ public class RecyclerView extends ViewGroup {
             } break;
 
             case MotionEvent.ACTION_UP: {
+                //进入这里说明整个touch事件没有进入onTouchEvent
                 mVelocityTracker.clear();
             } break;
 
             case MotionEvent.ACTION_CANCEL: {
+                //进入这里说明整个touch事件没有进入onTouchEvent
                 cancelTouch();
             }
         }
@@ -1567,6 +1605,7 @@ public class RecyclerView extends ViewGroup {
 
     @Override
     public boolean onTouchEvent(MotionEvent e) {
+        //调用外部事件处理
         if (dispatchOnItemTouch(e)) {
             cancelTouch();
             return true;
@@ -1591,6 +1630,7 @@ public class RecyclerView extends ViewGroup {
             } break;
 
             case MotionEventCompat.ACTION_POINTER_DOWN: {
+                //改变激活的PointerId
                 mScrollPointerId = MotionEventCompat.getPointerId(e, actionIndex);
                 mInitialTouchX = mLastTouchX = (int) (MotionEventCompat.getX(e, actionIndex) + 0.5f);
                 mInitialTouchY = mLastTouchY = (int) (MotionEventCompat.getY(e, actionIndex) + 0.5f);
@@ -1607,6 +1647,7 @@ public class RecyclerView extends ViewGroup {
                 final int x = (int) (MotionEventCompat.getX(e, index) + 0.5f);
                 final int y = (int) (MotionEventCompat.getY(e, index) + 0.5f);
                 if (mScrollState != SCROLL_STATE_DRAGGING) {
+                    //事件被拦截时必定进入了SCROLL_STATE_DRAGGING 所以进入这里应该是事件没有被子view处理 冒泡上来时进入
                     final int dx = x - mInitialTouchX;
                     final int dy = y - mInitialTouchY;
                     boolean startScroll = false;
@@ -1619,6 +1660,8 @@ public class RecyclerView extends ViewGroup {
                         startScroll = true;
                     }
                     if (startScroll) {
+                        //进入SCROLL_STATE_DRAGGING
+                        //设置不允许上层view拦截事件
                         getParent().requestDisallowInterceptTouchEvent(true);
                         setScrollState(SCROLL_STATE_DRAGGING);
                     }
@@ -1626,6 +1669,7 @@ public class RecyclerView extends ViewGroup {
                 if (mScrollState == SCROLL_STATE_DRAGGING) {
                     final int dx = x - mLastTouchX;
                     final int dy = y - mLastTouchY;
+                    //处理拖动 scroll距离与dx相反所以-dx
                     scrollByInternal(canScrollHorizontally ? -dx : 0,
                             canScrollVertically ? -dy : 0);
                 }
@@ -1644,6 +1688,7 @@ public class RecyclerView extends ViewGroup {
                 final float yvel = canScrollVertically ?
                         -VelocityTrackerCompat.getYVelocity(mVelocityTracker, mScrollPointerId) : 0;
                 if (!((xvel != 0 || yvel != 0) && fling((int) xvel, (int) yvel))) {
+                    //不用fling 则进入SCROLL_STATE_IDLE
                     setScrollState(SCROLL_STATE_IDLE);
                 }
                 mVelocityTracker.clear();
@@ -1658,6 +1703,9 @@ public class RecyclerView extends ViewGroup {
         return true;
     }
 
+    /**
+     * 释放资源 进入SCROLL_STATE_IDLE状态
+     */
     private void cancelTouch() {
         if (mVelocityTracker != null) {
             mVelocityTracker.clear();
@@ -1666,6 +1714,9 @@ public class RecyclerView extends ViewGroup {
         setScrollState(SCROLL_STATE_IDLE);
     }
 
+    /**
+     * 某个手指松开时 决定是否切换激活的mScrollPointerId
+     */
     private void onPointerUp(MotionEvent e) {
         final int actionIndex = MotionEventCompat.getActionIndex(e);
         if (MotionEventCompat.getPointerId(e, actionIndex) == mScrollPointerId) {
@@ -2696,6 +2747,9 @@ public class RecyclerView extends ViewGroup {
         }
     }
 
+    /**
+     * 获取子view 的偏移
+     */
     Rect getItemDecorInsetsForChild(View child) {
         final LayoutParams lp = (LayoutParams) child.getLayoutParams();
         if (!lp.mInsetsDirty) {
@@ -2717,6 +2771,9 @@ public class RecyclerView extends ViewGroup {
         return insets;
     }
 
+    /**
+     * 类似AbsListView中的FlingRunnable
+     */
     private class ViewFlinger implements Runnable {
         private int mLastFlingX;
         private int mLastFlingY;
@@ -2742,6 +2799,7 @@ public class RecyclerView extends ViewGroup {
             // cause unexpected behaviors
             final ScrollerCompat scroller = mScroller;
             final SmoothScroller smoothScroller = mLayout.mSmoothScroller;
+            //计算当前滚动位置
             if (scroller.computeScrollOffset()) {
                 final int x = scroller.getCurrX();
                 final int y = scroller.getCurrY();
@@ -2755,6 +2813,7 @@ public class RecyclerView extends ViewGroup {
                 if (mAdapter != null) {
                     eatRequestLayout();
                     mRunningLayoutOrScroll = true;
+                    //调用mLayout 执行scroll
                     if (dx != 0) {
                         hresult = mLayout.scrollHorizontallyBy(dx, mRecycler, mState);
                         overscrollX = dx - hresult;
@@ -2764,6 +2823,7 @@ public class RecyclerView extends ViewGroup {
                         overscrollY = dy - vresult;
                     }
                     if (supportsChangeAnimations()) {
+                        //处理滚动时mShadowingHolder变化
                         // Fix up shadow views used by changing animations
                         int count = mChildHelper.getChildCount();
                         for (int i = 0; i < count; i++) {
@@ -2801,6 +2861,7 @@ public class RecyclerView extends ViewGroup {
                     mRunningLayoutOrScroll = false;
                     resumeRequestLayout(false);
                 }
+                //是否滚动了给定的值  用于标记是否到达边缘
                 final boolean fullyConsumedScroll = dx == hresult && dy == vresult;
                 if (!mItemDecorations.isEmpty()) {
                     invalidate();
@@ -2856,11 +2917,17 @@ public class RecyclerView extends ViewGroup {
             enableRunOnAnimationRequests();
         }
 
+        /**
+         * 阻止postOnAnimation
+         */
         private void disableRunOnAnimationRequests() {
             mReSchedulePostAnimationCallback = false;
             mEatRunOnAnimationRequest = true;
         }
 
+        /**
+         * 启用postOnAnimation
+         */
         private void enableRunOnAnimationRequests() {
             mEatRunOnAnimationRequest = false;
             if (mReSchedulePostAnimationCallback) {
@@ -2879,6 +2946,8 @@ public class RecyclerView extends ViewGroup {
         public void fling(int velocityX, int velocityY) {
             setScrollState(SCROLL_STATE_SETTLING);
             mLastFlingX = mLastFlingY = 0;
+            //mScroller 的参数 startxy minxy maxxy 与当前ListView逻辑无关
+            //通过mLastFlingY来计算距上一次滚动的偏差
             mScroller.fling(0, 0, velocityX, velocityY,
                     Integer.MIN_VALUE, Integer.MAX_VALUE, Integer.MIN_VALUE, Integer.MAX_VALUE);
             postOnAnimation();
@@ -6584,6 +6653,7 @@ public class RecyclerView extends ViewGroup {
     }
 
     /**
+     * 在RecyclerView draw 以及 onDraw时回调 画特殊内容
      * An ItemDecoration allows the application to add a special drawing and layout offset
      * to specific item views from the adapter's data set. This can be useful for drawing dividers
      * between items, highlights, visual grouping boundaries and more.
@@ -7057,6 +7127,10 @@ public class RecyclerView extends ViewGroup {
      */
     public static class LayoutParams extends android.view.ViewGroup.MarginLayoutParams {
         ViewHolder mViewHolder;
+        /**
+         * 缓存的子view偏移 是否有效受mInsetsDirty控制
+         * 默认0无偏移 其值由mItemDecorations控制
+         */
         final Rect mDecorInsets = new Rect();
         boolean mInsetsDirty = true;
         // Flag is set to true if the view is bound while it is detached from RV.
@@ -7163,6 +7237,7 @@ public class RecyclerView extends ViewGroup {
     }
 
     /**
+     * 类似AbsListView中的PositionScroller
      * <p>Base class for smooth scrolling. Handles basic tracking of the target view position and
      * provides methods to trigger a programmatic scroll.</p>
      *
@@ -7206,6 +7281,7 @@ public class RecyclerView extends ViewGroup {
             if (mTargetPosition == RecyclerView.NO_POSITION) {
                 throw new IllegalArgumentException("Invalid target position");
             }
+            //设置RecyclerView的mTargetPosition
             mRecyclerView.mState.mTargetPosition = mTargetPosition;
             mRunning = true;
             mPendingInitialRun = true;

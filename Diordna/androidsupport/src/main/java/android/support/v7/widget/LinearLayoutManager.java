@@ -412,6 +412,9 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         startSmoothScroll(linearSmoothScroller);
     }
 
+    /**
+     * 计算scroll方向矢量
+     */
     public PointF computeScrollVectorForPosition(int targetPosition) {
         if (getChildCount() == 0) {
             return null;
@@ -975,6 +978,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
     }
 
     /**
+     * 返回scroll的距离 正负同scroll
      * {@inheritDoc}
      */
     @Override
@@ -1075,6 +1079,9 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         return mSmoothScrollbarEnabled;
     }
 
+    /**
+     * 设置从layoutDirection方向 处于第一个item处开始填充requiredSpace空间的 mLayoutState
+     */
     private void updateLayoutState(int layoutDirection, int requiredSpace,
             boolean canUseExistingSpace, RecyclerView.State state) {
         mLayoutState.mExtra = getExtraLayoutSpace(state);
@@ -1130,7 +1137,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         //更新需要的layoutState
         updateLayoutState(layoutDirection, absDy, true, state);
         final int freeScroll = mLayoutState.mScrollingOffset;
-        //填充
+        //填充 consumed:填充之后填充方向超出视野的总值
         final int consumed = freeScroll + fill(recycler, mLayoutState, state, false);
         if (consumed < 0) {
             if (DEBUG) {
@@ -1839,6 +1846,8 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         int mLayoutDirection;
 
         /**
+         * 由{@link #recycleByLayoutState} 使用
+         * 在scrollby调用fill时 在item未填充满时该值可以认为就是当前的scroll值 在该值之上的已经不可见(假设vertical 向上滚) 可以回收
          * 用于记录可以不构建item时的最大scroll量
          * Used when LayoutState is constructed in a scrolling state.
          * It should be set the amount of scrolling we can make without creating a new view.
