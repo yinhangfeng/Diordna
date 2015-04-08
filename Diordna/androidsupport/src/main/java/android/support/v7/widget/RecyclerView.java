@@ -1181,6 +1181,7 @@ public class RecyclerView extends ViewGroup {
     }
 
     /**
+     * 停止mViewFlinger 与SmoothScroller
      * Similar to {@link #stopScroll()} but does not set the state.
      */
     private void stopScrollersInternal() {
