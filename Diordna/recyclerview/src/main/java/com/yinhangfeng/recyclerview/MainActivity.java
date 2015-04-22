@@ -46,8 +46,8 @@ public class MainActivity extends BaseTestActivity {
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view1);
         recyclerView.setHasFixedSize(true);
 
-//        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-//        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
 
 //        GridLayoutManager layoutManager = new GridLayoutManager(this, 3);
 //        layoutManager.setOrientation(GridLayoutManager.VERTICAL);
@@ -59,9 +59,10 @@ public class MainActivity extends BaseTestActivity {
 //        });
 //        layoutManager.setReverseLayout(true);
 
-        StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.HORIZONTAL);
+//        StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.HORIZONTAL);
 
         recyclerView.setLayoutManager(layoutManager);
+        recyclerView.getItemAnimator().setSupportsChangeAnimations(true);
 
         adapter = new MyAdapter();
         recyclerView.setAdapter(adapter);
@@ -75,7 +76,7 @@ public class MainActivity extends BaseTestActivity {
     @Override
     protected void test2() {
         for(int i = 5; i < 5 + 7; ++i) {
-            data.set(i, data.get(i) + "\nCHANGE");
+            data.set(i, data.get(i) + "\nCHANGExxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
         }
         adapter.notifyItemRangeChanged(5, 7);
     }

@@ -520,6 +520,7 @@ class AdapterHelper implements OpReorderer.Callback {
      */
     boolean onItemRangeChanged(int positionStart, int itemCount) {
         mPendingUpdates.add(obtainUpdateOp(UpdateOp.UPDATE, positionStart, itemCount));
+        //只有一个操作才可执行 否则要进行重排序等步骤
         return mPendingUpdates.size() == 1;
     }
 

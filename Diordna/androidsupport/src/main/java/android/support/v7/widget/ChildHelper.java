@@ -41,6 +41,10 @@ import java.util.List;
  * 调用mCallback是传入的index offset都为真实的index
  * regular perspective: 常规视角(不包括hidden的index)
  * actual ViewGroup index: 包括hidden的index
+ *
+ * View 为hidden的情况是
+ * 1.animateDisappearance
+ * 2.animateChange
  */
 class ChildHelper {
 

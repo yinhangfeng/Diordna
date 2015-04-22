@@ -130,6 +130,7 @@ abstract public class LinearSmoothScroller extends RecyclerView.SmoothScroller {
         mInterimTargetDx = clampApplyScroll(mInterimTargetDx, dx);
         mInterimTargetDy = clampApplyScroll(mInterimTargetDy, dy);
 
+        //原先设定的临时位置方向滚动已近用完 但目标位置还未确定 重新设置临时位置
         if (mInterimTargetDx == 0 && mInterimTargetDy == 0) {
             updateActionForInterimTarget(action);
         } // everything is valid, keep going
@@ -216,6 +217,7 @@ abstract public class LinearSmoothScroller extends RecyclerView.SmoothScroller {
     }
 
     /**
+     * 当前目标item还未填充进来，无法确定目标位置需要滚动的像素，则用临时的目标方向的位置代替
      * When the target scroll position is not a child of the RecyclerView, this method calculates
      * a direction vector towards that child and triggers a smooth scroll.
      *
@@ -242,6 +244,7 @@ abstract public class LinearSmoothScroller extends RecyclerView.SmoothScroller {
         // To avoid UI hiccups, trigger a smooth scroll to a distance little further than the
         // interim target. Since we track the distance travelled in onSeekTargetStep callback, it
         // won't actually scroll more than what we need.
+        //目标为位置未确定时设为临时的目标方向TARGET_SEEK_SCROLL_DISTANCE_PX 但TARGET_SEEK_SCROLL_DISTANCE_PX是一个定值 跟dp无关可能有问题
         action.update((int) (mInterimTargetDx * TARGET_SEEK_EXTRA_SCROLL_RATIO)
                 , (int) (mInterimTargetDy * TARGET_SEEK_EXTRA_SCROLL_RATIO)
                 , (int) (time * TARGET_SEEK_EXTRA_SCROLL_RATIO), mLinearInterpolator);

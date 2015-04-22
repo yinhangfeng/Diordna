@@ -111,6 +111,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
     private boolean mSmoothScrollbarEnabled = true;
 
     /**
+     * 设置该值并通过重新layout来实现跳转到到目标位置
      * When LayoutManager needs to scroll to a position, it sets this variable and requests a
      * layout which will check this variable and re-layout accordingly.
      */
@@ -465,7 +466,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         //2.计算可见区域之外额外的需layout区域
         // LLM may decide to layout items for "extra" pixels to account for scrolling target,
         // caching or predictive animations.
-        //根据 RecyclerView.State.mTargetPosition 决定额外空间是在start还是end
+        //根据 RecyclerView.State.mTargetPosition(该值由RecyclerView.SmoothScroller设置) 决定额外空间是在start还是end
         int extraForStart;
         int extraForEnd;
         final int extra = getExtraLayoutSpace(state);
@@ -573,7 +574,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
                 endOffset += fixOffset;
             }
         }
-        //5.layout PredictiveAnimations需要的额外空间
+        //5.layout PredictiveAnimations需要的额外空间 item
         layoutForPredictiveAnimations(recycler, state, startOffset, endOffset);
         if (!state.isPreLayout()) {
             mPendingScrollPosition = NO_POSITION;
@@ -598,6 +599,8 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
     }
 
     /**
+     * 将scrapList中所有剩余的item 填充到当前children的前或后(取决于position相比于当前child第一个与最后一个)
+     * startOffset之前或endOffset之后
      * If necessary, layouts new items for predictive animations
      */
     private void layoutForPredictiveAnimations(RecyclerView.Recycler recycler,
@@ -728,6 +731,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
     }
 
     /**
+     * 在调用scrollToPosition时会设置mPendingScrollPosition
      * If there is a pending scroll position or saved states, updates the anchor info from that
      * data and returns true
      */
@@ -1080,7 +1084,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
     }
 
     /**
-     * 设置从layoutDirection方向 处于第一个item处开始填充requiredSpace空间的 mLayoutState
+     * 设置向layoutDirection方向 从该方向上最前一个item处开始填充requiredSpace空间的 mLayoutState
      */
     private void updateLayoutState(int layoutDirection, int requiredSpace,
             boolean canUseExistingSpace, RecyclerView.State state) {
@@ -1268,6 +1272,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
 
     /**
      * 根据layoutState.mScrollingOffset回收
+     * 会进入Recycler的mCachedViews或RecyclerPool
      * Helper method to call appropriate recycle method depending on current layout direction
      *
      * @param recycler    Current recycler that is attached to RecyclerView
@@ -1316,6 +1321,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
             //填充前回收将要变的不可见的item xxx
             //不像ListView(具体代码在AbsListView trackMotionScroll) 滚动之前先计算滚动目标位置offset
             //直接回收所有出界的再填充  在这里的fill中只知道remainingSpace 要填充之后才知道具体填充的量
+            //边填充变回收的好处是是整个填充过程中处于Recycler中的item数最少 减少内存占用
             recycleByLayoutState(recycler, layoutState);
         }
         //需要填充的空间
@@ -1369,8 +1375,8 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
 
     /**
      * layout {@link LayoutState#mCurrentPosition}对应的item
-     * 在调用该函数是已判断layoutState.hasMore 所以mCurrentPosition在合法范围内
-     * @param result 用于返回layout的状态信息
+     * 在调用该函数时已判断layoutState.hasMore 所以mCurrentPosition在合法范围内
+     * @param result 用于返回填充单个的状态信息
      */
     void layoutChunk(RecyclerView.Recycler recycler, RecyclerView.State state,
             LayoutState layoutState, LayoutChunkResult result) {
@@ -1396,6 +1402,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
                 addView(view, 0);
             }
         } else {
+            //在layoutForPredictiveAnimations() 中会设置layoutState.mScrapList 进入此处
             if (mShouldReverseLayout == (layoutState.mLayoutDirection
                     == LayoutState.LAYOUT_START)) {
                 addDisappearingView(view);
@@ -1810,7 +1817,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
 
         /**
          * We may not want to recycle children in some cases (e.g. layout)
-         * 是否允许recycle 已滚动出界的
+         * 填充时 是否允许recycle已滚动出界的
          */
         boolean mRecycle = true;
 

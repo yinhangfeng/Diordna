@@ -401,6 +401,7 @@ public class RecyclerView extends ViewGroup {
 
             @Override
             public void markViewHoldersUpdated(int positionStart, int itemCount) {
+                //Adapter.notifyItemRangeChanged时调用
                 viewRangeUpdate(positionStart, itemCount);
                 mItemsChanged = true;
             }
@@ -448,6 +449,7 @@ public class RecyclerView extends ViewGroup {
     }
 
     /**
+     * 设置是否固定大小 目前影响triggerUpdateProcessor 是否通过动画还是requestLayout实现
      * RecyclerView can perform several optimizations if it can know in advance that changes in
      * adapter content cannot change the size of the RecyclerView itself.
      * If your use of RecyclerView falls into this category, set this to true.
@@ -1432,6 +1434,11 @@ public class RecyclerView extends ViewGroup {
         }
     }
 
+    @Override
+    public boolean onFilterTouchEventForSecurity(MotionEvent event) {
+        return super.onFilterTouchEventForSecurity(event);
+    }
+
     /**
      * Add an {@link OnItemTouchListener} to intercept touch events before they are dispatched
      * to child views or this view's standard scrolling behavior.
@@ -1701,6 +1708,7 @@ public class RecyclerView extends ViewGroup {
             } break;
         }
 
+        //始终处理事件 处于RecyclerView外层的父级View不可能通过touch事件冒泡获取事件
         return true;
     }
 
@@ -1844,6 +1852,7 @@ public class RecyclerView extends ViewGroup {
         } else {
             mAdapterHelper.consumeUpdatesInOnePass();
         }
+        /**是否支持动画详细说明{@link ItemAnimator#setSupportsChangeAnimations}*/
         boolean animationTypeSupported = (mItemsAddedOrRemoved && !mItemsChanged) ||
                 (mItemsAddedOrRemoved || (mItemsChanged && supportsChangeAnimations()));
         mState.mRunSimpleAnimations = mFirstLayoutComplete && mItemAnimator != null &&
@@ -1900,6 +1909,7 @@ public class RecyclerView extends ViewGroup {
         if (mState.mRunSimpleAnimations) {
             // Step 0: Find out where all non-removed items are, pre-layout
             // 在 pre-layout时将所有非hidden的item放入mState.mPreLayoutHolderMap
+            //填充mPreLayoutHolderMap
             mState.mPreLayoutHolderMap.clear();
             mState.mPostLayoutHolderMap.clear();
             int count = mChildHelper.getChildCount();
@@ -1939,6 +1949,7 @@ public class RecyclerView extends ViewGroup {
             final boolean didStructureChange = mState.mStructureChanged;
             mState.mStructureChanged = false;
             // temporarily disable flag because we are asking for previous layout
+            //此时mState.mInPreLayout == mRunPredictiveAnimations 为true
             mLayout.onLayoutChildren(mRecycler, mState);
             mState.mStructureChanged = didStructureChange;
 
@@ -2473,6 +2484,7 @@ public class RecyclerView extends ViewGroup {
     }
 
     /**
+     * 设置所有view 包括hidden mRecycler.mCachedViews FLAG_UPDATE
      * Rebind existing views for the given range, or create as needed.
      *
      * @param positionStart Adapter position to start at
@@ -2491,8 +2503,10 @@ public class RecyclerView extends ViewGroup {
             if (holder.mPosition >= positionStart && holder.mPosition < positionEnd) {
                 // We re-bind these view holders after pre-processing is complete so that
                 // ViewHolders have their final positions assigned.
+                //标记item change
                 holder.addFlags(ViewHolder.FLAG_UPDATE);
                 if (supportsChangeAnimations()) {
+                    //如果支持change动画 则标记
                     holder.addFlags(ViewHolder.FLAG_CHANGED);
                 }
                 // lp cannot be null since we get ViewHolder from it.
@@ -2502,6 +2516,9 @@ public class RecyclerView extends ViewGroup {
         mRecycler.viewRangeUpdate(positionStart, itemCount);
     }
 
+    /**
+     * 遍历所有非hidden view 重新绑定或是requestLayout
+     */
     void rebindUpdatedViewHolders() {
         final int childCount = mChildHelper.getChildCount();
         for (int i = 0; i < childCount; i++) {
@@ -2853,6 +2870,7 @@ public class RecyclerView extends ViewGroup {
                         if (adapterSize == 0) {
                             smoothScroller.stop();
                         } else if (smoothScroller.getTargetPosition() >= adapterSize) {
+                            //重新调整SmoothScroller目标位置
                             smoothScroller.setTargetPosition(adapterSize - 1);
                             smoothScroller.onAnimation(dx - overscrollX, dy - overscrollY);
                         } else {
@@ -2912,6 +2930,7 @@ public class RecyclerView extends ViewGroup {
                 }
             }
             // call this after the onAnimation is complete not to have inconsistent callbacks etc.
+            //smoothScroller第一次动画
             if (smoothScroller != null && smoothScroller.isPendingInitialRun()) {
                 smoothScroller.onAnimation(0, 0);
             }
@@ -2996,6 +3015,7 @@ public class RecyclerView extends ViewGroup {
 
         public void smoothScrollBy(int dx, int dy, int duration, Interpolator interpolator) {
             if (mInterpolator != interpolator) {
+                //这里也会影响fling的mInterpolator 是否有问题?
                 mInterpolator = interpolator;
                 mScroller = ScrollerCompat.create(getContext(), interpolator);
             }
@@ -3221,8 +3241,10 @@ public class RecyclerView extends ViewGroup {
      * may be repositioned by a LayoutManager without remeasurement.</p>
      */
     public final class Recycler {
+        //========= 调用detachViewFromParent 移除的view 会放入mAttachedScrap或mChangedScrap
         //========== mAttachedScrap 与mChangedScrap 属于scrap层
         final ArrayList<ViewHolder> mAttachedScrap = new ArrayList<ViewHolder>();
+        //在支持changed动画时 存放changed item
         private ArrayList<ViewHolder> mChangedScrap = null;
 
         //mCachedViews 是mRecyclerPool的上一层 按LRU当到达容量上限mViewCacheMax时放入mRecyclerPool
@@ -5072,6 +5094,7 @@ public class RecyclerView extends ViewGroup {
                 mChildHelper.addView(child, index, false);
                 lp.mInsetsDirty = true;
                 if (mSmoothScroller != null && mSmoothScroller.isRunning()) {
+                    //有新的View进入 通知mSmoothScroller 一遍其找到滚动的目标位置
                     mSmoothScroller.onChildAttachedToWindow(child);
                 }
             }
@@ -5559,7 +5582,7 @@ public class RecyclerView extends ViewGroup {
         }
 
         /**
-         * scrap或者Recycle所有View
+         * scrap或者Recycle所有View 一般在onLayoutChildren中调用
          * Temporarily detach and scrap all currently attached child views. Views will be scrapped
          * into the given Recycler. The Recycler may prefer to reuse scrap views before
          * other views that were previously recycled.
@@ -7020,6 +7043,7 @@ public class RecyclerView extends ViewGroup {
             return (mFlags & FLAG_UPDATE) != 0;
         }
 
+        //在notifyItemRangeChange 且支持change动画是才会被设置
         boolean isChanged() {
             return (mFlags & FLAG_CHANGED) != 0;
         }
@@ -7239,6 +7263,9 @@ public class RecyclerView extends ViewGroup {
 
     /**
      * 类似AbsListView中的PositionScroller
+     * 在onAnimation如果target位置还未确定 则启动target方向的一个临时位置scroll
+     * 否则启动滚动到target的scroll 停止SmoothScroller
+     * 一次滚动跨度过大时间可能会很久
      * <p>Base class for smooth scrolling. Handles basic tracking of the target view position and
      * provides methods to trigger a programmatic scroll.</p>
      *
@@ -7326,6 +7353,7 @@ public class RecyclerView extends ViewGroup {
         }
 
         /**
+         * 开始后是否还未收到第一个onAnimation
          * Returns true if SmoothScroller has been started but has not received the first
          * animation
          * callback yet.
@@ -7358,12 +7386,14 @@ public class RecyclerView extends ViewGroup {
             if (!mRunning || mTargetPosition == RecyclerView.NO_POSITION) {
                 stop();
             }
+            //开始后已收到第一个onAnimation
             mPendingInitialRun = false;
             if (mTargetView != null) {
                 // verify target position
                 if (getChildPosition(mTargetView) == mTargetPosition) {
                     onTargetFound(mTargetView, mRecyclerView.mState, mRecyclingAction);
                     mRecyclingAction.runIfNecessary(mRecyclerView);
+                    //目标已找到 不在需要SmoothScroller
                     stop();
                 } else {
                     Log.e(TAG, "Passed over target position while smooth scrolling.");
@@ -7404,7 +7434,12 @@ public class RecyclerView extends ViewGroup {
             mRecyclerView.scrollToPosition(position);
         }
 
+        /**
+         * scroll过程中有view被填充进来时回调 用以确定目标view
+         * @param child
+         */
         protected void onChildAttachedToWindow(View child) {
+            //填充进来的是目标view
             if (getChildPosition(child) == getTargetPosition()) {
                 mTargetView = child;
                 if (DEBUG) {
@@ -7414,6 +7449,7 @@ public class RecyclerView extends ViewGroup {
         }
 
         /**
+         * 将scrollVector变为单位向量
          * Normalizes the vector.
          * @param scrollVector The vector that points to the target scroll position
          */
@@ -7476,10 +7512,12 @@ public class RecyclerView extends ViewGroup {
 
             private Interpolator mInterpolator;
 
+            //目标数据是否有变
             private boolean changed = false;
 
             // we track this variable to inform custom implementer if they are updating the action
             // in every animation callback
+            //用于记录changed时runIfNecessary调用次数
             private int consecutiveUpdates = 0;
 
             /**
@@ -7512,9 +7550,14 @@ public class RecyclerView extends ViewGroup {
                 mDuration = duration;
                 mInterpolator = interpolator;
             }
+
+            /**
+             * 如果Action已改变则启动 smoothScrollBy
+             */
             private void runIfNecessary(RecyclerView recyclerView) {
                 if (changed) {
                     validate();
+                    //如果上一个mViewFlinger的Scroller在运行 调用smoothScrollBy时会重新开始
                     if (mInterpolator == null) {
                         if (mDuration == UNDEFINED_DURATION) {
                             recyclerView.mViewFlinger.smoothScrollBy(mDx, mDy);
@@ -7714,7 +7757,7 @@ public class RecyclerView extends ViewGroup {
     public static class State {
 
         private int mTargetPosition = RecyclerView.NO_POSITION;
-        /** 在Layout之前存在的item 不包括mOldChangedHolders */
+        /** 在Layout之前存在的item 如果mOldChangedHolders 不为 null 则会去除放入mOldChangedHolders中的 */
         ArrayMap<ViewHolder, ItemHolderInfo> mPreLayoutHolderMap =
                 new ArrayMap<ViewHolder, ItemHolderInfo>();
         /** Layout之后存在的item mPreLayoutHolderMap有而mPostLayoutHolderMap没有的item 说明是remove了或move出可视范围了??
@@ -7723,7 +7766,7 @@ public class RecyclerView extends ViewGroup {
         ArrayMap<ViewHolder, ItemHolderInfo> mPostLayoutHolderMap =
                 new ArrayMap<ViewHolder, ItemHolderInfo>();
         // nullable
-        /** 要改变的原始item */
+        /** itemsChanged且支持itemChenged动画时 保存要改变的原始item */
         ArrayMap<Long, ViewHolder> mOldChangedHolders = new ArrayMap<Long, ViewHolder>();
 
         private SparseArray<Object> mData;
@@ -7750,6 +7793,7 @@ public class RecyclerView extends ViewGroup {
          */
         private boolean mStructureChanged = false;
 
+        //dispatchLayout时与mRunPredictiveAnimations相同 但onLayoutChildren时为false
         private boolean mInPreLayout = false;
 
         private boolean mRunSimpleAnimations = false;
@@ -8039,6 +8083,7 @@ public class RecyclerView extends ViewGroup {
         private long mMoveDuration = 250;
         private long mChangeDuration = 250;
 
+        //是否支持notifyItemChanged 动画
         private boolean mSupportsChangeAnimations = false;
 
         /**
@@ -8123,6 +8168,7 @@ public class RecyclerView extends ViewGroup {
         }
 
         /**
+         * 设置支持item change动画
          * Sets whether this ItemAnimator supports animations of item change events.
          * By default, ItemAnimator only supports animations when items are added or removed.
          * By setting this property to true, actions on the data set which change the
