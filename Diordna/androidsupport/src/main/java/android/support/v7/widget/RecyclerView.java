@@ -168,7 +168,7 @@ public class RecyclerView extends ViewGroup {
     private OnItemTouchListener mActiveOnItemTouchListener;
     private boolean mIsAttached;
     private boolean mHasFixedSize;
-    /** 标记onAttachedToWindow 之后是否一进行至少一次onLayout */
+    /** 标记onAttachedToWindow 之后是否一至少进行了一次onLayout */
     private boolean mFirstLayoutComplete;
     /** 是否拦截下一次RequestLayout */
     private boolean mEatRequestLayout;
@@ -643,7 +643,7 @@ public class RecyclerView extends ViewGroup {
     }
 
     /**
-     * 将View 设为hidden
+     * 添加将要执行消失动画的View 设为hidden
      * Adds a view to the animatingViews list.
      * mAnimatingViews holds the child views that are currently being kept around
      * purely for the purpose of being animated out of view. They are drawn as a regular
@@ -662,7 +662,7 @@ public class RecyclerView extends ViewGroup {
     }
 
     /**
-     * remove View并回收
+     * remove View并回收 只回收hidden的 所以add动画的view不会回收
      * Removes a view from the animatingViews list.
      * @param view The view to be removed
      * @see #addAnimatingView(View)
@@ -939,6 +939,7 @@ public class RecyclerView extends ViewGroup {
             }
             if (supportsChangeAnimations()) {
                 //滚动时调整所有子view mShadowingHolder对应的view的位置
+                //change动画相关 滚动时使change动画oldHolder与newHolder位置同步
                 // Fix up shadow views used by changing animations
                 int count = mChildHelper.getChildCount();
                 for (int i = 0; i < count; i++) {
@@ -1997,6 +1998,8 @@ public class RecyclerView extends ViewGroup {
 
         // Step 2: Run layout
         mState.mInPreLayout = false;
+        //mInPreLayout设为false之后对于fill时不会使用Recycler.mChangedScrap中的item
+        //使得change动画的oldHolder与newHolder是不同的holder
         mLayout.onLayoutChildren(mRecycler, mState);
 
         mState.mStructureChanged = false;
@@ -7157,6 +7160,9 @@ public class RecyclerView extends ViewGroup {
          * 默认0无偏移 其值由mItemDecorations控制
          */
         final Rect mDecorInsets = new Rect();
+        /**
+         * 控制mDecorInsets是否有效
+         */
         boolean mInsetsDirty = true;
         // Flag is set to true if the view is bound while it is detached from RV.
         // In this case, we need to manually call invalidate after view is added to guarantee that
@@ -7756,6 +7762,7 @@ public class RecyclerView extends ViewGroup {
      */
     public static class State {
 
+        /** smoothScroll时的目标位置 */
         private int mTargetPosition = RecyclerView.NO_POSITION;
         /** 在Layout之前存在的item 如果mOldChangedHolders 不为 null 则会去除放入mOldChangedHolders中的 */
         ArrayMap<ViewHolder, ItemHolderInfo> mPreLayoutHolderMap =
