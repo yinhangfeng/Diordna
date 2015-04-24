@@ -582,6 +582,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
             fill(recycler, mLayoutState, state);
         } else {
             // Layout end.
+            //相比于LinearLayoutManager优化的地方  将mExtra的计算交给mLayoutState更新函数处理
             updateLayoutStateToFillEnd(anchorInfo.mPosition, state);
             fill(recycler, mLayoutState, state);
             // Layout start.

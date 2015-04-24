@@ -46,8 +46,8 @@ public class MainActivity extends BaseTestActivity {
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view1);
         recyclerView.setHasFixedSize(true);
 
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+//        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+//        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
 
 //        GridLayoutManager layoutManager = new GridLayoutManager(this, 3);
 //        layoutManager.setOrientation(GridLayoutManager.VERTICAL);
@@ -59,7 +59,7 @@ public class MainActivity extends BaseTestActivity {
 //        });
 //        layoutManager.setReverseLayout(true);
 
-//        StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.HORIZONTAL);
+        StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL);
 
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.getItemAnimator().setSupportsChangeAnimations(true);
