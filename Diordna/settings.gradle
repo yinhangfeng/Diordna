@@ -1,1 +1,3 @@
-include ':app', ':frameworkscopy', ':viewpagertest', ':testlibrary', ':applicationtest', ':recyclerview', ':androidsupport'
+include ':app', ':frameworkscopy', ':viewpagertest', ':testlibrary', ':applicationtest', ':recyclerview'
+include ':androidsupport'
+include ':cardview'
