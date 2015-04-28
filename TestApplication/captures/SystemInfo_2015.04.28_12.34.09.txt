@@ -1,0 +1,32 @@
+Applications Memory Usage (kB):
+Uptime: 184921374 Realtime: 670361537
+
+** MEMINFO in pid 31147 [com.example.animationtest] **
+                   Pss  Private  Private  Swapped     Heap     Heap     Heap
+                 Total    Dirty    Clean    Dirty     Size    Alloc     Free
+                ------   ------   ------   ------   ------   ------   ------
+  Native Heap        0        0        0        0     5696     5235      124
+  Dalvik Heap     5230     4360        0        0    32188    27848     4340
+ Dalvik Other     1479     1208        0        0                           
+        Stack       72       72        0        0                           
+    Other dev     1604     1568        4        0                           
+     .so mmap     1337      872       52        0                           
+    .apk mmap       95        0       32        0                           
+    .ttf mmap        7        0        4        0                           
+    .dex mmap     1439       36     1116        0                           
+   Other mmap        5        4        0        0                           
+      Unknown     2099     2088        0        0                           
+        TOTAL    13367    10208     1208        0    37884    33083     4464
+ 
+ Objects
+               Views:      177         ViewRootImpl:        7
+         AppContexts:        4           Activities:        1
+              Assets:        5        AssetManagers:        5
+       Local Binders:        9        Proxy Binders:       21
+    Death Recipients:        1
+     OpenSSL Sockets:        0
+ 
+ SQL
+         MEMORY_USED:        0
+  PAGECACHE_OVERFLOW:        0          MALLOC_SIZE:        0
+ 

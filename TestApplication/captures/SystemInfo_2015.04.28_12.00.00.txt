@@ -1,0 +1,24 @@
+TASK com.example.animationtest id=100
+  ACTIVITY com.example.animationtest/.MainActivity 431048a0 pid=31147
+    Local FragmentActivity 42f206f0 State:
+      mCreated=truemResumed=false mStopped=true mReallyStopped=true
+      mLoadersStarted=false
+    FragmentManager misc state:
+      mActivity=com.example.animationtest.MainActivity@42f206f0
+      mContainer=android.support.v4.app.FragmentActivity$2@42f224c8
+      mCurState=2 mStateSaved=true mDestroyed=false
+    View Hierarchy:
+      com.android.internal.policy.impl.PhoneWindow$DecorView{42f2cb60 V.E..... ... 0,0-1080,1920}
+        android.widget.LinearLayout{42f306d8 V.E..... ... 0,0-1080,1920}
+          android.view.ViewStub{42f33c40 G.E..... ... 0,0-0,0 #102031c}
+          android.widget.FrameLayout{42f34070 V.E..... ... 0,60-1080,1920}
+            android.support.v7.internal.widget.ActionBarOverlayLayout{42f38cf8 V.ED.... ... 0,0-1080,1860 #7f09003e app:id/decor_content_parent}
+              android.support.v7.internal.widget.NativeActionModeAwareLayout{42f3c768 V.ED.... ... 0,168-1080,1860 #1020002 android:id/content}
+                android.widget.FrameLayout{42f6a928 V.E..... ... 0,0-1080,1692}
+                  android.support.v7.widget.AppCompatButton{42f6b460 VFED..C. ... 348,348-714,492 #7f09004f app:id/target_view}
+              android.support.v7.internal.widget.ActionBarContainer{42f3d3a8 V.ED.... ... 0,0-1080,168 #7f09003f app:id/action_bar_container}
+                android.support.v7.widget.Toolbar{42f3ee68 V.E..... ... 0,0-1080,168 #7f090040 app:id/action_bar}
+                  android.widget.TextView{42f5e0f0 V.ED.... ... 48,43-441,124}
+                  android.support.v7.widget.ActionMenuView{42f7d068 V.E..... ... 936,0-1080,168}
+                    android.support.v7.widget.ActionMenuPresenter$OverflowMenuButton{42f7e578 VFED..C. ... 0,12-144,156}
+                android.support.v7.internal.widget.ActionBarContextView{42f55020 G.E..... ... 0,0-0,0 #7f090041 app:id/action_context_bar}

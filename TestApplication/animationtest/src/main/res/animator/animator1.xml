@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<set xmlns:android="http://schemas.android.com/apk/res/android"
+    android:ordering="sequentially">
+    <set>
+        <objectAnimator
+            android:duration="500"
+            android:propertyName="TranslationX"
+            android:valueTo="400"
+            android:valueType="intType"/>
+        <objectAnimator
+            android:duration="500"
+            android:propertyName="TranslationY"
+            android:valueTo="500"
+            android:valueType="intType"/>
+    </set>
+    <objectAnimator
+        android:duration="500"
+        android:propertyName="alpha"
+        android:valueTo="0.5f"/>
+
+    <objectAnimator
+        android:duration="500"
+        android:propertyName="RotationY"
+        android:valueTo="180"/>
+</set>

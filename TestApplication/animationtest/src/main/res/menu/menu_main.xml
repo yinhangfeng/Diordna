@@ -1,0 +1,46 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto"
+      xmlns:tools="http://schemas.android.com/tools"
+      tools:context=".MainActivity">
+    <item
+        android:id="@+id/View_Property_Animator"
+        android:orderInCategory="100"
+        android:title="ViewPropertyAnimator"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/Value_Animator"
+        android:orderInCategory="100"
+        android:title="ValueAnimator"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/Value_Animator1"
+        android:orderInCategory="100"
+        android:title="ValueAnimator1"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/Object_Animator"
+        android:orderInCategory="100"
+        android:title="ObjectAnimator"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/XML_Animator1"
+        android:orderInCategory="100"
+        android:title="XMLAnimator1"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/XML_Animator2"
+        android:orderInCategory="100"
+        android:title="XMLAnimator2"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/fragment_animator"
+        android:orderInCategory="100"
+        android:title="fragment_animator"
+        app:showAsAction="never"/>
+</menu>
