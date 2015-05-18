@@ -2298,6 +2298,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
     /**
      * Post a runnable to the next frame to run pending item animations. Only the first such
      * request will be posted, governed by the mPostedAnimatorRunner flag.
+     *
+     *
      */
     private void postAnimationRunner() {
         if (!mPostedAnimatorRunner && mIsAttached) {

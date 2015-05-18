@@ -1968,6 +1968,8 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         /**
          * When LLM needs to layout particular views, it sets this list in which case, LayoutState
          * will only return views from this list and return null if it cannot find an item.
+         *
+         * recycler.getScrapList
          */
         List<RecyclerView.ViewHolder> mScrapList = null;
 
