@@ -10,12 +10,12 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/androidsupport" />
             <option value="$PROJECT_DIR$/app" />
-            <option value="$PROJECT_DIR$/applicationtest" />
-            <option value="$PROJECT_DIR$/cardview" />
+            <option value="$PROJECT_DIR$/cardview-test" />
             <option value="$PROJECT_DIR$/frameworkscopy" />
-            <option value="$PROJECT_DIR$/recyclerview" />
+            <option value="$PROJECT_DIR$/recyclerview-test" />
+            <option value="$PROJECT_DIR$/recyclerview-v7-21" />
+            <option value="$PROJECT_DIR$/recyclerview-v7-22.1.1" />
             <option value="$PROJECT_DIR$/testlibrary" />
             <option value="$PROJECT_DIR$/viewpagertest" />
           </set>

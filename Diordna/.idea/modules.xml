@@ -3,15 +3,14 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Diordna.iml" filepath="$PROJECT_DIR$/Diordna.iml" />
-      <module fileurl="file://$PROJECT_DIR$/androidsupport/androidsupport.iml" filepath="$PROJECT_DIR$/androidsupport/androidsupport.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/applicationtest/applicationtest.iml" filepath="$PROJECT_DIR$/applicationtest/applicationtest.iml" />
-      <module fileurl="file://$PROJECT_DIR$/cardview/cardview.iml" filepath="$PROJECT_DIR$/cardview/cardview.iml" />
+      <module fileurl="file://$PROJECT_DIR$/cardview-test/cardview-test.iml" filepath="$PROJECT_DIR$/cardview-test/cardview-test.iml" />
       <module fileurl="file://$PROJECT_DIR$/frameworkscopy/frameworkscopy.iml" filepath="$PROJECT_DIR$/frameworkscopy/frameworkscopy.iml" />
-      <module fileurl="file://$PROJECT_DIR$/recyclerview/recyclerview.iml" filepath="$PROJECT_DIR$/recyclerview/recyclerview.iml" />
+      <module fileurl="file://$PROJECT_DIR$/recyclerview-test/recyclerview-test.iml" filepath="$PROJECT_DIR$/recyclerview-test/recyclerview-test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/recyclerview-v7-21/recyclerview-v7-21.iml" filepath="$PROJECT_DIR$/recyclerview-v7-21/recyclerview-v7-21.iml" />
+      <module fileurl="file://$PROJECT_DIR$/recyclerview-v7-22.1.1/recyclerview-v7-22.1.1.iml" filepath="$PROJECT_DIR$/recyclerview-v7-22.1.1/recyclerview-v7-22.1.1.iml" />
       <module fileurl="file://$PROJECT_DIR$/testlibrary/testlibrary.iml" filepath="$PROJECT_DIR$/testlibrary/testlibrary.iml" />
       <module fileurl="file://$PROJECT_DIR$/viewpagertest/viewpagertest.iml" filepath="$PROJECT_DIR$/viewpagertest/viewpagertest.iml" />
     </modules>
   </component>
 </project>
-
