@@ -582,7 +582,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
             fill(recycler, mLayoutState, state);
         } else {
             // Layout end.
-            //Ïà±ÈÓÚLinearLayoutManagerÓÅ»¯µÄµØ·½  ½«mExtraµÄ¼ÆËã½»¸ømLayoutState¸üĞÂº¯Êı´¦Àí
+            //ç›¸æ¯”äºLinearLayoutManagerä¼˜åŒ–çš„åœ°æ–¹  å°†mExtraçš„è®¡ç®—äº¤ç»™mLayoutStateæ›´æ–°å‡½æ•°å¤„ç†
             updateLayoutStateToFillEnd(anchorInfo.mPosition, state);
             fill(recycler, mLayoutState, state);
             // Layout start.
