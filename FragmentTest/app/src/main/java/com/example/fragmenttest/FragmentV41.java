@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
 import android.widget.TextView;
 
 public class FragmentV41 extends LogV4Fragment implements OnClickListener {
@@ -88,6 +89,12 @@ public class FragmentV41 extends LogV4Fragment implements OnClickListener {
 	@Override
 	public void onDetach() {
 		super.onDetach();
+	}
+
+	@Override
+	public Animation onCreateAnimation(int transit, boolean enter, int nextAnim) {
+		Log.i(TAG, "onCreateAnimation enter=" + enter);
+		return super.onCreateAnimation(transit, enter, nextAnim);
 	}
 
 	@Override
