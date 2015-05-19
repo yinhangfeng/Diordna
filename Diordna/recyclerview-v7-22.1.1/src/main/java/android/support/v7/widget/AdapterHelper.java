@@ -588,6 +588,11 @@ class AdapterHelper implements OpReorderer.Callback {
         recycleUpdateOpsAndClearList(mPendingUpdates);
     }
 
+    /**
+     * 计算所有mPendingUpdates执行之后 当前posotion出的item 的最终position
+     * @param position
+     * @return
+     */
     public int applyPendingUpdatesToPosition(int position) {
         final int size = mPendingUpdates.size();
         for (int i = 0; i < size; i ++) {
