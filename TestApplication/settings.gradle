@@ -1,4 +1,4 @@
-include ':app', ':testlibrary', ':webviewtest', ':javatest', ':actionbartest', ':gallerytest', ':popuptest', ':ConfigChangeTest', ':appcompatv7test', ':animationtest', ':floatwindowtest'
+include ':app', ':testlibrary', ':webviewtest', ':javatest', ':actionbartest', ':gallerytest', ':popuptest', ':ConfigChangeTest', ':appcompatv7test', ':animationtest', ':floatwindowtest', ':lollipoptest'
 include ':deviceIDTest'
 include ':dialogTest'
 include ':directoryTest'

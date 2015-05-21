@@ -2329,6 +2329,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
         // simple animations are a subset of advanced animations (which will cause a
         // pre-layout step)
         // If layout supports predictive animations, pre-process to decide if we want to run them
+        //处理所有等待的Adapter改变
         if (mItemAnimator != null && mLayout.supportsPredictiveItemAnimations()) {
             mAdapterHelper.preProcess();
         } else {
@@ -2513,6 +2514,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
                             view.getLeft(), view.getTop(), view.getRight(), view.getBottom()));
                 }
             }
+            //处理动画
             processDisappearingList(appearingViewInitialBounds);
             // Step 4: Animate DISAPPEARING and REMOVED items
             int preLayoutCount = mState.mPreLayoutHolderMap.size();
@@ -2601,6 +2603,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
         }
         mState.mOldChangedHolders = null;
 
+        //如果在layout之后所有可见的child所在的区间有变 则通知dispatchOnScrolled
         if (didChildRangeChange(mMinMaxLayoutPositions[0], mMinMaxLayoutPositions[1])) {
             dispatchOnScrolled(0, 0);
         }
@@ -4772,7 +4775,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
         }
 
         /**
-         * 在INSERT时 偏移mCachedViews中所有手影响的holder
+         * 在INSERT时 偏移mCachedViews中所有受影响的holder
          * @param insertedAt
          * @param count
          */
@@ -9015,6 +9018,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
     }
 
     /**
+     * item动画结束回调 主要负责移除View
      * Internal listener that manages items after animations finish. This is how items are
      * retained (not recycled) during animations, but allowed to be recycled afterwards.
      * It depends on the contract with the ItemAnimator to call the appropriate dispatch*Finished()

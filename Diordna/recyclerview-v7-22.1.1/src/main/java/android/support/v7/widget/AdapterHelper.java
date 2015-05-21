@@ -26,6 +26,9 @@ import java.util.List;
 import static android.support.v7.widget.RecyclerView.*;
 
 /**
+ * 在Adapter onItemRangeChanged onItemRangeInserted onItemRangeRemoved onItemRangeMoved时调用相应方法
+ * 在preProcess时调整所有未处理的改变的顺序(具体是将MOVE操作放到末尾) 如果不支持动画则调用的是consumeUpdatesInOnePass
+ * 并通过Callback回调 改变所有已添加的View以及Recycler中cachedViews的holder对应的position
  * Helper class that can enqueue and process adapter update operations.
  * <p>
  * To support animations, RecyclerView presents an older version the Adapter to best represent

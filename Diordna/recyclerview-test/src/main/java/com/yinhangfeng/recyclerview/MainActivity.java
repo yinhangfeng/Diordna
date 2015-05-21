@@ -7,6 +7,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -46,8 +47,8 @@ public class MainActivity extends BaseTestActivity {
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view1);
         recyclerView.setHasFixedSize(true);
 
-//        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-//        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
 
 //        GridLayoutManager layoutManager = new GridLayoutManager(this, 3);
 //        layoutManager.setOrientation(GridLayoutManager.VERTICAL);
@@ -59,13 +60,24 @@ public class MainActivity extends BaseTestActivity {
 //        });
 //        layoutManager.setReverseLayout(true);
 
-        StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL);
+//        StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL);
 
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.getItemAnimator().setSupportsChangeAnimations(true);
 
         adapter = new MyAdapter();
         recyclerView.setAdapter(adapter);
+
+        getSupportActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if(item.getItemId() == android.R.id.home) {
+            test6();
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -110,6 +122,8 @@ public class MainActivity extends BaseTestActivity {
 
     @Override
     protected void test6() {
+        data.remove(0);
+        adapter.notifyItemRemoved(0);
     }
 
     @Override
