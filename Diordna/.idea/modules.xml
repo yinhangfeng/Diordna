@@ -9,6 +9,7 @@
       <module fileurl="file://$PROJECT_DIR$/recyclerview-test/recyclerview-test.iml" filepath="$PROJECT_DIR$/recyclerview-test/recyclerview-test.iml" />
       <module fileurl="file://$PROJECT_DIR$/recyclerview-v7-21/recyclerview-v7-21.iml" filepath="$PROJECT_DIR$/recyclerview-v7-21/recyclerview-v7-21.iml" />
       <module fileurl="file://$PROJECT_DIR$/recyclerview-v7-22.1.1/recyclerview-v7-22.1.1.iml" filepath="$PROJECT_DIR$/recyclerview-v7-22.1.1/recyclerview-v7-22.1.1.iml" />
+      <module fileurl="file://$PROJECT_DIR$/systemui/systemui.iml" filepath="$PROJECT_DIR$/systemui/systemui.iml" />
       <module fileurl="file://$PROJECT_DIR$/testlibrary/testlibrary.iml" filepath="$PROJECT_DIR$/testlibrary/testlibrary.iml" />
       <module fileurl="file://$PROJECT_DIR$/viewpagertest/viewpagertest.iml" filepath="$PROJECT_DIR$/viewpagertest/viewpagertest.iml" />
     </modules>

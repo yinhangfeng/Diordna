@@ -1961,6 +1961,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
 
         switch (action) {
             case MotionEvent.ACTION_DOWN: {
+                //由于onInterceptTouchEvent中已处理SCROLL_STATE_SETTLING 所以这里必定不是SCROLL_STATE_SETTLING状态
                 mScrollPointerId = MotionEventCompat.getPointerId(e, 0);
                 mInitialTouchX = mLastTouchX = (int) (e.getX() + 0.5f);
                 mInitialTouchY = mLastTouchY = (int) (e.getY() + 0.5f);
