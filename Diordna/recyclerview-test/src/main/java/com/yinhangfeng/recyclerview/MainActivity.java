@@ -63,7 +63,14 @@ public class MainActivity extends BaseTestActivity {
 //        StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL);
 
         recyclerView.setLayoutManager(layoutManager);
-        recyclerView.getItemAnimator().setSupportsChangeAnimations(true);
+
+        RecyclerView.ItemAnimator itemAnimator = recyclerView.getItemAnimator();
+        itemAnimator.setSupportsChangeAnimations(true);
+        itemAnimator.setAddDuration(2000);
+        itemAnimator.setChangeDuration(2000);
+        itemAnimator.setMoveDuration(2000);
+        itemAnimator.setRemoveDuration(2000);
+
 
         adapter = new MyAdapter();
         recyclerView.setAdapter(adapter);
@@ -153,7 +160,7 @@ public class MainActivity extends BaseTestActivity {
         @Override
         public void onBindViewHolder(MyViewHolder viewHolder, int i) {
             Log.i(TAG, "onBindViewHolder position:" + i + " data:" + data.get(i));
-            viewHolder.text1.setText(data.get(i));
+            viewHolder.text1.setText(data.get(i) + "\nxxx");
             if(i % 2 == 0) {
                 viewHolder.itemView.setBackgroundColor(Color.GREEN);
             } else {

@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="12.2">
+  <zoom_level>10</zoom_level>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>930</x>
+      <y>320</y>
+      <w>360</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>Network
+--
++NetworkResponse performRequest(Request request)</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>1060</x>
+      <y>430</y>
+      <w>100</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>BasicNetwork</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>1080</x>
+      <y>350</y>
+      <w>50</w>
+      <h>100</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>30;30;30;80</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>980</x>
+      <y>530</y>
+      <w>290</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>HttpStack
+--
++HttpResponse performRequest(Request request, Map&lt;String, String&gt; additionalHeaders)</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>1060</x>
+      <y>630</y>
+      <w>100</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>HurlStack</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>1080</x>
+      <y>540</y>
+      <w>50</w>
+      <h>110</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>30;30;30;90</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>1080</x>
+      <y>430</y>
+      <w>50</w>
+      <h>120</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-</panel_attributes>
+    <additional_attributes>30;100;30;30</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>180</x>
+      <y>130</y>
+      <w>590</w>
+      <h>100</h>
+    </coordinates>
+    <panel_attributes>RequestQueue
+--
+-Map&lt;String, Queue&lt;Request&lt;?&gt;&gt;&gt; mWaitingRequests
+-Set&lt;Request&lt;?&gt;&gt; mCurrentRequests
+-PriorityBlockingQueue&lt;Request&lt;?&gt;&gt; mCacheQueue
+-PriorityBlockingQueue&lt;Request&lt;?&gt;&gt; mNetworkQueue
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>510</x>
+      <y>320</y>
+      <w>260</w>
+      <h>70</h>
+    </coordinates>
+    <panel_attributes>NetworkDispatcher
+--
+-BlockingQueue&lt;Request&lt;?&gt;&gt; mQueue
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>400</x>
+      <y>550</y>
+      <w>190</w>
+      <h>100</h>
+    </coordinates>
+    <panel_attributes>/Cache/
+--
++Entry get(String key)
++put(String key, Entry entry)
++void remove(String key)
++void clear()
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>380</x>
+      <y>700</y>
+      <w>250</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>DiskBasedCache
+--
+-Map&lt;String, CacheHeader&gt; mEntries</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>470</x>
+      <y>620</y>
+      <w>50</w>
+      <h>100</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>30;30;30;80</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>560</x>
+      <y>360</y>
+      <w>170</w>
+      <h>260</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-</panel_attributes>
+    <additional_attributes>30;240;150;240;150;30</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>420</x>
+      <y>450</y>
+      <w>140</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>/ResponseDelivery/
+--
++postResponse(Request&lt;?&gt; request, Response&lt;?&gt; response)
++postResponse(Request&lt;?&gt; request, Response&lt;?&gt; response, Runnable runnable)
++postError(Request&lt;?&gt; request, VolleyError error)</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>520</x>
+      <y>360</y>
+      <w>50</w>
+      <h>110</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-</panel_attributes>
+    <additional_attributes>30;90;30;30</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>740</x>
+      <y>320</y>
+      <w>210</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-</panel_attributes>
+    <additional_attributes>190;30;30;30</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>180</x>
+      <y>320</y>
+      <w>300</w>
+      <h>70</h>
+    </coordinates>
+    <panel_attributes>CacheDispatcher
+--
+-BlockingQueue&lt;Request&lt;?&gt;&gt; mCacheQueue
+-BlockingQueue&lt;Request&lt;?&gt;&gt; mNetworkQueue
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>410</x>
+      <y>360</y>
+      <w>50</w>
+      <h>110</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-</panel_attributes>
+    <additional_attributes>30;90;30;30</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>210</x>
+      <y>360</y>
+      <w>210</w>
+      <h>260</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-</panel_attributes>
+    <additional_attributes>190;240;30;240;30;30</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>610</x>
+      <y>200</y>
+      <w>50</w>
+      <h>140</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+m1=n</panel_attributes>
+    <additional_attributes>30;120;30;30</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>250</x>
+      <y>200</y>
+      <w>50</w>
+      <h>140</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-</panel_attributes>
+    <additional_attributes>30;120;30;30</additional_attributes>
+  </element>
+</diagram>

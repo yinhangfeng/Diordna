@@ -22,8 +22,8 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-public class MyClass {
-    public static void main(String[] args) throws Exception {
+public class DocumentTest {
+    public static void test() throws Exception {
         createXml(new File("xxx.txt"));
 
         //readXml(new File("xxx.txt"));

@@ -1,5 +1,7 @@
 package com.example.generic;
 
+import com.example.Test;
+
 import java.io.File;
 import java.io.InputStream;
 import java.lang.reflect.ParameterizedType;
