@@ -6,6 +6,7 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -44,7 +45,7 @@ public class MainActivity extends BaseTestActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view1);
+        final RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view1);
         recyclerView.setHasFixedSize(true);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
@@ -71,6 +72,36 @@ public class MainActivity extends BaseTestActivity {
         itemAnimator.setMoveDuration(2000);
         itemAnimator.setRemoveDuration(2000);
 
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.Callback() {
+            @Override
+            public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+                return makeMovementFlags(ItemTouchHelper.UP | ItemTouchHelper.DOWN, ItemTouchHelper.LEFT);
+            }
+
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                int pos1 = viewHolder.getAdapterPosition();
+                int pos2 = target.getAdapterPosition();
+                if(pos1 == RecyclerView.NO_POSITION || pos2 == RecyclerView.NO_POSITION) {
+                    return false;
+                }
+                String s1 = data.remove(pos1);
+                data.add(pos2, s1);
+                recyclerView.getAdapter().notifyItemMoved(pos1, pos2);
+                return true;
+            }
+
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+                int pos = viewHolder.getAdapterPosition();
+                if(pos == RecyclerView.NO_POSITION) {
+                    return;
+                }
+                data.remove(pos);
+                recyclerView.getAdapter().notifyItemRemoved(pos);
+            }
+        });
+        itemTouchHelper.attachToRecyclerView(recyclerView);
 
         adapter = new MyAdapter();
         recyclerView.setAdapter(adapter);

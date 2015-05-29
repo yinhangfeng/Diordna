@@ -639,6 +639,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         // scrapList中处于start或end 的item 的 size总和 为PredictiveAnimations item 需要layout的额外空间
         //1.获取PredictiveAnimations需要layout的item的额外空间
         int scrapExtraStart = 0, scrapExtraEnd = 0;
+        //在之前的fill中没有使用的scrapList 一般是移除动画的item
         final List<RecyclerView.ViewHolder> scrapList = recycler.getScrapList();
         final int scrapSize = scrapList.size();
         final int firstChildPos = getPosition(getChildAt(0));

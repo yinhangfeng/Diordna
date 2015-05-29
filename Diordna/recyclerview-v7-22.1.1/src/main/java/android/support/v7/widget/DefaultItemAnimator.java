@@ -260,6 +260,7 @@ public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
     public boolean animateMove(final ViewHolder holder, int fromX, int fromY,
             int toX, int toY) {
         final View view = holder.itemView;
+        //fromX加上getTranslationX 使得上一个动画还没结束调用下一个动画时，能够从上一个动画被结束处开始执行新动画
         fromX += ViewCompat.getTranslationX(holder.itemView);
         fromY += ViewCompat.getTranslationY(holder.itemView);
         endAnimation(holder);
