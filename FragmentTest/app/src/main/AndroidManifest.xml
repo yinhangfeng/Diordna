@@ -23,10 +23,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".Main1Activity"
-            android:label="@string/title_activity_main1" >
-        </activity>
-        <activity
             android:name=".TestActivity"
             android:label="@string/title_activity_test" >
         </activity>

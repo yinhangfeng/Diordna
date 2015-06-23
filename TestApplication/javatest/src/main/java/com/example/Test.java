@@ -5,11 +5,9 @@ import java.util.Arrays;
 public class Test {
 	
 	public static void main(String[] args) throws Exception {
-		System.out.println("xxxxxxxxxxxx");
-		StackTraceElement caller = getCallerStackTraceElement();
-		System.out.println(generateTag(caller));
-		xxx();
-		new Test().aaa();
+		String a = "abcfgfg";
+		System.out.println(a.substring(2, 3));
+
 	}
 
 	private static void xxx() {

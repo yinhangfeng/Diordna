@@ -26,6 +26,7 @@ public class FragmentV42 extends LogV4Fragment {
 			Bundle savedInstanceState) {
 		super.onCreateView(inflater, container, savedInstanceState);
 		return inflater.inflate(R.layout.fragment2, container, false);
+		//return null;
 	}
 	
 	@Override

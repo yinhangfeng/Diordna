@@ -21,104 +21,118 @@ public class LogV4Fragment extends StackCallbackFragment {
 	protected int curFragNo = fragNo++;
 
 	{
-		Log.d(getClass().getSimpleName(), "new instance curFragNo=" + curFragNo + " fragNo=" + fragNo);
+		log("new instance curFragNo=" + curFragNo + " fragNo=" + fragNo);
+	}
+
+	private String state() {
+		return "\nisResumed=" + isResumed() + " isHidden=" + isHidden() + " isAdded=" + isAdded() + " isDetached=" + isDetached() + " isInLayout=" + isInLayout() + " isMenuVisible=" + isMenuVisible() + " isRemoving=" + isRemoving() + " isVisible=" + isVisible();
+	}
+	
+	private void log(String msg) {
+		Log.i(getClass().getSimpleName(), msg + " curFragNo=" + curFragNo + state());
 	}
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
-		Log.d(getClass().getSimpleName(), "onActivityCreated curFragNo=" + curFragNo + " getArguments()=" + getArguments() + " savedInstanceState=" + savedInstanceState);
+		log("onActivityCreated  getArguments()=" + getArguments() + " savedInstanceState=" + savedInstanceState);
 		super.onActivityCreated(savedInstanceState);
 	}
 
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		Log.d(getClass().getSimpleName(), "onActivityResult curFragNo=" + curFragNo + " getArguments()=" + getArguments() + " requestCode=" + requestCode + " resultCode=" + resultCode + " data=" + data);
+		log("onActivityResult  getArguments()=" + getArguments() + " requestCode=" + requestCode + " resultCode=" + resultCode + " data=" + data);
 		super.onActivityResult(requestCode, resultCode, data);
 	}
 
 	@Override
 	public void onAttach(Activity activity) {
-		Log.d(getClass().getSimpleName(), "onAttach curFragNo=" + curFragNo + " getArguments()=" + getArguments() + " activity=" + activity);
+		log("onAttach  getArguments()=" + getArguments() + " activity=" + activity);
 		super.onAttach(activity);
 	}
 
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
-		Log.d(getClass().getSimpleName(), "onConfigurationChanged curFragNo=" + curFragNo + " getArguments()=" + getArguments() + " newConfig=" + newConfig);
+		log("onConfigurationChanged  getArguments()=" + getArguments() + " newConfig=" + newConfig);
 		super.onConfigurationChanged(newConfig);
 	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		Log.d(getClass().getSimpleName(), "onCreate curFragNo=" + curFragNo + " getArguments()=" + getArguments() + " savedInstanceState=" + savedInstanceState);
+		log("onCreate  getArguments()=" + getArguments() + " savedInstanceState=" + savedInstanceState);
 		super.onCreate(savedInstanceState);
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		Log.d(getClass().getSimpleName(), "onCreateView curFragNo=" + curFragNo + " getArguments()=" + getArguments() + " savedInstanceState=" + savedInstanceState);
+		log("onCreateView  getArguments()=" + getArguments() + " savedInstanceState=" + savedInstanceState);
 		return super.onCreateView(inflater, container, savedInstanceState);
 	}
 
 	@Override
 	public void onDestroy() {
-		Log.d(getClass().getSimpleName(), "onDestroy curFragNo=" + curFragNo + " getArguments()=" + getArguments());
+		log("onDestroy  getArguments()=" + getArguments());
 		super.onDestroy();
 	}
 
 	@Override
 	public void onDestroyView() {
-		Log.d(getClass().getSimpleName(), "onDestroyView curFragNo=" + curFragNo + " getArguments()=" + getArguments());
+		log("onDestroyView  getArguments()=" + getArguments());
 		super.onDestroyView();
 	}
 
 	@Override
 	public void onDetach() {
-		Log.d(getClass().getSimpleName(), "onDetach curFragNo=" + curFragNo + " getArguments()=" + getArguments());
+		log("onDetach  getArguments()=" + getArguments());
 		super.onDetach();
 	}
 
 	@Override
 	public void onPause() {
-		Log.d(getClass().getSimpleName(), "onPause curFragNo=" + curFragNo + " getArguments()=" + getArguments());
+		log("onPause  getArguments()=" + getArguments());
 		super.onPause();
 	}
 
 	@Override
 	public void onResume() {
-		Log.d(getClass().getSimpleName(), "onResume curFragNo=" + curFragNo + " getArguments()=" + getArguments());
+		log("onResume  getArguments()=" + getArguments());
 		super.onResume();
 	}
 
 	@Override
+	public void onHiddenChanged(boolean hidden) {
+		super.onHiddenChanged(hidden);
+		log("onHiddenChanged hidden=" + hidden);
+	}
+
+	@Override
 	public void onSaveInstanceState(Bundle outState) {
-		Log.d(getClass().getSimpleName(), "onSaveInstanceState curFragNo=" + curFragNo + " getArguments()=" + getArguments() + " outState=" + outState);
+		log("onSaveInstanceState  getArguments()=" + getArguments() + " outState=" + outState);
 		outState.putString("BaseLogFragmentonSaveInstanceState1", "BaseLogFragmentonSaveInstanceState1");
 		super.onSaveInstanceState(outState);
 	}
 	
 	@Override
 	public void onViewStateRestored(Bundle savedInstanceState) {
-		Log.d(getClass().getSimpleName(), "onViewStateRestored curFragNo=" + curFragNo + " savedInstanceState=" + savedInstanceState);
+		log("onViewStateRestored  savedInstanceState=" + savedInstanceState);
 		super.onViewStateRestored(savedInstanceState);
 	}
 
 	@Override
 	public void onStart() {
-		Log.d(getClass().getSimpleName(), "onStart curFragNo=" + curFragNo + " getArguments()=" + getArguments());
+		log("onStart  getArguments()=" + getArguments());
 		super.onStart();
 	}
 
 	@Override
 	public void onStop() {
-		Log.d(getClass().getSimpleName(), "onStop curFragNo=" + curFragNo + " getArguments()=" + getArguments());
+		log("onStop  getArguments()=" + getArguments());
 		super.onStop();
 	}
 
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
-		Log.d(getClass().getSimpleName(), "onViewCreated curFragNo=" + curFragNo + " getArguments()=" + getArguments() + " savedInstanceState=" + savedInstanceState);
+		log("onViewCreated  getArguments()=" + getArguments() + " savedInstanceState=" + savedInstanceState);
 		super.onViewCreated(view, savedInstanceState);
 	}
 
@@ -134,6 +148,6 @@ public class LogV4Fragment extends StackCallbackFragment {
 
 	@Override
 	public String toString() {
-		return getClass().getSimpleName() + " [curFragNo=" + curFragNo + " isVisible=" + isVisible() + "]";
+		return getClass().getSimpleName() + " [curFragNo=" + curFragNo + state() + "]";
 	}
 }

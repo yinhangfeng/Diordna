@@ -1,24 +1,17 @@
 package com.example.fragmenttest;
 
-import com.kingoit.yzt.fragment.YztFragmentManager;
-
-import android.content.AsyncQueryHandler;
-import android.content.AsyncTaskLoader;
-import android.content.CursorLoader;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v13.app.FragmentStatePagerAdapter;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
@@ -37,7 +30,7 @@ import android.widget.LinearLayout;
  * 
  * ProgressBar可在工作线程setProgress()
  */
-public class MainActivity extends FragmentActivity implements OnClickListener {
+public class MainActivity extends AppCompatActivity implements OnClickListener {
 	private static final String TAG = "MainActivity";
 	private FragmentManager mFragmentManager;
 	private ViewGroup contentView;
@@ -127,20 +120,21 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
 		return true;
 	}
 
-	@Override
-	public boolean onMenuItemSelected(int featureId, MenuItem item) {
-		switch (item.getItemId()) {
-		case 1:
-			return true;
-		case 2:
-			return true;
-		case 3:
-			return true;
-		case 4:
-			return true;
-		}
-		return super.onMenuItemSelected(featureId, item);
-	}
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+		R a;
+        switch (item.getItemId()) {
+        case 1:
+            return true;
+        case 2:
+            return true;
+        case 3:
+            return true;
+        case 4:
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
 	private static void getRecursionViewInfo(StringBuilder sb, View v) {
 		sb.append(v.getClass().getSimpleName());
@@ -178,7 +172,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
 
 	private void logViewStruct() {
 		Log.i(TAG, getRecursionViewInfo(frameLayout1));
-		Log.i(TAG, getRecursionViewInfo(frameLayout2));
+		//Log.i(TAG, getRecursionViewInfo(frameLayout2));
 	}
 	
 	private void findFragmentView() {
@@ -194,16 +188,19 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
 			startActivity(new Intent(this, TestActivity.class));
 			break;
 		case R.id.btn1:
-            mFragmentManager.beginTransaction().replace(R.id.frame_layout1, new FragmentV41()).commit();
+			mFragmentManager.beginTransaction().replace(R.id.frame_layout1, new FragmentV41(), "111").commit();
 			break;
 		case R.id.btn2:
-            mFragmentManager.beginTransaction().replace(R.id.frame_layout2, new FragmentV42()).addToBackStack(null).commit();
+            mFragmentManager.beginTransaction().replace(R.id.frame_layout1, new FragmentV42(), "222").addToBackStack(null).commit();
 			break;
 		case R.id.btn3:
+			mFragmentManager.beginTransaction().hide(mFragmentManager.findFragmentByTag("111")).add(R.id.frame_layout1, new FragmentV43(), "333").addToBackStack(null).commit();
 			break;
 		case R.id.btn4:
+			mFragmentManager.beginTransaction().remove(mFragmentManager.findFragmentByTag("111")).remove(mFragmentManager.findFragmentByTag("222")).commit();
 			break;
 		case R.id.btn5:
+			mFragmentManager.beginTransaction().detach(mFragmentManager.findFragmentByTag("111")).commit();
 			break;
 		case R.id.btn6:
 			break;
@@ -214,10 +211,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
 			logViewStruct();
 			Log.i(TAG, "mFragmentManager.getBackStackEntryCount()="
 					+ mFragmentManager.getBackStackEntryCount());
-			Fragment fra = mFragmentManager.findFragmentById(R.id.frame_layout2);
-			Log.i(TAG, "fra = " + fra);
-			Fragment frb = mFragmentManager.findFragmentByTag("f1");
-			Log.i(TAG, "frb = " + frb);
+			Log.i(TAG, "" + mFragmentManager.getFragments());
 			Log.i(TAG, "=====================================================");
 			break;
 		}

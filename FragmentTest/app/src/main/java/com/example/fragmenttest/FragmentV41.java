@@ -24,7 +24,7 @@ public class FragmentV41 extends LogV4Fragment implements OnClickListener {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Log.i(TAG, "onCreate savedInstanceState=" + savedInstanceState);
+		//Log.i(TAG, "onCreate savedInstanceState=" + savedInstanceState);
 		if(savedInstanceState != null) {
 			Bundle bundle = savedInstanceState.getParcelable("xxx");
 			Log.i(TAG, "onCreate bundle=" + bundle + " bundle.getString(\"aaa\")=" + bundle.getString("aaa"));
@@ -44,6 +44,7 @@ public class FragmentV41 extends LogV4Fragment implements OnClickListener {
 		view.findViewById(R.id.btn1).setOnClickListener(this);
 		v1 = (TextView) view.findViewById(R.id.v1);
 		v1.append(" curFragNo=" + curFragNo);
+		Log.i(TAG, "onViewCreated getView=" + getView() + " view=" + view + " " + (getView() == view));
 	}
 
 	@Override
@@ -74,7 +75,7 @@ public class FragmentV41 extends LogV4Fragment implements OnClickListener {
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		Log.i(TAG, "onSaveInstanceState putParcelable");
+		//Log.i(TAG, "onSaveInstanceState putParcelable");
 		Bundle bundle = new Bundle();
 		bundle.putString("aaa", "aaaaaaaaaa");
 		bundle.putInt("bbb", 1111111111);
