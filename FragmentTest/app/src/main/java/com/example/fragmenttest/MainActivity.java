@@ -2,6 +2,7 @@ package com.example.fragmenttest;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
@@ -180,6 +181,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 		Log.i(TAG, "findFragmentView v=" + v);
 	}
 
+	private Fragment frag1 = new FragmentV41();
+
 	@Override
 	public void onClick(View v) {
 		FragmentTransaction ft;
@@ -188,19 +191,24 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 			startActivity(new Intent(this, TestActivity.class));
 			break;
 		case R.id.btn1:
-			mFragmentManager.beginTransaction().replace(R.id.frame_layout1, new FragmentV41(), "111").commit();
+			mFragmentManager.beginTransaction().replace(R.id.frame_layout1, frag1, "111").commit();
 			break;
 		case R.id.btn2:
-            mFragmentManager.beginTransaction().replace(R.id.frame_layout1, new FragmentV42(), "222").addToBackStack(null).commit();
+			mFragmentManager.beginTransaction().hide(frag1).addToBackStack(null).commit();
+//            mFragmentManager.beginTransaction().replace(R.id.frame_layout1, new FragmentV42(), "222").addToBackStack(null).commit();
+//			mFragmentManager.beginTransaction().hide(mFragmentManager.findFragmentByTag("111")).add(R.id.frame_layout1, new FragmentV43(), "333").addToBackStack(null).commit();
+//			mFragmentManager.beginTransaction().remove(mFragmentManager.findFragmentByTag("111")).remove(mFragmentManager.findFragmentByTag("222")).commit();
+//			mFragmentManager.beginTransaction().detach(mFragmentManager.findFragmentByTag("111")).commit();
 			break;
 		case R.id.btn3:
-			mFragmentManager.beginTransaction().hide(mFragmentManager.findFragmentByTag("111")).add(R.id.frame_layout1, new FragmentV43(), "333").addToBackStack(null).commit();
+			View frame1Child0 = frameLayout1.getChildAt(0);
+			View frag1View = frag1.getView();
+			Log.i(TAG, "frame1Child0 == frag1View ? " + (frame1Child0 == frag1View));
+			frame1Child0.setVisibility(View.VISIBLE);
 			break;
 		case R.id.btn4:
-			mFragmentManager.beginTransaction().remove(mFragmentManager.findFragmentByTag("111")).remove(mFragmentManager.findFragmentByTag("222")).commit();
 			break;
 		case R.id.btn5:
-			mFragmentManager.beginTransaction().detach(mFragmentManager.findFragmentByTag("111")).commit();
 			break;
 		case R.id.btn6:
 			break;

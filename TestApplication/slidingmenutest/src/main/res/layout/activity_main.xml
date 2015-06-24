@@ -1,44 +1,71 @@
-<FrameLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
     <android.support.v4.widget.SlidingPaneLayout
         android:id="@+id/sliding_pane_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
         <TextView
-            android:id="@+id/left_menu"
+            android:id="@+id/pane_left_menu"
             android:layout_width="150dp"
             android:layout_height="match_parent"
-            android:text="LEFT_MENU"
-            android:gravity="center"
-            android:textSize="30sp"
+            android:layout_gravity="left"
             android:background="#66cc66"
-            android:layout_gravity="left"/>
+            android:gravity="center"
+            android:text="LEFT_MENU"
+            android:textSize="30sp"/>
 
         <TextView
-            android:id="@+id/content"
+            android:id="@+id/pane_content"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="CONTENT"
-            android:gravity="center"
-            android:textSize="30sp"
+            android:layout_gravity="left"
             android:background="#6666CC"
-            android:layout_gravity="left"/>
-
-        <TextView
-            android:id="@+id/right_menu"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text="RIGHT_MENU"
             android:gravity="center"
-            android:textSize="30sp"
-            android:background="#cc6666"
-            android:layout_gravity="left"/>
+            android:text="CONTENT"
+            android:textSize="30sp"/>
 
     </android.support.v4.widget.SlidingPaneLayout>
 
+    <android.support.v4.widget.DrawerLayout
+        android:id="@+id/drawer_layout"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
-</FrameLayout>
+        <TextView
+            android:id="@+id/drawer_left_menu"
+            android:layout_width="150dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="left"
+            android:background="#66cc66"
+            android:gravity="center"
+            android:text="LEFT_MENU"
+            android:textSize="30sp"/>
+
+        <TextView
+            android:id="@+id/drawer_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#6666CC"
+            android:gravity="center"
+            android:text="CONTENT"
+            android:textSize="30sp"/>
+
+        <TextView
+            android:id="@+id/drawer_right_menu"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="right"
+            android:background="#cc6666"
+            android:gravity="center"
+            android:text="RIGHT_MENU"
+            android:textSize="30sp"/>
+
+    </android.support.v4.widget.DrawerLayout>
+</LinearLayout>

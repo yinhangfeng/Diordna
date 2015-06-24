@@ -2,18 +2,22 @@ package com.example.yinhangfeng.slidingmenutest;
 
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SlidingPaneLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.FrameLayout;
 
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
     private SlidingPaneLayout slidingPaneLayout;
+    private DrawerLayout drawerLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +45,30 @@ public class MainActivity extends AppCompatActivity {
         slidingPaneLayout.setSliderFadeColor(Color.BLUE);
         slidingPaneLayout.setShadowResourceLeft(R.drawable.drawer_shadow);
         slidingPaneLayout.setShadowResourceRight(R.drawable.drawer_shadow);
+
+        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawerLayout.setDrawerListener(new DrawerLayout.DrawerListener() {
+            @Override
+            public void onDrawerSlide(View drawerView, float slideOffset) {
+
+            }
+
+            @Override
+            public void onDrawerOpened(View drawerView) {
+                Log.i(TAG, "onDrawerOpened() called with " + "drawerView = [" + drawerView + "]");
+            }
+
+            @Override
+            public void onDrawerClosed(View drawerView) {
+                Log.i(TAG, "onDrawerClosed() called with " + "drawerView = [" + drawerView + "]");
+            }
+
+            @Override
+            public void onDrawerStateChanged(int newState) {
+                Log.i(TAG, "onDrawerStateChanged() called with " + "newState = [" + newState + "]");
+            }
+        });
+        drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, Gravity.LEFT);
     }
 
     @Override
