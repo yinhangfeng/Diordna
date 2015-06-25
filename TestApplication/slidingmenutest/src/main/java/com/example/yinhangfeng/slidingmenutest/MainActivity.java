@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
         slidingPaneLayout.setShadowResourceLeft(R.drawable.drawer_shadow);
         slidingPaneLayout.setShadowResourceRight(R.drawable.drawer_shadow);
 
+        //drawerLayout未设置Gravity的View会作为content
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawerLayout.setDrawerListener(new DrawerLayout.DrawerListener() {
             @Override

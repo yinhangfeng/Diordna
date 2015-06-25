@@ -6437,6 +6437,7 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
     }
 
     /**
+     * 处于RecycleBin中的View 状态为deatched
      * The RecycleBin facilitates reuse of views across layouts. The RecycleBin has two levels of
      * storage: ActiveViews and ScrapViews. ActiveViews are those views which were onscreen at the
      * start of a layout. By construction, they are displaying current information. At the end of

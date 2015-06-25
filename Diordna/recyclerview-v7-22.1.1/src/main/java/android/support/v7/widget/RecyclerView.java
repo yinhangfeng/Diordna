@@ -238,6 +238,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
     private boolean mClipToPadding;
 
     /**
+     * 启动item部分改变动画
      * Note: this Runnable is only ever posted if:
      * 1) We've been through first layout
      * 2) We know we have a fixed size (mHasFixedSize)
@@ -262,6 +263,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
                     // final adapter positions. No need to run it if a layout is already requested.
                     rebindUpdatedViewHolders();
                 }
+                //目前RecyclerView中唯一resumeRequestLayout传入true的地方,因为需要dispatchLayout来启动动画
                 resumeRequestLayout(true);
                 TraceCompat.endSection();
             }
@@ -2380,6 +2382,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
             return;
         }
         mState.mDisappearingViewsInLayoutPass.clear();
+        //layout过程中会有很多的child addView 或removeView,阻止这些操作触发的requestLayout
         eatRequestLayout();
         //标记正在Layout
         onEnterLayoutOrScroll();
@@ -2588,6 +2591,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
                 }
             }
         }
+        //恢复可requestLayout 由于layout child过程中包含了对子View的measure layout 所以不需要再次requestLayout,传入false
         resumeRequestLayout(false);
         //回收所有未重用scrap
         mLayout.removeAndRecycleScrapInt(mRecycler);
@@ -3971,6 +3975,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
     }
 
     /**
+     * 对于Scrap的View 状态为detach,对于已经recycle的View 状态为removed
+     * 所以从scrap中恢复的View,只需调用attach
+     * 不同于ListView的RecycleBin,处于RecycleBin中的View 状态都为detach
      * A Recycler is responsible for managing scrapped or detached item views for reuse.
      *
      * <p>A "scrapped" view is a view that is still attached to its parent RecyclerView but
@@ -5941,7 +5948,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
                 } else {
                     holder.clearReturnedFromScrapFlag();
                 }
-                //执行attach view
+                //来自scrap的view 只需执行attach view
                 mChildHelper.attachViewToParent(child, index, child.getLayoutParams(), false);
                 if (DISPATCH_TEMP_DETACH) {
                     ViewCompat.dispatchFinishTemporaryDetach(child);
@@ -5958,7 +5965,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
                             + " view is not a real child. Unfiltered index:"
                             + mRecyclerView.indexOfChild(child));
                 }
-                //调用更改view index
+                //View 状态为已经added 调用更改view index
                 if (currentIndex != index) {
                     mRecyclerView.mLayout.moveView(currentIndex, index);
                 }
@@ -6187,6 +6194,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
         }
 
         /**
+         * 通过detach 与attach快速更改View的index
          * Moves a View from one position to another.
          *
          * @param fromIndex The View's initial index

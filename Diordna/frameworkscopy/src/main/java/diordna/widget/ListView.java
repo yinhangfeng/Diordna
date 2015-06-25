@@ -2014,6 +2014,7 @@ public class ListView extends AbsListView {
             if (p.viewType == AdapterView.ITEM_VIEW_TYPE_HEADER_OR_FOOTER) {
                 p.recycledHeaderFooter = true;
             }
+            //不会触发requestLayout
             addViewInLayout(child, flowDown ? -1 : 0, p, true);
         }
 
