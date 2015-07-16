@@ -1,0 +1,11 @@
+<config xxx="1">
+    <aaa>aaa</aaa>
+    <bbb a="1" b="x"/>
+    <ccc a="ccc" b="222">ccccccc</ccc>
+    <ddd d="dddddd">
+        <aaa>aaa</aaa>
+        <bbb a="1" b="x"/>
+        <ccc a="ccc" b="222">ccccccc</ccc>
+        xxxx
+    </ddd>
+</config>

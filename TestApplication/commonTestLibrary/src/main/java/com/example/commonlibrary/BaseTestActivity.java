@@ -2,13 +2,13 @@ package com.example.commonlibrary;
 
 import java.io.File;
 
-import android.app.Activity;
 import android.os.Environment;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public class BaseTestActivity extends Activity {
+public class BaseTestActivity extends AppCompatActivity {
 	
 	protected File testRootFile = new File(Environment.getExternalStorageDirectory(), "TEST");
 

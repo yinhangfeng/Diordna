@@ -1,4 +1,4 @@
-include ':app', ':testlibrary', ':webviewtest', ':javatest', ':actionbartest', ':gallerytest', ':popuptest', ':ConfigChangeTest', ':appcompatv7test', ':animationtest', ':floatwindowtest', ':lollipoptest', ':nestedscroll', ':activityanim', ':intentfiltertest', ':slidingmenutest'
+include ':app', ':testlibrary', ':webviewtest', ':javatest', ':actionbartest', ':gallerytest', ':popuptest', ':ConfigChangeTest', ':appcompatv7test', ':animationtest', ':floatwindowtest', ':lollipoptest', ':nestedscroll', ':activityanim', ':intentfiltertest', ':slidingmenutest', ':bitmaptest', ':xmlresourceparsertest'
 include ':deviceIDTest'
 include ':dialogTest'
 include ':directoryTest'

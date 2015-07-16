@@ -1,0 +1,113 @@
+<html>
+<head>
+    <title>test1</title>
+    <script>
+    function logInjection(msg) {
+        console.log(msg + ": x=" + x);
+    }
+    logInjection("head start");
+    setTimeout(function() {
+        logInjection("head start setTimeout");
+    });
+    window.addEventListener("load", function() {
+		logInjection("window onload");
+	});
+
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=yes">
+    <title>test</title>
+    <style>
+        button {
+        width:120px;
+        height:40px;
+        display:block;
+        }
+		p {
+		height:30px;
+		background-color:#00ff00;
+		font-size:24px;
+		color:#000000;
+		margin-bottom:5px;
+        margin-left:0;
+		}
+    </style>
+    <script type="text/javascript" src="http://cqg.lightappbuilder.com/Public/js/lib/jquery.min.js"></script>
+    <script type="text/javascript" src="http://cqg.lightappbuilder.com/Public/js/lib/fastclick.js" defer></script>
+</head>
+<body style="padding:0;margin:0;">
+<p style="width:100px">100px</p>
+<img src="http://m.baidu.com/static/index/plus/plus_logo.png">
+<img src="http://m.baidu.com/static/index/plus/plus_logo.png">
+<button class="test1" onclick="test1()">test1</button>
+<button class="test2" onclick="test2()">test2</button>
+<button class="test3" onclick="test3()">test3</button>
+<button class="test4" onclick="test4()">test4</button>
+<button class="test5" onclick="test5()">test5</button>
+<button class="test6" onclick="test6()">test6</button>
+<button class="test7" onclick="test7()">test7</button>
+<button class="test8" onclick="test8()">test8</button>
+<button class="test9" onclick="test9()">test9</button>
+<textarea style="width:100%;height:50px;"></textarea>
+
+<a href="http://www.baidu.com"><p>baidu</p></a>
+<a href="test.html"><p>test.html</p></a>
+<script src="file:///android_asset/test.js"></script>
+<script>
+    function test1(c) {
+        window.location.href="http://www.baidu.com";
+    }
+
+    function test2() {
+        console.log("testLoadUrl before");
+        setTimeout(function() {
+        console.log("testLoadUrl before setTimeout");
+        });
+        test.testLoadUrl();
+        setTimeout(function() {
+        console.log("testLoadUrl after setTimeout");
+        });
+
+        console.log("testLoadUrl after");
+    }
+
+    function test3() {
+        var i = test.basicData(1, 2, '1234', 4, 7.7, 6.6666666666666666666, "7");
+        alert(i);
+    }
+
+    function test4() {
+        test.wrapData(3, 3.3333);
+    }
+
+    function test5() {
+        test.aaa(null);
+    }
+
+    function test6() {
+        var jsobj1 = test.xxx();
+
+        jsobj1.toast();
+
+    }
+
+    function test7() {
+        var viewport = document.getElementsByTagName("meta")[0];
+        viewport.content = "width=200, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=yes";
+    }
+
+    function test8() {
+        var func = function() {console.log("timer");setTimeout(func, 500)};
+        setTimeout(func, 500);
+    }
+
+    function test9() {
+        var jsonStr = '{"a":3, "b":"bbb", "c":6.6666666666}';
+        var json = JSON.decode(jsonStr);
+        alert(json.a);
+        var jsonStr1 = JSON.encode(json);
+        alert(jsonStr1);
+    }
+    logInjection("body end");
+</script>
+</body>
+</html>

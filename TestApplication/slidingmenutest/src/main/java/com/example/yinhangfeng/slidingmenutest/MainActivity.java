@@ -1,6 +1,7 @@
 package com.example.yinhangfeng.slidingmenutest;
 
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SlidingPaneLayout;
@@ -23,6 +24,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+//        String url = "http://www.baidu.com/?ccc=3&ddd=xyz&eee";
+//
+//        Uri uri = Uri.parse(url);
+//        Log.i(TAG, "onCreate uri=" + uri + " getAuthority=" + uri.getAuthority() + " getQuery=" + uri.getQuery() + " getEncodedPath=" + uri.getEncodedPath()
+//        + " getPath=" + uri.getPath() + " getHost=" + uri.getHost() + " eee=" + uri.getQueryParameter("eee"));
 
         slidingPaneLayout = (SlidingPaneLayout) findViewById(R.id.sliding_pane_layout);
         slidingPaneLayout.setPanelSlideListener(new SlidingPaneLayout.PanelSlideListener() {
@@ -82,6 +89,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if(id == R.id.action_settings) {
+            Log.i(TAG, "slidingPaneLayout.getLayerType()=" + slidingPaneLayout.getLayerType() + " drawerLayout.getLayerType()=" + drawerLayout.getLayerType());
             return true;
         }
 
