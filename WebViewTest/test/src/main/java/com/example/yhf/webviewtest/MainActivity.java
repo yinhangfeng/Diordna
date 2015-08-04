@@ -1,8 +1,14 @@
 package com.example.yhf.webviewtest;
 
+import android.annotation.TargetApi;
+import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
 import android.os.PersistableBundle;
@@ -19,12 +25,15 @@ import android.view.animation.TranslateAnimation;
 import android.webkit.ConsoleMessage;
 import android.webkit.JsPromptResult;
 import android.webkit.JsResult;
+import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.example.yhf.webviewtest.util.L;
@@ -33,16 +42,19 @@ import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class MainActivity extends BaseTestActivity {
     private static final String TAG = "MainActivity";
     private static final String BAIDU = "http://www.baidu.com";
 
+    private ViewGroup webContainer;
     private MyWebView webView;
     private ImageView imageView;
+
+    private FrameLayout videoViewLayout;
+    private View xCustomView;
+    private WebChromeClient.CustomViewCallback xCustomViewCallback;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,9 +64,12 @@ public class MainActivity extends BaseTestActivity {
         setContentView(R.layout.activity_main);
         imageView = (ImageView) findViewById(R.id.image);
         
-        ViewGroup webContainer = (ViewGroup) findViewById(R.id.web_container);
-        webView = new MyWebView(getApplication());
+        webContainer = (ViewGroup) findViewById(R.id.web_container);
+        //Wrong type of context, can't create fullscreen video 要全屏播放视屏 必须传入activity
+        webView = new MyWebView(this);
         webContainer.addView(webView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+
+        videoViewLayout = (FrameLayout) findViewById(R.id.video_view_layout);
 
         initWebView(webView, "file:///android_asset/test1.html");
 
@@ -114,11 +129,11 @@ public class MainActivity extends BaseTestActivity {
             public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
                 //js线程调用
                 L.e(TAG, "shouldInterceptRequest url=", url, " tid=", Thread.currentThread().getId());
-//                try {
-//                    Thread.sleep(1000);
-//                } catch(InterruptedException e) {
-//                    e.printStackTrace();
-//                }
+                //                try {
+                //                    Thread.sleep(1000);
+                //                } catch(InterruptedException e) {
+                //                    e.printStackTrace();
+                //                }
                 if(url.endsWith(".png")) {
                     WebResourceResponse response;
                     try {
@@ -128,13 +143,13 @@ public class MainActivity extends BaseTestActivity {
                         e.printStackTrace();
                     }
                 }
-                if(url.endsWith("jquery.min.js")) {
-                    try {
-                        return new WebResourceResponse(null, null, getAssets().open("jquery.min.js"));
-                    } catch(IOException e) {
-                        e.printStackTrace();
-                    }
-                }
+//                if(url.endsWith("jquery.min.js")) {
+//                    try {
+//                        return new WebResourceResponse(null, null, getAssets().open("jquery.min.js"));
+//                    } catch(IOException e) {
+//                        e.printStackTrace();
+//                    }
+//                }
                 return super.shouldInterceptRequest(view, url);
             }
 
@@ -175,6 +190,64 @@ public class MainActivity extends BaseTestActivity {
                 L.i(TAG, "onCreateWindow() called with view = [", view, "], isDialog = [", isDialog, "], isUserGesture = [", isUserGesture, "], resultMsg = [", resultMsg, "]");
                 return super.onCreateWindow(view, isDialog, isUserGesture, resultMsg);
             }
+
+            @Override
+            public void onShowCustomView(View view, CustomViewCallback callback) {
+                L.i(TAG, "onShowCustomView view=", view, " parent=", view.getParent());
+                if(view instanceof ViewGroup) {
+                    ViewGroup viewGroup = (ViewGroup) view;
+                    for(int i = 0; i < viewGroup.getChildCount(); ++i) {
+                        L.i(TAG, "onShowCustomView v", i, "  ", L.getRecursionViewInfo(viewGroup.getChildAt(i)));
+                    }
+                }
+                //setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+                if (xCustomView != null) {
+                    L.e(TAG, "onShowCustomView xCustomView != null");
+                    return;
+                }
+                videoViewLayout.addView(view);
+                xCustomView = view;
+                xCustomViewCallback = callback;
+                videoViewLayout.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onHideCustomView() {
+                L.i(TAG, "onHideCustomView xCustomView=" + xCustomView);
+                if (xCustomView == null)
+                    return;
+                //setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
+                videoViewLayout.setVisibility(View.GONE);
+                videoViewLayout.removeAllViews();
+                xCustomView = null;
+                xCustomViewCallback = null;
+            }
+
+            @Override
+            public View getVideoLoadingProgressView() {
+                L.i(TAG, "getVideoLoadingProgressView");
+                return new ProgressBar(MainActivity.this);
+            }
+
+
+            public void openFileChooser(ValueCallback<Uri> uploadMsg) {
+                L.i(TAG, "openFileChooser() called with uploadMsg = [", uploadMsg, "]");
+            }
+
+            public void openFileChooser(ValueCallback<Uri> uploadMsg, String acceptType) {
+                L.i(TAG, "openFileChooser() called with uploadMsg = [", uploadMsg, "], acceptType = [", acceptType, "]");
+            }
+
+            public void openFileChooser(ValueCallback<Uri> uploadMsg, String acceptType, String capture) {
+                L.i(TAG, "openFileChooser() called with uploadMsg = [", uploadMsg, "], acceptType = [", acceptType, "], capture = [", capture, "]");
+            }
+
+            public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, FileChooserParams fileChooserParams) {
+                boolean b = super.onShowFileChooser(webView, filePathCallback, fileChooserParams);
+                L.i(TAG, "onShowFileChooser() called with webView = [", webView, "], filePathCallback = [", filePathCallback, "], fileChooserParams = [", fileChooserParams, "] b=", b);
+                return b;
+            }
         });
         webView.addJavascriptInterface(new JsObject(this, webView), "test");
 
@@ -183,6 +256,31 @@ public class MainActivity extends BaseTestActivity {
         injectionInfo(webView, "222");
 
         L.i(TAG, "initWebView webView.getScale()=", webView.getScale());
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            if (inCustomViewShow()) {
+                hideCustomView();
+                return true;
+            }else {
+                if(webView.canGoBack()) {
+                    webView.goBack();
+                    return true;
+                }
+            }
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    public boolean inCustomViewShow() {
+        return (xCustomView != null);
+    }
+
+    public void hideCustomView() {
+        L.i(TAG, "hideCustomView");
+        xCustomViewCallback.onCustomViewHidden();
     }
 
     private static void injectionInfo(WebView webView, String msg) {
@@ -216,19 +314,8 @@ public class MainActivity extends BaseTestActivity {
     }
 
     @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if(keyCode == KeyEvent.KEYCODE_BACK) {
-            if(webView.canGoBack()) {
-                webView.goBack();
-                return true;
-            }
-        }
-        return super.onKeyDown(keyCode, event);
-    }
-
-    @Override
     protected void test1() {
-        webView.loadUrl("http://www.baidu.com");
+        scrollTest();
     }
 
     @Override
@@ -258,10 +345,15 @@ public class MainActivity extends BaseTestActivity {
 
     @Override
     protected void test7() {
+        webContainer.addView(webView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
     }
 
     @Override
     protected void test8() {
+        ViewGroup p = (ViewGroup) webView.getParent();
+        if(p != null) {
+            p.removeView(webView);
+        }
         webView.destroy();
     }
 
@@ -361,6 +453,18 @@ public class MainActivity extends BaseTestActivity {
         public void destroyItem(ViewGroup container, int position, Object object) {
             L.i(TAG, "destroyItem() called with container = [", container, "], position = [", position, "], object = [", object, "]");
             container.removeView((View) object);
+        }
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        Log.i("testwebview", "=====<<<  onConfigurationChanged  >>>=====");
+        super.onConfigurationChanged(newConfig);
+
+        if(newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE){
+            Log.i("webview", "   现在是横屏1");
+        }else if(newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
+            Log.i("webview", "   现在是竖屏1");
         }
     }
 }

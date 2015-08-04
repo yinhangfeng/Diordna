@@ -1,6 +1,8 @@
 package com.example.yhf.webviewtest.util;
 
 import android.util.Log;
+import android.view.View;
+import android.view.ViewGroup;
 
 import java.util.Formatter;
 
@@ -793,6 +795,37 @@ public class L {
         }
 
         Log.println(priority, TAG, sb.toString());
+    }
+
+    private static void getRecursionViewInfo(StringBuilder sb, String spaces, View v) {
+        sb.append(spaces);
+        sb.append(v.toString());
+        if (v instanceof ViewGroup) {
+            ViewGroup vg = (ViewGroup) v;
+            int childCount = vg.getChildCount();
+            sb.append('[');
+            if(childCount > 0) {
+                sb.append('\n');
+            }
+            for (int i = 0; i < childCount; ++i) {
+                getRecursionViewInfo(sb, spaces + "  ", vg.getChildAt(i));
+                sb.append('\n');
+            }
+            if(childCount > 0) {
+                sb.append(spaces);
+            }
+            sb.append(']');
+        }
+    }
+
+    public static String getRecursionViewInfo(View v) {
+        StringBuilder sb = new StringBuilder();
+        getRecursionViewInfo(sb, "", v);
+        return sb.toString();
+    }
+
+    public static void LogViewInfo(String tag, View v) {
+        Log.i(tag, getRecursionViewInfo(v));
     }
 
 }
