@@ -29,8 +29,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //toolbar = (Toolbar) findViewById(R.id.tool_bar);
-        //setSupportActionBar(toolbar);
+        toolbar = (Toolbar) findViewById(R.id.tool_bar);
+        setSupportActionBar(toolbar);
 
         //android.app.ActionBar actionBar = getActionBar();
 
@@ -48,39 +48,39 @@ public class MainActivity extends AppCompatActivity {
 
         actionBar.setTitle("xx");
 
-        actionBar.setDisplayShowCustomEnabled(true);
+        //actionBar.setDisplayShowCustomEnabled(true);
         //actionBar.setCustomView(getLayoutInflater().inflate(R.layout.actionbar_custom_layout, null));
 
-//        toolbar1 = (Toolbar) findViewById(R.id.tool_bar1);
-//        //相当于 setDisplayHomeAsUpEnabled
-//        toolbar1.setNavigationIcon(R.mipmap.ic_launcher);
-//
-//        toolbar1.setNavigationOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Log.i(TAG, "NavigationOnClick");
-//            }
-//        });
-//
-//        toolbar1.setTitle("xxx");
-//
-//        toolbar1.inflateMenu(R.menu.menu_main);
-//        toolbar1.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
-//            @Override
-//            public boolean onMenuItemClick(MenuItem item) {
-//                return onOptionsItemSelected(item);
-//            }
-//        });
-//
-//        //toolbar1.setLogo(R.mipmap.ic_launcher);
-//
-//        toolbar1.addView(getLayoutInflater().inflate(R.layout.actionbar_custom_layout, null));
+        toolbar1 = (Toolbar) findViewById(R.id.tool_bar1);
+        //相当于 setDisplayHomeAsUpEnabled
+        toolbar1.setNavigationIcon(R.mipmap.ic_launcher);
+
+        toolbar1.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.i(TAG, "NavigationOnClick");
+            }
+        });
+
+        toolbar1.setTitle("xxx");
+
+        toolbar1.inflateMenu(R.menu.menu_main_compat);
+        toolbar1.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                return onOptionsItemSelected(item);
+            }
+        });
+
+        //toolbar1.setLogo(R.mipmap.ic_launcher);
+
+        toolbar1.addView(getLayoutInflater().inflate(R.layout.actionbar_custom_layout, null));
 
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        getMenuInflater().inflate(R.menu.menu_main_compat, menu);
         MenuItem searchItem = menu.findItem(R.id.search_view);
         MenuItemCompat.setOnActionExpandListener(searchItem, new MenuItemCompat.OnActionExpandListener() {
             @Override public boolean onMenuItemActionExpand (MenuItem item){
