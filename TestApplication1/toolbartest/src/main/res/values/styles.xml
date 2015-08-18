@@ -1,7 +1,7 @@
 <resources>
 
     <!-- Base application theme. android:Theme.Holo.Light Theme.AppCompat.Light -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light">
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Actionbar color -->
         <item name="colorPrimary">@color/accent_material_dark</item>
         <!--Status bar color-->
