@@ -1,59 +1,62 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <android.support.v4.view.ViewPager
+            android:id="@+id/view_pager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"/>
+
+        <FrameLayout
+            android:id="@+id/web_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#ffdddd"
+            android:visibility="gone">
+
+            <com.example.yhf.webviewtest.MyWebView
+                android:id="@+id/web_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                tools:context=".MainActivity">
+                android:background="@android:color/transparent"/>
+        </FrameLayout>
 
-    <!--<HorizontalScrollView-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="match_parent">-->
+        <HorizontalScrollView
+            android:id="@+id/hsv"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <FrameLayout
+                android:id="@+id/hsv_content"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"></FrameLayout>
 
-    <!--<LinearLayout-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:orientation="horizontal"-->
-    <!--android:background="#66aa66"-->
-    <!--android:paddingLeft="500dp"-->
-    <!--android:paddingRight="100dp">-->
+        </HorizontalScrollView>
 
-    <!--<FrameLayout-->
-    <!--android:id="@+id/web_container"-->
-    <!--android:layout_width="400dp"-->
-    <!--android:layout_height="match_parent"></FrameLayout>-->
-    <!--</LinearLayout>-->
-    <!--</HorizontalScrollView>-->
+        <ImageView
+            android:id="@+id/image"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:visibility="gone"/>
 
-    <android.support.v4.view.ViewPager
-        android:id="@+id/view_pager"
+        <FrameLayout
+            android:id="@+id/video_view_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            ></FrameLayout>
+    </RelativeLayout>
+
+    <android.support.design.widget.TabLayout
+        android:id="@+id/tab_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="gone"/>
-
-    <FrameLayout
-        android:id="@+id/web_container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="visible"></FrameLayout>
-
-    <TextView
-        android:id="@+id/text_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:text="Hello World"/>
-
-    <ImageView
-        android:id="@+id/image"
-        android:layout_width="match_parent"
-        android:layout_height="300dp"
-        android:visibility="gone"/>
-
-    <FrameLayout
-        android:id="@+id/video_view_layout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="gone"
-        ></FrameLayout>
-
-
-</RelativeLayout>
+        android:layout_height="wrap_content"/>
+</LinearLayout>

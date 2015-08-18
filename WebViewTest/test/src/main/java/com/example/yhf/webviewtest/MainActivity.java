@@ -1,21 +1,22 @@
 package com.example.yhf.webviewtest;
 
-import android.annotation.TargetApi;
-import android.app.Activity;
-import android.content.ActivityNotFoundException;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
 import android.os.PersistableBundle;
 import android.os.SystemClock;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,11 +33,17 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.yhf.webviewtest.util.L;
+import com.squareup.okhttp.Callback;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.Response;
 
 import org.apache.commons.io.IOUtils;
 
@@ -48,32 +55,88 @@ public class MainActivity extends BaseTestActivity {
     private static final String TAG = "MainActivity";
     private static final String BAIDU = "http://www.baidu.com";
 
+    private ImageView imageView;
     private ViewGroup webContainer;
     private MyWebView webView;
-    private ImageView imageView;
+    private HorizontalScrollView hsv;
+    private ViewGroup hsvContent;
+
+    //private static String[] urls = {"file:///android_asset/test1.html", "http://www.baidu.com", "http://weibo.com", "file:///android_asset/test.html"};
+    //private static String[] urls = {"http://www.youku.com/", "http://www.tudou.com/", "http://www.letv.com/", "http://tv.sohu.com/comic/"};
+    private static String[] urls = {"http://app.heyimen.lightappbuilder.com/User/Index/login.html",
+            "http://app.heyimen.lightappbuilder.com/Farm/Index/my_farm.html",
+            "http://app.heyimen.lightappbuilder.com/Farm/Land/friend_land_list.html",
+            "http://app.heyimen.lightappbuilder.com/Farm/Task/seed.html",
+            "http://app.heyimen.lightappbuilder.com/Farm/Land/find.html"};
+    private List<MyWebView> webViews;
+    private ViewPager viewPager;
+
+    private TabLayout tabLayout;
 
     private FrameLayout videoViewLayout;
     private View xCustomView;
     private WebChromeClient.CustomViewCallback xCustomViewCallback;
 
+    private DisplayMetrics dm;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        dm = getResources().getDisplayMetrics();
+
         Log.e(TAG, "onCreate Thread.currentThread().getId()=" + Thread.currentThread().getId());
         L.i(TAG, "onCreate density=", getResources().getDisplayMetrics().density);
         setContentView(R.layout.activity_main);
         imageView = (ImageView) findViewById(R.id.image);
-        
+        videoViewLayout = (FrameLayout) findViewById(R.id.video_view_layout);
+        hsv = (HorizontalScrollView) findViewById(R.id.hsv);
+        hsvContent = (ViewGroup) findViewById(R.id.hsv_content);
+
+        tabLayout = (TabLayout) findViewById(R.id.tab_layout);
+        for(int i = 0; i < urls.length; ++i) {
+            tabLayout.addTab(tabLayout.newTab().setText(Integer.toString(i)));
+        }
+        tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                //viewPager.setCurrentItem(tab.getPosition(), false);
+                //hsv.scrollTo(dm.widthPixels * tab.getPosition(), 0);
+                //hsvContent.setTranslationX(-dm.widthPixels * tab.getPosition());
+                for(int i = 0; i < urls.length; ++i) {
+                    WebView webView = webViews.get(i);
+                    if(i == tab.getPosition()) {
+                        webView.setVisibility(View.VISIBLE);
+                    } else {
+                        webView.setVisibility(View.INVISIBLE);
+                    }
+                }
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
+
+        viewPager = (ViewPager) findViewById(R.id.view_pager);
+
         webContainer = (ViewGroup) findViewById(R.id.web_container);
         //Wrong type of context, can't create fullscreen video 要全屏播放视屏 必须传入activity
-        webView = new MyWebView(this);
-        webContainer.addView(webView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+//        webView = new MyWebView(this);
+//        webContainer.addView(webView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        webView = (MyWebView) webContainer.findViewById(R.id.web_view);
 
-        videoViewLayout = (FrameLayout) findViewById(R.id.video_view_layout);
-
-        initWebView(webView, "file:///android_asset/test1.html");
+        //initWebView(webView, "file:///android_asset/test1.html");
 
         //initWebViewPager();
+        initHsv();
+        webView = webViews.get(0);
+
     }
 
     private void initWebView(WebView webView, String url) {
@@ -82,9 +145,9 @@ public class MainActivity extends BaseTestActivity {
         //启用支持JS
         webSettings.setJavaScriptEnabled(true);
         //设置使用缓存
-        webSettings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
+        webSettings.setCacheMode(WebSettings.LOAD_NO_CACHE);
 
-        webSettings.setBlockNetworkLoads(true);
+        //webSettings.setBlockNetworkLoads(true);
 
 
         //        webView.setVerticalScrollbarOverlay(true); //指定的垂直滚动条有叠加样式
@@ -103,7 +166,7 @@ public class MainActivity extends BaseTestActivity {
                 Log.i(TAG, "shouldOverrideUrlLoading tid=" + Thread.currentThread().getId() + " url=" + url);
                 //                view.loadUrl(url);
                 //                return true;
-                return true;
+                return false;
             }
 
             @Override
@@ -128,21 +191,21 @@ public class MainActivity extends BaseTestActivity {
             @Override
             public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
                 //js线程调用
-                L.e(TAG, "shouldInterceptRequest url=", url, " tid=", Thread.currentThread().getId());
+                //L.e(TAG, "shouldInterceptRequest url=", url, " tid=", Thread.currentThread().getId());
                 //                try {
                 //                    Thread.sleep(1000);
                 //                } catch(InterruptedException e) {
                 //                    e.printStackTrace();
                 //                }
-                if(url.endsWith(".png")) {
-                    WebResourceResponse response;
-                    try {
-                        response = new WebResourceResponse("image/png", "image/png", new InputStreamWrapper(getAssets().open("aaa.png"), url));
-                        return response;
-                    } catch(IOException e) {
-                        e.printStackTrace();
-                    }
-                }
+//                if(url.endsWith(".png")) {
+//                    WebResourceResponse response;
+//                    try {
+//                        response = new WebResourceResponse(null, null, new InputStreamWrapper(getAssets().open("aaa.png"), url));
+//                        return response;
+//                    } catch(IOException e) {
+//                        e.printStackTrace();
+//                    }
+//                }
 //                if(url.endsWith("jquery.min.js")) {
 //                    try {
 //                        return new WebResourceResponse(null, null, getAssets().open("jquery.min.js"));
@@ -155,7 +218,7 @@ public class MainActivity extends BaseTestActivity {
 
             @Override
             public void onLoadResource(WebView view, String url) {
-                L.w(TAG, "onLoadResource url", url, " tid=", Thread.currentThread().getId());
+                //L.w(TAG, "onLoadResource url=", url, " tid=", Thread.currentThread().getId());
                 //如果在shouldInterceptRequest 拦截了请求  则不会调用这里
                 super.onLoadResource(view, url);
             }
@@ -313,19 +376,43 @@ public class MainActivity extends BaseTestActivity {
         L.d(TAG, "onSaveInstanceState() called with outState = [", outState);
     }
 
+    private TextView tv;
+
+    private void addViewTest() {
+        tv = new TextView(this);
+        tv.setText("987654321");
+        tv.setGravity(Gravity.RIGHT);
+        tv.setTextSize(20);
+        tv.setBackgroundColor(0xffccffcc);
+
+        WebView.LayoutParams lp = new MyWebView.LayoutParams(2300, 1600, 100, 2000, 0, 0);
+
+        webView.addView(tv, lp);
+    }
+
     @Override
     protected void test1() {
-        scrollTest();
+        webView.invalidate();
     }
 
     @Override
     protected void test2() {
-        loadData();
+
     }
 
     @Override
     protected void test3() {
-        webView.loadUrl("file:///android_asset/test.html");
+        OKHttpProvider.getInstance().newCall(new Request.Builder().url("http://172.18.255.142/user/index/index").get().build()).enqueue(new Callback() {
+            @Override
+            public void onFailure(Request request, IOException e) {
+                L.e(TAG, "onFailure request=", request, " e=", e);
+            }
+
+            @Override
+            public void onResponse(Response response) throws IOException {
+                L.i(TAG, "onResponse response=", response.body().string());
+            }
+        });
     }
 
     @Override
@@ -411,22 +498,29 @@ public class MainActivity extends BaseTestActivity {
         startActivity(new Intent(Intent.ACTION_VIEW, uri));
     }
 
-    private static String[] urls = {"file:///android_asset/test1.html", "http://www.baidu.com", "http://weibo.com", "file:///android_asset/test.html"};
-    private List<WebView> webViews;
-    private MyPagerAdapter myPagerAdapter;
-    private ViewPager viewPager;
-
     private void initWebViewPager() {
         webViews = new ArrayList<>();
         for(int i = 0; i < urls.length; ++i) {
-            WebView webView = new MyWebView(getApplication());
+            MyWebView webView = new MyWebView(getApplication());
+            webView.setId(i);
             initWebView(webView, urls[i]);
             webViews.add(webView);
         }
-        myPagerAdapter = new MyPagerAdapter();
-        viewPager = (ViewPager) findViewById(R.id.view_pager);
-        viewPager.setAdapter(myPagerAdapter);
-        viewPager.setOffscreenPageLimit(1);
+        //viewPager.setAdapter(new MyPagerAdapter());
+        viewPager.setAdapter(new MyFragmentPagerAdapter(getSupportFragmentManager()));
+        viewPager.setOffscreenPageLimit(8);
+    }
+
+    private void initHsv() {
+        int width = getResources().getDisplayMetrics().widthPixels;
+        webViews = new ArrayList<>();
+        for(int i = 0; i < urls.length; ++i) {
+            MyWebView webView = new MyWebView(getApplication());
+            webView.setId(i);
+            initWebView(webView, urls[i]);
+            webViews.add(webView);
+            hsvContent.addView(webView, width - 30, -1);
+        }
     }
 
     private class MyPagerAdapter extends PagerAdapter {
@@ -453,6 +547,28 @@ public class MainActivity extends BaseTestActivity {
         public void destroyItem(ViewGroup container, int position, Object object) {
             L.i(TAG, "destroyItem() called with container = [", container, "], position = [", position, "], object = [", object, "]");
             container.removeView((View) object);
+        }
+    }
+
+    private class MyFragmentPagerAdapter extends FragmentStatePagerAdapter {
+
+        public MyFragmentPagerAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            return MyFragment.newInstance(webViews.get(position));
+        }
+
+        @Override
+        public int getCount() {
+            return webViews.size();
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return "" + position;
         }
     }
 

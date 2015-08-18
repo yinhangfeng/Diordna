@@ -22,6 +22,7 @@ public class App extends Application {
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             WebView.setWebContentsDebuggingEnabled(true);
         }
+        OKHttpProvider.init();
     }
 
     @Override

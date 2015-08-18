@@ -36,12 +36,6 @@ public class JsObject {
     @JavascriptInterface
     public void setText(final String text) {
         LOGI("setText", text);
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                ((TextView) mainActivity.findViewById(R.id.text_view)).setText(text);
-            }
-        });
     }
 
     @JavascriptInterface

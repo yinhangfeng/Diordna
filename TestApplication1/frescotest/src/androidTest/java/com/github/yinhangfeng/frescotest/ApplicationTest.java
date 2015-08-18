@@ -1,4 +1,4 @@
-package com.kingoit.recyclerview_v7_2211;
+package com.github.yinhangfeng.frescotest;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;
