@@ -1,0 +1,21 @@
+﻿
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+# On branch master
+# Your branch is up-to-date with 'origin/master'.
+#
+# Changes to be committed:
+#	deleted:    TestApplication1/commonTestLibrary/src/main/res/values-v11/styles.xml
+#	deleted:    TestApplication1/commonTestLibrary/src/main/res/values-v14/styles.xml
+#	deleted:    TestApplication1/commonTestLibrary/src/main/res/values/styles.xml
+#	deleted:    TestApplication1/notificationtest/src/main/res/values-sw600dp/template-dimens.xml
+#	deleted:    TestApplication1/notificationtest/src/main/res/values-sw600dp/template-styles.xml
+#	deleted:    TestApplication1/notificationtest/src/main/res/values-sw720dp-land/dimens.xml
+#	deleted:    TestApplication1/notificationtest/src/main/res/values-v11/template-styles.xml
+#	deleted:    TestApplication1/notificationtest/src/main/res/values-v21/base-colors.xml
+#	deleted:    TestApplication1/notificationtest/src/main/res/values-v21/base-template-styles.xml
+#	deleted:    TestApplication1/notificationtest/src/main/res/values-v9/styles.xml
+#	deleted:    TestApplication1/notificationtest/src/main/res/values/template-dimens.xml
+#	deleted:    TestApplication1/notificationtest/src/main/res/values/template-styles.xml
+#
+
