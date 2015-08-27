@@ -43,4 +43,10 @@
         android:orderInCategory="100"
         android:title="fragment_animator"
         app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/Value_Animator_Cancel"
+        android:orderInCategory="100"
+        android:title="Value_Animator_Cancel"
+        app:showAsAction="never"/>
 </menu>

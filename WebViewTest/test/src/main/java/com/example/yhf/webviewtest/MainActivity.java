@@ -102,14 +102,14 @@ public class MainActivity extends BaseTestActivity {
                 //viewPager.setCurrentItem(tab.getPosition(), false);
                 //hsv.scrollTo(dm.widthPixels * tab.getPosition(), 0);
                 //hsvContent.setTranslationX(-dm.widthPixels * tab.getPosition());
-                for(int i = 0; i < urls.length; ++i) {
-                    WebView webView = webViews.get(i);
-                    if(i == tab.getPosition()) {
-                        webView.setVisibility(View.VISIBLE);
-                    } else {
-                        webView.setVisibility(View.INVISIBLE);
-                    }
-                }
+//                for(int i = 0; i < urls.length; ++i) {
+//                    WebView webView = webViews.get(i);
+//                    if(i == tab.getPosition()) {
+//                        webView.setVisibility(View.VISIBLE);
+//                    } else {
+//                        webView.setVisibility(View.INVISIBLE);
+//                    }
+//                }
             }
 
             @Override
@@ -134,8 +134,8 @@ public class MainActivity extends BaseTestActivity {
         //initWebView(webView, "file:///android_asset/test1.html");
 
         //initWebViewPager();
-        initHsv();
-        webView = webViews.get(0);
+        //initHsv();
+        //webView = webViews.get(0);
 
     }
 
@@ -146,6 +146,7 @@ public class MainActivity extends BaseTestActivity {
         webSettings.setJavaScriptEnabled(true);
         //设置使用缓存
         webSettings.setCacheMode(WebSettings.LOAD_NO_CACHE);
+        //webView.clearHistory();
 
         //webSettings.setBlockNetworkLoads(true);
 
@@ -223,6 +224,7 @@ public class MainActivity extends BaseTestActivity {
                 super.onLoadResource(view, url);
             }
         });
+
         webView.setWebChromeClient(new WebChromeClient() {
             @Override
             public void onProgressChanged(WebView view, int newProgress) {
@@ -312,6 +314,7 @@ public class MainActivity extends BaseTestActivity {
                 return b;
             }
         });
+
         webView.addJavascriptInterface(new JsObject(this, webView), "test");
 
         injectionInfo(webView, "111");

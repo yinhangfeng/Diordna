@@ -64,6 +64,9 @@ public class MainActivity extends AppCompatActivity {
         } else if(id == R.id.fragment_animator) {
             fragmentAnimator();
             return true;
+        } else if(id == R.id.Value_Animator_Cancel) {
+            viewPropertyAnimatorCancel();
+            return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -354,5 +357,9 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "onAnimationUpdate animation=" + animation + " AnimatedFraction=" + animation.getAnimatedFraction());
             }
         });
+    }
+
+    private void viewPropertyAnimatorCancel() {
+        view.animate().cancel();
     }
 }

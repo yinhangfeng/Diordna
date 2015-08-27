@@ -20,7 +20,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="#ffdddd"
-            android:visibility="gone">
+            android:visibility="visible">
 
             <com.example.yhf.webviewtest.MyWebView
                 android:id="@+id/web_view"
@@ -30,6 +30,7 @@
         </FrameLayout>
 
         <HorizontalScrollView
+            android:visibility="gone"
             android:id="@+id/hsv"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
