@@ -1,0 +1,80 @@
+package com.github.yinhangfeng.androiddocs;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.apache.commons.io.FileUtils;
+
+public class AndroidDocs {
+	
+	private static final Charset UTF8 = Charset.forName("UTF-8");
+	private static ThreadPoolExecutor executor;
+	private static final Pattern REPLACE_PATTERN
+		= Pattern.compile("<script.+?src=\"(http.+?)\".+?>\\s*</script>|<script>\\s*?\\(function\\(i,s,o,g,r,a,m\\)[\\s\\S]+?</script>");
+	private static ThreadLocal<StringBuffer> stringBufferLocal = new ThreadLocal<StringBuffer>() {
+		@Override
+		protected StringBuffer initialValue() {
+			return new StringBuffer(4096);
+		}
+	};
+	
+	public static void main(String[] args) {
+//		File docsDir = new File("D:\\Android\\android-sdk\\docs_copy");
+//		executor = new ThreadPoolExecutor(5, 5, 0, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
+//		probe(docsDir);
+	}
+	
+	private static void probe(File file) {
+		if(file.isDirectory()) {
+			File[] children = file.listFiles();
+			if(children != null) {
+				for(File child : children) {
+					probe(child);
+				}
+			}
+		} else if(file.getPath().endsWith(".html")) {
+			dispatchTask(file);
+		}
+	}
+	
+	private static void dispatchTask(final File htmlFile) {
+		executor.execute(new Runnable() {
+
+			@Override
+			public void run() {
+				handleHtmlFile(htmlFile);
+			}
+			
+		});
+	}
+	
+	private static void handleHtmlFile(File htmlFile) {
+		String fileStr;
+		try {
+			fileStr = FileUtils.readFileToString(htmlFile, UTF8);
+		} catch (IOException e) {
+			e.printStackTrace();
+			return;
+		}
+		StringBuffer sb = stringBufferLocal.get();
+		sb.setLength(0);
+		Matcher matcher = REPLACE_PATTERN.matcher(fileStr);
+		String url;
+		while(matcher.find()) {
+			url = matcher.group(1);
+			if(url != null) {
+				
+			}
+			matcher.appendReplacement(sb, "<!-- $0 -->");
+		}
+		matcher.appendTail(sb);
+		
+	}
+
+}
