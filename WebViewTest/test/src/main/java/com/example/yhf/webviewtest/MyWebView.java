@@ -99,7 +99,7 @@ public class MyWebView extends WebView {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        Log.i(TAG, "onDraw()");
+        //Log.i(TAG, "onDraw()");
         //L.e(TAG, "onDraw tid=", Thread.currentThread().getId());
         super.onDraw(canvas);
     }
@@ -167,10 +167,10 @@ public class MyWebView extends WebView {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        L.i(TAG, "onMeasure childCount=" + getChildCount());
-        for(int i = 0; i < getChildCount(); ++i) {
-            L.i(TAG, "onMeasure v", i, "   ", L.getRecursionViewInfo(getChildAt(i)));
-        }
+//        L.i(TAG, "onMeasure childCount=" + getChildCount());
+//        for(int i = 0; i < getChildCount(); ++i) {
+//            L.i(TAG, "onMeasure v", i, "   ", L.getRecursionViewInfo(getChildAt(i)));
+//        }
 
 
         int count = getChildCount();

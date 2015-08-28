@@ -35,15 +35,11 @@ import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.yhf.webviewtest.util.L;
-import com.squareup.okhttp.Callback;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
 
 import org.apache.commons.io.IOUtils;
 
@@ -51,6 +47,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Wrong type of context, can't create fullscreen video 要全屏播放视屏 创建WebView传入的Context 必须为activity
+ */
 public class MainActivity extends BaseTestActivity {
     private static final String TAG = "MainActivity";
     private static final String BAIDU = "http://www.baidu.com";
@@ -83,6 +82,11 @@ public class MainActivity extends BaseTestActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         dm = getResources().getDisplayMetrics();
+
+//        if(Build.VERSION.SDK_INT >= 21) {
+//            L.e(TAG, "onCreate enableSlowWholeDocumentDraw");
+//            WebView.enableSlowWholeDocumentDraw();
+//        }
 
         Log.e(TAG, "onCreate Thread.currentThread().getId()=" + Thread.currentThread().getId());
         L.i(TAG, "onCreate density=", getResources().getDisplayMetrics().density);
@@ -126,17 +130,19 @@ public class MainActivity extends BaseTestActivity {
         viewPager = (ViewPager) findViewById(R.id.view_pager);
 
         webContainer = (ViewGroup) findViewById(R.id.web_container);
-        //Wrong type of context, can't create fullscreen video 要全屏播放视屏 必须传入activity
-//        webView = new MyWebView(this);
-//        webContainer.addView(webView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         webView = (MyWebView) webContainer.findViewById(R.id.web_view);
 
-        //initWebView(webView, "file:///android_asset/test1.html");
+        initWebView(webView, "file:///android_asset/test1.html");
 
         //initWebViewPager();
         //initHsv();
         //webView = webViews.get(0);
 
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
     }
 
     private void initWebView(WebView webView, String url) {
@@ -173,8 +179,9 @@ public class MainActivity extends BaseTestActivity {
             @Override
             public void onPageStarted(WebView view, String url, Bitmap favicon) {
                 super.onPageStarted(view, url, favicon);
-                L.d(TAG, "onPageStarted() called with url = [", url, "] tid=", Thread.currentThread().getId());
+                L.i(TAG, "onPageStarted() called with url = [", url, "] tid=", Thread.currentThread().getId());
                 injectionInfo(view, "onPageStarted");
+                //view.clearHistory();
             }
 
             @Override
@@ -182,6 +189,7 @@ public class MainActivity extends BaseTestActivity {
                 super.onPageFinished(view, url);
                 L.i(TAG, "onPageFinished() called with url = [", url, "] tid=", Thread.currentThread().getId());
                 injectionInfo(view, "onPageFinished");
+                //view.clearHistory();
             }
 
             @Override
@@ -198,22 +206,22 @@ public class MainActivity extends BaseTestActivity {
                 //                } catch(InterruptedException e) {
                 //                    e.printStackTrace();
                 //                }
-//                if(url.endsWith(".png")) {
-//                    WebResourceResponse response;
-//                    try {
-//                        response = new WebResourceResponse(null, null, new InputStreamWrapper(getAssets().open("aaa.png"), url));
-//                        return response;
-//                    } catch(IOException e) {
-//                        e.printStackTrace();
-//                    }
-//                }
-//                if(url.endsWith("jquery.min.js")) {
-//                    try {
-//                        return new WebResourceResponse(null, null, getAssets().open("jquery.min.js"));
-//                    } catch(IOException e) {
-//                        e.printStackTrace();
-//                    }
-//                }
+                //                if(url.endsWith(".png")) {
+                //                    WebResourceResponse response;
+                //                    try {
+                //                        response = new WebResourceResponse(null, null, new InputStreamWrapper(getAssets().open("aaa.png"), url));
+                //                        return response;
+                //                    } catch(IOException e) {
+                //                        e.printStackTrace();
+                //                    }
+                //                }
+                //                if(url.endsWith("jquery.min.js")) {
+                //                    try {
+                //                        return new WebResourceResponse(null, null, getAssets().open("jquery.min.js"));
+                //                    } catch(IOException e) {
+                //                        e.printStackTrace();
+                //                    }
+                //                }
                 return super.shouldInterceptRequest(view, url);
             }
 
@@ -222,6 +230,12 @@ public class MainActivity extends BaseTestActivity {
                 //L.w(TAG, "onLoadResource url=", url, " tid=", Thread.currentThread().getId());
                 //如果在shouldInterceptRequest 拦截了请求  则不会调用这里
                 super.onLoadResource(view, url);
+            }
+
+            @Override
+            public void doUpdateVisitedHistory(WebView view, String url, boolean isReload) {
+                super.doUpdateVisitedHistory(view, url, isReload);
+                Log.i(TAG, "doUpdateVisitedHistory() called with " + "view = " + view + ", url = " + url + ", isReload = " + isReload + "");
             }
         });
 
@@ -354,7 +368,7 @@ public class MainActivity extends BaseTestActivity {
     }
 
     private static void injectionInfo(WebView webView, String msg, String msgPush) {
-        webView.loadUrl("javascript:console.log(\"test exec " + msg + "\");window.x = window.x||[];x.push('" + msgPush + "')");
+        //webView.loadUrl("javascript:console.log(\"test exec " + msg + "\");window.x = window.x||[];x.push('" + msgPush + "')");
     }
 
     @Override
@@ -379,6 +393,15 @@ public class MainActivity extends BaseTestActivity {
         L.d(TAG, "onSaveInstanceState() called with outState = [", outState);
     }
 
+    @Override
+    public void onBackPressed() {
+        if(webView.canGoBack()) {
+            webView.goBack();
+        } else {
+            super.onBackPressed();
+        }
+    }
+
     private TextView tv;
 
     private void addViewTest() {
@@ -395,27 +418,17 @@ public class MainActivity extends BaseTestActivity {
 
     @Override
     protected void test1() {
-        webView.invalidate();
+        Log.i(TAG, "test1 webView.canGoBack=" + webView.canGoBack());
     }
 
     @Override
     protected void test2() {
-
+        webView.clearView();
     }
 
     @Override
     protected void test3() {
-        OKHttpProvider.getInstance().newCall(new Request.Builder().url("http://172.18.255.142/user/index/index").get().build()).enqueue(new Callback() {
-            @Override
-            public void onFailure(Request request, IOException e) {
-                L.e(TAG, "onFailure request=", request, " e=", e);
-            }
-
-            @Override
-            public void onResponse(Response response) throws IOException {
-                L.i(TAG, "onResponse response=", response.body().string());
-            }
-        });
+        webView.clearHistory();
     }
 
     @Override
@@ -435,11 +448,21 @@ public class MainActivity extends BaseTestActivity {
 
     @Override
     protected void test7() {
-        webContainer.addView(webView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        webView.loadUrl("about:blank");
+        //webView.clearHistory();
     }
 
     @Override
     protected void test8() {
+        webView.loadUrl("file:///android_asset/test.html");
+    }
+
+    @Override
+    protected void test9() {
+        webView.loadDataWithBaseURL(null, null, null, null, "123");
+    }
+
+    private void destroyWebView() {
         ViewGroup p = (ViewGroup) webView.getParent();
         if(p != null) {
             p.removeView(webView);
@@ -447,8 +470,7 @@ public class MainActivity extends BaseTestActivity {
         webView.destroy();
     }
 
-    @Override
-    protected void test9() {
+    private void layerType() {
         L.i(TAG, "test9 isHardwareAccelerated=", webView.isHardwareAccelerated(), " getLayerType=", webView.getLayerType());
     }
 

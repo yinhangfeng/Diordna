@@ -1,57 +1,50 @@
 package com.example.dialogtest;
 
-import android.content.Context;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import java.lang.reflect.InvocationTargetException;
+import com.example.commonlibrary.BaseTestActivity;
+
 import java.lang.reflect.Method;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BaseTestActivity {
     private static final String TAG = "MainActivity";
+
+    private EditText editText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Log.i(TAG, "onCreate getApplication() == getApplicationContext(): " + (getApplication() == getApplicationContext()));
 
+        FrameLayout viewContainer = (FrameLayout) findViewById(R.id.view_container);
+        //LayoutInflater的Context跟Theme有关
+        View testLayout = LayoutInflater.from(this).inflate(R.layout.layout_test, null);
+        editText = (EditText) testLayout.findViewById(R.id.edit_text);
+        Log.i(TAG, "test1 editText.getContext=" + editText.getContext());
+        viewContainer.addView(testLayout, -1, -1);
+        Log.i(TAG, "test1 editText.getContext=" + editText.getContext());
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if(id == R.id.action_settings) {
-            showPop();
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
+    protected void test1() {
+        Log.i(TAG, "test1 editText.getContext=" + editText.getContext());
     }
 
     public void alert(View v) {
