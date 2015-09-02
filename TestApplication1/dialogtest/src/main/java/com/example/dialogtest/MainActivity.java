@@ -1,11 +1,13 @@
 package com.example.dialogtest;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -45,6 +47,57 @@ public class MainActivity extends BaseTestActivity {
     @Override
     protected void test1() {
         Log.i(TAG, "test1 editText.getContext=" + editText.getContext());
+    }
+
+    private AlertDialog alertDialog;
+
+    @Override
+    protected void test2() {
+        AlertDialog.Builder dlg = new AlertDialog.Builder(this);
+        dlg.setMessage("xxxxx");
+        dlg.setCancelable(false);
+        dlg.setPositiveButton(android.R.string.ok, new AlertDialog.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                Log.i(TAG, "PositiveButton onClick");
+            }
+        });
+        dlg.setNegativeButton(android.R.string.cancel, new AlertDialog.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                Log.i(TAG, "NegativeButton onClick");
+            }
+        });
+//        dlg.setOnKeyListener(new DialogInterface.OnKeyListener() {
+//            public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
+//                Log.i(TAG, "onKey event=" + event);
+//                return true;
+//            }
+//        });
+        dlg.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            public void onCancel(DialogInterface dialog) {
+                Log.i(TAG, "onCancel");
+            }
+        });
+        dlg.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                Log.i(TAG, "onDismiss");
+            }
+        });
+        alertDialog = dlg.show();
+
+//        new Handler().postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                alertDialog.dismiss();
+//            }
+//        }, 3000);
+    }
+
+    @Override
+    protected void test3() {
+        if(alertDialog != null) {
+            alertDialog.dismiss();
+        }
     }
 
     public void alert(View v) {

@@ -13,14 +13,14 @@
             android:id="@+id/view_pager"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="gone"/>
+            android:visibility="visible"/>
 
         <FrameLayout
             android:id="@+id/web_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="#ffdddd"
-            android:visibility="visible">
+            android:visibility="gone">
 
             <com.example.yhf.webviewtest.MyWebView
                 android:id="@+id/web_view"

@@ -1,1 +1,1 @@
-include ':app', ':commonTestLibrary', ':surfaceviewtest', ':dialogtest', ':notificationtest', ':toolbartest', ':frescotest', ':swiperefreshtest', ':statusbartest'
+include ':app', ':commonTestLibrary', ':surfaceviewtest', ':dialogtest', ':notificationtest', ':toolbartest', ':frescotest', ':swiperefreshtest', ':statusbartest', ':typefacetest'
