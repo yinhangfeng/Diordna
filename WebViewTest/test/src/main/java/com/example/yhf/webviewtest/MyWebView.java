@@ -7,6 +7,8 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputConnection;
 import android.webkit.WebView;
 import android.widget.AbsoluteLayout;
 import android.widget.EdgeEffect;
@@ -38,6 +40,11 @@ public class MyWebView extends WebView {
     public MyWebView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init();
+    }
+
+    @Override
+    public InputConnection onCreateInputConnection(EditorInfo outAttrs) {
+        return super.onCreateInputConnection(outAttrs);
     }
 
     private void init() {
@@ -154,13 +161,13 @@ public class MyWebView extends WebView {
 
     @Override
     protected void onOverScrolled(int scrollX, int scrollY, boolean clampedX, boolean clampedY) {
-        //Log.i(TAG, "onOverScrolled() called with " + "scrollX = [" + scrollX + "], scrollY = [" + scrollY + "], clampedX = [" + clampedX + "], clampedY = [" + clampedY + "]");
+        //Log.i(TAG, "onOverScrolled() called with " + "scrollX = " + scrollX + ", scrollY = " + scrollY + ", clampedX = " + clampedX + ", clampedY = " + clampedY);
         super.onOverScrolled(scrollX, scrollY, clampedX, clampedY);
     }
 
     @Override
     protected void onScrollChanged(int l, int t, int oldl, int oldt) {
-        //Log.i(TAG, "onScrollChanged() called with " + "l = [" + l + "], t = [" + t + "], oldl = [" + oldl + "], oldt = [" + oldt + "]");
+        //Log.i(TAG, "onScrollChanged() called with " + "l = " + l + ", t = " + t + ", oldl = " + oldl + ", oldt = " + oldt);
         super.onScrollChanged(l, t, oldl, oldt);
     }
 

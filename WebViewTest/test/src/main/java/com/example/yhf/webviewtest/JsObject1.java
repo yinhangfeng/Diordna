@@ -24,4 +24,9 @@ public class JsObject1 {
         Log.i(TAG, "toast Thread.currentThread().getId()=" + Thread.currentThread().getId());
         Toast.makeText(mainActivity, "test", Toast.LENGTH_LONG).show();
     }
+
+    @JavascriptInterface
+    public void xxx() {
+
+    }
 }

@@ -17,6 +17,8 @@ public class JsObject {
     private static final String TAG = "JsObject";
     private Handler handler = new Handler(Looper.getMainLooper());
 
+    private byte[] data = new byte[50 * 1024 * 1024];
+
     private MainActivity mainActivity;
     private WebView webView;
     private JsObject1 jsObject1;
@@ -35,7 +37,7 @@ public class JsObject {
 
     @JavascriptInterface
     public void setText(final String text) {
-        LOGI("setText", text);
+        LOGI("setText", text + data);
     }
 
     @JavascriptInterface
@@ -88,5 +90,11 @@ public class JsObject {
     public void testLoadUrl() {
         L.i(TAG, "testLoadUrl");
         webView.loadUrl("javascript:console.log('native testLoadUrl');");
+    }
+
+    @JavascriptInterface
+    public TestLeakObject leakTest() {
+        Log.i(TAG, "leakTest");
+        return mainActivity.leakTest();
     }
 }

@@ -38,12 +38,16 @@
         width: 320px;
         background-color: #ff9999;
         }
+
+        .info {
+            width: 100%;
+            display: block;
+        }
     </style>
     <script type="text/javascript" src="file:///android_asset/jquery.min.js"></script>
     <script type="text/javascript" src="http://cqg.lightappbuilder.com/Public/js/lib/fastclick.js" defer></script>
 </head>
 <body style="padding:0;margin:0;">
-<!--<video controls="controls" autoplay="autoplay" src="http://7xk14m.media1.z0.glb.clouddn.com/感动眼科&#45;&#45;附件视频_converted.mp4"></video>-->
 <img src="http://m.baidu.com/static/index/plus/plus_logo.png">
 <button class="test1" onclick="test1()">test1</button>
 <button class="test2" onclick="test2()">test2</button>
@@ -54,6 +58,8 @@
 <button class="test7" onclick="test7()">test7</button>
 <button class="test8" onclick="test8()">test8</button>
 <button class="test9" onclick="test9()">test9</button>
+<pre class="info"></pre>
+
 <input type="file" style="width:120px;height:40px;"/>
 <textarea style="width:100%;height:50px;"></textarea>
 <input type="text" style="width:100%;height:40px;"/>
@@ -65,18 +71,56 @@
 <div style="width:100%;height:300px;background-color=#ffdddd;"></div>
 <script>
     function test1(c) {
-        //测试修改video位置
-        $('video').css({
-            "width": 400,
-            "margin-top": 200
+        objInfo(test, "test");
+    }
+
+    function objInfo(obj, msg) {
+        $info = $('.info');
+
+        var objProto = Object.getPrototypeOf(obj);
+        var bObjProto = objProto === Object.prototype;
+        var objCtor = obj.constructor;
+        var bObjCtor = objCtor === Object;
+        var objProtoProto = Object.getPrototypeOf(objProto);
+        var bObjProtoProto = objProtoProto === Object.prototype;
+        var objProtoProtoCtor = objProtoProto.constructor;
+        var bObjProtoProtoCtor = objProtoProtoCtor === Object;
+        $info.append(
+            "\n\n========" + msg + "=======" +
+            "\nobj=" + obj +
+            "\nJSON.stringify(obj)=" + JSON.stringify(obj) +
+            "\nobjProto=" + objProto +
+            "\nbObjProto=" + bObjProto +
+            "\nobjCtor=" + objCtor +
+            "\nbObjCtor=" + bObjCtor +
+            "\nobjProtoProto=" + objProtoProto +
+            "\nbObjProtoProto=" + bObjProtoProto +
+            "\nobjProtoProtoCtor=" + objProtoProtoCtor +
+            "\nbObjProtoProtoCtor=" + bObjProtoProtoCtor +
+            "\nobj keys()=" + Object.keys(obj).toString() +
+            "\nobj getOwnPropertyNames()=" + Object.getOwnPropertyNames(obj).toString() +
+            "\nobjProto keys()=" + Object.keys(objProto).toString() +
+            "\nobjProto getOwnPropertyNames()=" + Object.getOwnPropertyNames(objProto).toString() +
+            "\nobjProtoProto getOwnPropertyNames()=" + Object.getOwnPropertyNames(objProtoProto).toString() +
+            "\n getClass in: " + ("getClass" in obj) +
+            "\n xxx in: " + ("xxx" in obj));
+
+        var keys = [];
+        for(k in obj) {
+        console.log("k=" + k);
+            keys.push(k);
+        }
+        $info.append("\nin keys: " + keys.toString());
+
+        Object.defineProperty(obj, "xxx", {
+            value: "xxxxxxxxxxxxxxxxxxxx"
         });
+        console.log(typeof obj.xxx);
     }
 
     function test2() {
-        $('video').css({
-            "width": 300,
-            "margin-top": 0
-        });
+        var jsobj1 = test.xxx();
+        objInfo(jsobj1, "jsobj1");
     }
 
     function test3() {
@@ -110,11 +154,7 @@
     }
 
     function test9() {
-        var jsonStr = '{"a":3, "b":"bbb", "c":6.6666666666}';
-        var json = JSON.decode(jsonStr);
-        alert(json.a);
-        var jsonStr1 = JSON.encode(json);
-        alert(jsonStr1);
+        test.leakTest();
     }
     logInjection("body end");
 </script>
