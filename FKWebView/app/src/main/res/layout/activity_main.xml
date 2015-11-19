@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+    <FrameLayout
+        android:id="@+id/l1"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#5555ff"></FrameLayout>
+
+    <com.example.fkwebview.RandomAnimLayout
+        android:id="@+id/ral"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    </com.example.fkwebview.RandomAnimLayout>
+
+    <com.example.fkwebview.FragmentStackView
+        android:id="@+id/stack"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+</RelativeLayout>

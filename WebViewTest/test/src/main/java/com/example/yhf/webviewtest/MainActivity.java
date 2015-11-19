@@ -1,5 +1,6 @@
 package com.example.yhf.webviewtest;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
@@ -88,6 +89,10 @@ public class MainActivity extends BaseTestActivity {
 
     private DisplayMetrics dm;
 
+    private static MyWebView newWebView(Context context) {
+        return new MyWebView(context);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -144,7 +149,7 @@ public class MainActivity extends BaseTestActivity {
         viewPager = (ViewPager) findViewById(R.id.view_pager);
 
         webContainer = (ViewGroup) findViewById(R.id.web_container);
-        webView = new MyWebView(getApplication());
+        webView = newWebView(getApplication());
         webContainer.addView(webView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
 
         //file:///android_asset/test1.html
@@ -246,6 +251,7 @@ public class MainActivity extends BaseTestActivity {
 
             @Override
             public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
+                Log.d(TAG, "shouldInterceptRequest url=" + url);
                 //js线程调用
                 //L.e(TAG, "shouldInterceptRequest url=", url, " tid=", Thread.currentThread().getId());
                 //                try {
@@ -274,7 +280,7 @@ public class MainActivity extends BaseTestActivity {
 
             @Override
             public void onLoadResource(WebView view, String url) {
-                //L.w(TAG, "onLoadResource url=", url, " tid=", Thread.currentThread().getId());
+                L.w(TAG, "onLoadResource url=", url, " tid=", Thread.currentThread().getId());
                 //如果在shouldInterceptRequest 拦截了请求  则不会调用这里
                 super.onLoadResource(view, url);
             }
@@ -612,7 +618,7 @@ public class MainActivity extends BaseTestActivity {
     private void initWebViewPager() {
         webViews = new ArrayList<>();
         for(int i = 0; i < urls.length; ++i) {
-            MyWebView webView = new MyWebView(getApplication());
+            MyWebView webView = newWebView(getApplication());
             webView.setId(i);
             initWebView(webView, urls[i]);
             webViews.add(webView);
@@ -626,7 +632,7 @@ public class MainActivity extends BaseTestActivity {
         int width = getResources().getDisplayMetrics().widthPixels;
         webViews = new ArrayList<>();
         for(int i = 0; i < urls.length; ++i) {
-            MyWebView webView = new MyWebView(getApplication());
+            MyWebView webView = newWebView(getApplication());
             webView.setId(i);
             initWebView(webView, urls[i]);
             webViews.add(webView);
