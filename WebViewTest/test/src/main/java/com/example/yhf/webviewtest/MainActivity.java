@@ -1,5 +1,6 @@
 package com.example.yhf.webviewtest;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -33,11 +34,11 @@ import android.webkit.SslErrorHandler;
 import android.webkit.ValueCallback;
 import android.webkit.WebBackForwardList;
 import android.webkit.WebChromeClient;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
@@ -51,7 +52,10 @@ import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Wrong type of context, can't create fullscreen video 要全屏播放视屏 创建WebView传入的Context 必须为activity
@@ -149,12 +153,15 @@ public class MainActivity extends BaseTestActivity {
         viewPager = (ViewPager) findViewById(R.id.view_pager);
 
         webContainer = (ViewGroup) findViewById(R.id.web_container);
-        webView = newWebView(getApplication());
+        webView = newWebView(this);
         webContainer.addView(webView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
 
         //file:///android_asset/test1.html
         //http://172.18.255.232/appbuilder/lab3/h5/trunk/lab_test.html
-        initWebView(webView, "file:///android_asset/test1.html");
+        //initWebView(webView, "file:///android_asset/test2.html");
+        //initWebView(webView, "http://qxp.lightappbuilder.com/house/recommend/showRecommend/id/173?a=3#aaa");
+        //initWebView(webView, "http://172.18.255.152/User/Map/index?a=111#xxx");
+        initWebView(webView, "http://www.baidu.com");
 
         //initWebViewPager();
         //initHsv();
@@ -174,10 +181,10 @@ public class MainActivity extends BaseTestActivity {
             webView.destroy();
             webView = null;
         }
-        if(jsObject != null) {
-            App.getRefWatcher().watch(jsObject);
-            jsObject = null;
-        }
+//        if(jsObject != null) {
+//            App.getRefWatcher().watch(jsObject);
+//            jsObject = null;
+//        }
         super.onDestroy();
     }
 
@@ -251,7 +258,8 @@ public class MainActivity extends BaseTestActivity {
 
             @Override
             public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
-                Log.d(TAG, "shouldInterceptRequest url=" + url);
+                Log.i(TAG, "shouldInterceptRequest url=" + url);
+                //SystemClock.sleep(60000);
                 //js线程调用
                 //L.e(TAG, "shouldInterceptRequest url=", url, " tid=", Thread.currentThread().getId());
                 //                try {
@@ -268,14 +276,29 @@ public class MainActivity extends BaseTestActivity {
                 //                        e.printStackTrace();
                 //                    }
                 //                }
-                //                if(url.endsWith("jquery.min.js")) {
-                //                    try {
-                //                        return new WebResourceResponse(null, null, getAssets().open("jquery.min.js"));
-                //                    } catch(IOException e) {
-                //                        e.printStackTrace();
-                //                    }
-                //                }
-                return super.shouldInterceptRequest(view, url);
+//                                if(url.contains("jquery")) {
+//                                    Log.i(TAG, "shouldInterceptRequest xxxxxxxxxxx");
+//                                    try {
+//                                        return new WebResourceResponse(null, null, new InputStreamWrapper(getAssets().open("jquery.min.js"), url));
+//                                    } catch(IOException e) {
+//                                        e.printStackTrace();
+//                                    }
+//                                }
+                return null;
+            }
+
+            @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+            public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
+                Log.d(TAG, "shouldInterceptRequest() request{ url=" + request.getUrl() + ", method=" + request.getMethod() + ", hasGesture=" + request.hasGesture() + ", isForMainFrame=" + request.isForMainFrame() + ", Headers=" + request.getRequestHeaders() + "} tid=" + Thread.currentThread().getId());
+//                if(request.getUrl().toString().contains("jquery")) {
+//                    Log.i(TAG, "shouldInterceptRequest xxxxxxxxxxx");
+//                    try {
+//                        return new WebResourceResponse(null, null, new InputStreamWrapper(getAssets().open("jquery.min.js"), request.getUrl().toString()));
+//                    } catch(IOException e) {
+//                        e.printStackTrace();
+//                    }
+//                }
+                return null;
             }
 
             @Override
@@ -287,7 +310,7 @@ public class MainActivity extends BaseTestActivity {
 
             @Override
             public void doUpdateVisitedHistory(WebView view, String url, boolean isReload) {
-                super.doUpdateVisitedHistory(view, url, isReload);
+                //super.doUpdateVisitedHistory(view, url, isReload);
                 Log.e(TAG, "doUpdateVisitedHistory() called with " + "view = " + view + ", url = " + url + ", isReload = " + isReload + " tid=" + Thread.currentThread().getId());
                 printBackForwardList();
                 //view.clearHistory();
@@ -339,7 +362,7 @@ public class MainActivity extends BaseTestActivity {
 
             @Override
             public void onShowCustomView(View view, CustomViewCallback callback) {
-                L.i(TAG, "onShowCustomView view=", view, " parent=", view.getParent());
+                L.i(TAG, "onShowCustomView view=", view, " parent=", view.getParent(), ", callback=", callback);
                 if(view instanceof ViewGroup) {
                     ViewGroup viewGroup = (ViewGroup) view;
                     for(int i = 0; i < viewGroup.getChildCount(); ++i) {
@@ -349,6 +372,7 @@ public class MainActivity extends BaseTestActivity {
                 //setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
                 if(xCustomView != null) {
                     L.e(TAG, "onShowCustomView xCustomView != null");
+                    callback.onCustomViewHidden();
                     return;
                 }
                 videoViewLayout.addView(view);
@@ -359,14 +383,8 @@ public class MainActivity extends BaseTestActivity {
 
             @Override
             public void onHideCustomView() {
-                L.i(TAG, "onHideCustomView xCustomView=" + xCustomView);
-                if(xCustomView == null) return;
-                //setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-
-                videoViewLayout.setVisibility(View.GONE);
-                videoViewLayout.removeAllViews();
-                xCustomView = null;
-                xCustomViewCallback = null;
+                L.i(TAG, "onHideCustomView xCustomView=" + xCustomView + ", xCustomViewCallback=" + xCustomViewCallback + ", tid=" + Thread.currentThread().getId());
+                hideCustomView();
             }
 
             @Override
@@ -399,7 +417,9 @@ public class MainActivity extends BaseTestActivity {
         webView.addJavascriptInterface(jsObject, "test");
 
         injectionInfo(webView, "111");
-        webView.loadUrl(url);
+        Map<String, String> additionalHttpHeaders = new HashMap<>();
+        additionalHttpHeaders.put("xxx", "xxxx");
+        webView.loadUrl(url, additionalHttpHeaders);
         injectionInfo(webView, "222");
 
         L.i(TAG, "initWebView webView.getScale()=", webView.getScale());
@@ -409,6 +429,7 @@ public class MainActivity extends BaseTestActivity {
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
             if (inCustomViewShow()) {
+                Log.i(TAG, "onKeyDown KEYCODE_BACK inCustomViewShow");
                 hideCustomView();
                 return true;
             }else {
@@ -439,8 +460,20 @@ public class MainActivity extends BaseTestActivity {
     }
 
     public void hideCustomView() {
-        L.i(TAG, "hideCustomView");
-        xCustomViewCallback.onCustomViewHidden();
+        L.i(TAG, "hideCustomView xCustomView=" + xCustomView);
+        if(xCustomView == null) {
+            return;
+        }
+        xCustomView = null;
+        try {
+            xCustomViewCallback.onCustomViewHidden();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+        xCustomViewCallback = null;
+        videoViewLayout.setVisibility(View.GONE);
+        videoViewLayout.removeAllViews();
+        L.i(TAG, "hideCustomView after");
     }
 
     private static void injectionInfo(WebView webView, String msg) {
@@ -539,11 +572,14 @@ public class MainActivity extends BaseTestActivity {
 
     @Override
     protected void test9() {
-        Log.i(TAG, "test9 release and watch testLeakObject=" + testLeakObject);
-        if(testLeakObject != null) {
-            //App.getRefWatcher().watch(testLeakObject);
-            testLeakObject = null;
-        }
+//        try {
+//            Log.i(TAG, "test9 getAssets().list()=" + Arrays.toString(getAssets().list("")));
+//            Log.i(TAG, "test9 getAssets().getLocales()=" + Arrays.toString(getAssets().getLocales()));
+//
+//        } catch(IOException e) {
+//            e.printStackTrace();
+//        }
+        webView.loadDataWithBaseURL("lab://xxx", null, null, null, "lab://xxx");
     }
 
     private JsObject jsObject;
@@ -553,6 +589,7 @@ public class MainActivity extends BaseTestActivity {
         TestLeakObject testLeakObject = new TestLeakObject();
         return testLeakObject;
     }
+
 
     private void destroyWebView() {
         ViewGroup p = (ViewGroup) webView.getParent();

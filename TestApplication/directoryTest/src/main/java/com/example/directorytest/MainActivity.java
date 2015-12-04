@@ -1,6 +1,7 @@
 package com.example.directorytest;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -9,6 +10,8 @@ import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+
+import org.apache.commons.io.FileUtils;
 
 public class MainActivity extends Activity {
 
@@ -88,6 +91,61 @@ public class MainActivity extends Activity {
 		String infoString = sb.toString();
 		Log.i(TAG, infoString);
 		info.setText(infoString);
+	}
+
+	private static void createFile(File dir) {
+		if(!dir.exists()) {
+			if(!dir.mkdirs()) {
+				Log.e(TAG, "createFile !dir.mkdirs() dir=" + dir);
+				return;
+			}
+		} else if(!dir.isDirectory()) {
+			Log.e(TAG, "createFile !dir.isDirectory() dir=" + dir);
+			return;
+		}
+		File file = new File(dir, "test.txt");
+		Log.i(TAG, "createFile() called with " + "dir = " + dir + " file=" + file + " ||| file.exists()=" + file.exists());
+		try {
+			if(file.createNewFile()) {
+				Log.i(TAG, "createFile success file=" + file);
+			} else {
+				Log.e(TAG, "createFile fail file=" + file);
+			}
+		} catch(IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void createFileOnClick(View v) {
+		createFile(getFilesDir());
+		createFile(getCacheDir());
+		createFile(getExternalCacheDir());
+		createFile(getExternalFilesDir("xxx"));
+		createFile(new File(Environment.getExternalStorageDirectory(), "Download"));
+	}
+
+	public void moveFileOnClick(View v) {
+		File file1, file2;
+		//file1 = new File(Environment.getExternalStorageDirectory(), "Download/xxx");
+		file1 = new File(getFilesDir(), "Download/aaa/xxx1");
+		file2 = new File(getCacheDir(), "Download/bbb/xxx1");
+
+		File src = file1;
+		File dest = file2;
+
+		Log.i(TAG, "moveFileOnClick src.exists()=" + src.exists() + " dest.exists()=" + dest.exists());
+
+		long start = System.currentTimeMillis();
+		boolean result = true;
+//		try {
+//			FileUtils.moveDirectory(src, dest);
+//		} catch(Exception e) {
+//			e.printStackTrace();
+//			result = false;
+//		}
+		dest.mkdirs();
+		result = src.renameTo(dest);
+		Log.i(TAG, "src.exists()=" + src.exists() + " dest.exists()=" + dest.exists() + " result=" + result + " time=" + (System.currentTimeMillis() - start));
 	}
 
 }

@@ -15,6 +15,11 @@
         android:text="alert"
         android:onClick="alert"/>
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="test1"/>
+
     <FrameLayout
         android:id="@+id/view_container"
         android:layout_width="match_parent"

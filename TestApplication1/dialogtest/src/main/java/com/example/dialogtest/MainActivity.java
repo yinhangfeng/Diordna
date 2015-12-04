@@ -1,6 +1,7 @@
 package com.example.dialogtest;
 
 import android.content.DialogInterface;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -46,7 +47,7 @@ public class MainActivity extends BaseTestActivity {
 
     @Override
     protected void test1() {
-        Log.i(TAG, "test1 editText.getContext=" + editText.getContext());
+        showBottomPop();
     }
 
     private AlertDialog alertDialog;
@@ -151,5 +152,19 @@ public class MainActivity extends BaseTestActivity {
         }
         //popupWindow.showAtLocation(getWindow().getDecorView(), Gravity.NO_GRAVITY, 0, 0);
 
+    }
+
+    private void showBottomPop() {
+        PopupWindow mPopupWindow = new PopupWindow(this);
+        mPopupWindow.setWidth(ViewGroup.LayoutParams.WRAP_CONTENT);
+        mPopupWindow.setHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
+        mPopupWindow.setFocusable(true);
+        mPopupWindow.setTouchable(true);
+        mPopupWindow.setOutsideTouchable(true);
+        mPopupWindow.setBackgroundDrawable(new ColorDrawable());
+
+        View v = getLayoutInflater().inflate(R.layout.pop_test, null);
+        mPopupWindow.setContentView(v);
+        mPopupWindow.showAtLocation(findViewById(android.R.id.content), Gravity.TOP, 0, 0);
     }
 }

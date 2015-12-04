@@ -11,12 +11,25 @@
         android:orientation="horizontal" >
 
         <Button
-            android:id="@+id/test"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="24dp"
             android:onClick="testOnClick"
-            android:text="test" />
+            android:text="info" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="24dp"
+            android:onClick="createFileOnClick"
+            android:text="create file" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="24dp"
+            android:onClick="moveFileOnClick"
+            android:text="move file" />
     </LinearLayout>
 
     <ScrollView

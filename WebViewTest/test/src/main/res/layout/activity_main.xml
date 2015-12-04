@@ -47,6 +47,8 @@
             android:id="@+id/video_view_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:background="#9999ee"
+            android:clickable="true"
             android:visibility="gone"
             ></FrameLayout>
     </RelativeLayout>
