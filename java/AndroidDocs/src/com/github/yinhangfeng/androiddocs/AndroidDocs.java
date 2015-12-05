@@ -36,7 +36,7 @@ public class AndroidDocs {
 	public static void main(String[] args) throws Exception {
 		log("start...");
 		long start = System.currentTimeMillis();
-		File docsDir = new File("D:\\Android\\android-sdk\\docs_copy");
+		File docsDir = new File("D:\\Android\\android-sdk\\__docs");
 		probe(docsDir);
 		while(taskCounter.get() > 0) {
 			Thread.sleep(30);
