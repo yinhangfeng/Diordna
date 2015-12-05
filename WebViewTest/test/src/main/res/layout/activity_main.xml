@@ -20,16 +20,12 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="#ffdddd"
-            android:visibility="gone">
+            android:visibility="visible">
 
-            <com.example.yhf.webviewtest.MyWebView
-                android:id="@+id/web_view"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@android:color/transparent"/>
         </FrameLayout>
 
         <HorizontalScrollView
+            android:visibility="gone"
             android:id="@+id/hsv"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
@@ -51,6 +47,8 @@
             android:id="@+id/video_view_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:background="#9999ee"
+            android:clickable="true"
             android:visibility="gone"
             ></FrameLayout>
     </RelativeLayout>

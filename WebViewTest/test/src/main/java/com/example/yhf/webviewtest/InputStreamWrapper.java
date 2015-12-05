@@ -21,19 +21,19 @@ public class InputStreamWrapper extends FilterInputStream {
 
     @Override
     public int read() throws IOException {
-        L.i(TAG, "read url=", url);
+        L.i(TAG, "read url=", url, ", tid=", Thread.currentThread().getId());
         return super.read();
     }
 
     @Override
     public int read(byte[] buffer) throws IOException {
-        L.i(TAG, "read buffer len=", buffer.length, " url=", url);
+        L.i(TAG, "read buffer len=", buffer.length, " url=", url, ", tid=", Thread.currentThread().getId());
         return super.read(buffer);
     }
 
     @Override
     public int read(byte[] buffer, int byteOffset, int byteCount) throws IOException {
-        L.i(TAG, "read buffer len=", buffer.length, ", byteOffset=" + byteOffset + ", byteCount=" + byteCount + " url=", url);
+        L.i(TAG, "read buffer len=", buffer.length, ", byteOffset=" + byteOffset + ", byteCount=" + byteCount + " url=", url, ", tid=", Thread.currentThread().getId());
         return super.read(buffer, byteOffset, byteCount);
     }
 }

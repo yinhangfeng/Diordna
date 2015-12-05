@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>test1</title>
+    <script>
+    function logInjection(msg) {
+        console.log(msg + ": x=" + window.x);
+    }
+    logInjection("head start");
+    setTimeout(function() {
+        logInjection("head start setTimeout");
+    });
+    window.addEventListener("load", function() {
+		logInjection("window onload");
+	});
+
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=yes">
+    <title>test</title>
+    <style>
+        body {
+        width: 100%;
+        height: 100%;
+        }
+
+        button {
+        width:120px;
+        height:40px;
+        display:block;
+        }
+		p {
+		height:30px;
+		background-color:#00ff00;
+		font-size:24px;
+		color:#000000;
+		margin-bottom:5px;
+        margin-left:0;
+		}
+
+        video {
+        display: block;
+        height: 180px;
+        width: 320px;
+        background-color: #ff9999;
+        }
+
+        .info {
+            width: 100%;
+            display: block;
+        }
+    </style>
+    <script type="text/javascript" src="file:///android_asset/jquery.min.js"></script>
+    <script type="text/javascript" src="http://cqg.lightappbuilder.com/Public/js/lib/fastclick.js" defer></script>
+</head>
+<body style="padding:0;margin:0;">
+<button class="test1" onclick="test1()">test1</button>
+<button class="test2" onclick="test2()">test2</button>
+<button class="test3" onclick="test3()">test3</button>
+<button class="test4" onclick="test4()">test4</button>
+<button class="test5" onclick="test5()">test5</button>
+<button class="test6" onclick="test6()">test6</button>
+<button class="test7" onclick="test7()">test7</button>
+<input type="text" style="width:100%;height:50px;"/>
+<button class="test8" onclick="test8()">test8</button>
+<button class="test9" onclick="test9()">test9</button>
+<pre class="info"></pre>
+
+<input style="width:100%;height:50px;"/>
+
+<script>
+    function test1(c) {
+    }
+
+    function test2() {
+        var jsobj1 = test.xxx();
+        objInfo(jsobj1, "jsobj1");
+    }
+
+    function test3() {
+        var i = test.basicData(1, 2, '1234', 4, 7.7, 6.6666666666666666666, "7");
+        alert(i);
+    }
+
+    function test4() {
+        test.wrapData(3, 3.3333);
+    }
+
+    function test5() {
+        test.aaa(null);
+    }
+
+    function test6() {
+        var jsobj1 = test.xxx();
+
+        jsobj1.toast();
+
+    }
+
+    function test7() {
+        var viewport = document.getElementsByTagName("meta")[0];
+        viewport.content = "width=200, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=yes";
+    }
+
+    function test8() {
+        var func = function() {console.log("timer");setTimeout(func, 500)};
+        setTimeout(func, 500);
+    }
+
+    function test9() {
+        test.leakTest();
+    }
+    logInjection("body end");
+</script>
+</body>
+</html>

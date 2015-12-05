@@ -1,13 +1,14 @@
 package com.yinhangfeng.viewpagertest;
 
 import android.content.Context;
-import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
+import android.util.Log;
 
 /**
  * Created by yhf on 2015/8/17.
  */
 public class MyViewPager extends ViewPager {
+    private static final String TAG = "MyViewPager";
 
     public MyViewPager(Context context) {
         super(context);
@@ -22,5 +23,11 @@ public class MyViewPager extends ViewPager {
     private void init() {
         //setClipChildren(false);
         //setStaticTransformationsEnabled(true);
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        Log.e(TAG, "onDetachedFromWindow");
+        super.onDetachedFromWindow();
     }
 }

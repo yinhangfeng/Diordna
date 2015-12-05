@@ -1,8 +1,8 @@
 package com.yinhangfeng.viewpagertest;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +15,7 @@ public class MainActivity extends BaseTestActivity {
     private static final String TAG = "MainActivity";
 
     private MyViewPager viewPager;
+    private Handler handler = new Handler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,47 +29,69 @@ public class MainActivity extends BaseTestActivity {
 
             @Override
             public void transformPage(View page, float position) {
-                Log.i(TAG, "transformPage position=" + position);
-//                int pageWidth = page.getWidth();
-//                int viewPageWidth = viewPager.getWidth();
-//
-////                if (position < -1) { // [-Infinity,-1)
-////                    // This page is way off-screen to the left.
-////                    page.setAlpha(0);
-////
-////                } else
-//                if (position <= 0) { // [-1,0]
-//                    // Use the default slide transition when moving to the left page
-//                    page.setAlpha(1);
-//                    page.setTranslationX(0);
-//                    page.setScaleX(1);
-//                    page.setScaleY(1);
-//
-//                } else { // (0,1]
-//                    // Fade the page out.
-//                    page.setAlpha( -0.15f * position + 1);
-//
-//                    // Counteract the default slide transition
-//                    page.setTranslationX(viewPageWidth * -position + 0.15f * viewPageWidth * position);
-//
-//                    // Scale the page down (between MIN_SCALE and 1)
-//                    float scaleFactor = -0.15f * position + 1;
-////                    if(position < 1) {
-////                        scaleFactor = MIN_SCALE
-////                                + (1 - MIN_SCALE) * (1 - Math.abs(position));
-////                    } else {
-////                        scaleFactor = MIN_SCALE;
-////                    }
-//                    //page.setScaleX(scaleFactor);
-//                    page.setScaleY(scaleFactor);
-//
-//                }
-////                else { // (1,+Infinity]
-////                    // This page is way off-screen to the right.
-////                    page.setAlpha(0);
-////                }
+                //Log.i(TAG, "transformPage position=" + position);
+                //                int pageWidth = page.getWidth();
+                //                int viewPageWidth = viewPager.getWidth();
+                //
+                ////                if (position < -1) { // [-Infinity,-1)
+                ////                    // This page is way off-screen to the left.
+                ////                    page.setAlpha(0);
+                ////
+                ////                } else
+                //                if (position <= 0) { // [-1,0]
+                //                    // Use the default slide transition when moving to the left page
+                //                    page.setAlpha(1);
+                //                    page.setTranslationX(0);
+                //                    page.setScaleX(1);
+                //                    page.setScaleY(1);
+                //
+                //                } else { // (0,1]
+                //                    // Fade the page out.
+                //                    page.setAlpha( -0.15f * position + 1);
+                //
+                //                    // Counteract the default slide transition
+                //                    page.setTranslationX(viewPageWidth * -position + 0.15f * viewPageWidth * position);
+                //
+                //                    // Scale the page down (between MIN_SCALE and 1)
+                //                    float scaleFactor = -0.15f * position + 1;
+                ////                    if(position < 1) {
+                ////                        scaleFactor = MIN_SCALE
+                ////                                + (1 - MIN_SCALE) * (1 - Math.abs(position));
+                ////                    } else {
+                ////                        scaleFactor = MIN_SCALE;
+                ////                    }
+                //                    //page.setScaleX(scaleFactor);
+                //                    page.setScaleY(scaleFactor);
+                //
+                //                }
+                ////                else { // (1,+Infinity]
+                ////                    // This page is way off-screen to the right.
+                ////                    page.setAlpha(0);
+                ////                }
             }
         });
+
+//        viewPager.postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                Log.i(TAG, "viewPager.postDelayed run");
+//                viewPager.postDelayed(this, 200);
+//            }
+//        }, 200);
+
+//        handler.postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                Log.i(TAG, "handler.postDelayed run");
+//                handler.postDelayed(this, 200);
+//            }
+//        }, 200);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.i(TAG, "onDestroy ");
     }
 
     @Override

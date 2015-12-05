@@ -21,7 +21,7 @@ import org.apache.commons.io.FileUtils;
 public class AndroidDocs {
 	
 	private static final Charset UTF8 = Charset.forName("UTF-8");
-	private static ThreadPoolExecutor executor = new ThreadPoolExecutor(5, 5, 0, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
+	private static ThreadPoolExecutor executor = new ThreadPoolExecutor(4, 4, 0, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
 	private static final Pattern REPLACE_PATTERN
 		= Pattern.compile("<script.+?src=\"(http.+?)\".+?>\\s*</script>|<script>\\s*?\\(function\\(i,s,o,g,r,a,m\\)[\\s\\S]+?</script>");
 	private static ThreadLocal<StringBuffer> stringBufferLocal = new ThreadLocal<StringBuffer>() {

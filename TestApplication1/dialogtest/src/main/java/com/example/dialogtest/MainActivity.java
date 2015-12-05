@@ -1,57 +1,104 @@
 package com.example.dialogtest;
 
-import android.content.Context;
+import android.content.DialogInterface;
+import android.graphics.drawable.ColorDrawable;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import java.lang.reflect.InvocationTargetException;
+import com.example.commonlibrary.BaseTestActivity;
+
 import java.lang.reflect.Method;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BaseTestActivity {
     private static final String TAG = "MainActivity";
+
+    private EditText editText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Log.i(TAG, "onCreate getApplication() == getApplicationContext(): " + (getApplication() == getApplicationContext()));
 
+        FrameLayout viewContainer = (FrameLayout) findViewById(R.id.view_container);
+        //LayoutInflater的Context跟Theme有关
+        View testLayout = LayoutInflater.from(this).inflate(R.layout.layout_test, null);
+        editText = (EditText) testLayout.findViewById(R.id.edit_text);
+        Log.i(TAG, "test1 editText.getContext=" + editText.getContext());
+        viewContainer.addView(testLayout, -1, -1);
+        Log.i(TAG, "test1 editText.getContext=" + editText.getContext());
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
+    protected void test1() {
+        showBottomPop();
+    }
+
+    private AlertDialog alertDialog;
+
+    @Override
+    protected void test2() {
+        AlertDialog.Builder dlg = new AlertDialog.Builder(this);
+        dlg.setMessage("xxxxx");
+        dlg.setCancelable(false);
+        dlg.setPositiveButton(android.R.string.ok, new AlertDialog.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                Log.i(TAG, "PositiveButton onClick");
+            }
+        });
+        dlg.setNegativeButton(android.R.string.cancel, new AlertDialog.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                Log.i(TAG, "NegativeButton onClick");
+            }
+        });
+//        dlg.setOnKeyListener(new DialogInterface.OnKeyListener() {
+//            public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
+//                Log.i(TAG, "onKey event=" + event);
+//                return true;
+//            }
+//        });
+        dlg.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            public void onCancel(DialogInterface dialog) {
+                Log.i(TAG, "onCancel");
+            }
+        });
+        dlg.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                Log.i(TAG, "onDismiss");
+            }
+        });
+        alertDialog = dlg.show();
+
+//        new Handler().postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                alertDialog.dismiss();
+//            }
+//        }, 3000);
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if(id == R.id.action_settings) {
-            showPop();
-            return true;
+    protected void test3() {
+        if(alertDialog != null) {
+            alertDialog.dismiss();
         }
-
-        return super.onOptionsItemSelected(item);
     }
 
     public void alert(View v) {
@@ -105,5 +152,19 @@ public class MainActivity extends AppCompatActivity {
         }
         //popupWindow.showAtLocation(getWindow().getDecorView(), Gravity.NO_GRAVITY, 0, 0);
 
+    }
+
+    private void showBottomPop() {
+        PopupWindow mPopupWindow = new PopupWindow(this);
+        mPopupWindow.setWidth(ViewGroup.LayoutParams.WRAP_CONTENT);
+        mPopupWindow.setHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
+        mPopupWindow.setFocusable(true);
+        mPopupWindow.setTouchable(true);
+        mPopupWindow.setOutsideTouchable(true);
+        mPopupWindow.setBackgroundDrawable(new ColorDrawable());
+
+        View v = getLayoutInflater().inflate(R.layout.pop_test, null);
+        mPopupWindow.setContentView(v);
+        mPopupWindow.showAtLocation(findViewById(android.R.id.content), Gravity.TOP, 0, 0);
     }
 }
