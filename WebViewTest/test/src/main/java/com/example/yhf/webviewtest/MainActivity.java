@@ -18,6 +18,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.text.Layout;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
@@ -46,11 +47,17 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.yhf.webviewtest.util.DisplayUtils;
 import com.example.yhf.webviewtest.util.L;
+import com.squareup.okhttp.Callback;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.Response;
 
 import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -161,7 +168,7 @@ public class MainActivity extends BaseTestActivity {
         //initWebView(webView, "file:///android_asset/test2.html");
         //initWebView(webView, "http://qxp.lightappbuilder.com/house/recommend/showRecommend/id/173?a=3#aaa");
         //initWebView(webView, "http://172.18.255.152/User/Map/index?a=111#xxx");
-        initWebView(webView, "http://www.baidu.com");
+        initWebView(webView, "file:///android_asset/test2.html");
 
         //initWebViewPager();
         //initHsv();
@@ -190,6 +197,7 @@ public class MainActivity extends BaseTestActivity {
 
     private void initWebView(final WebView webView, String url) {
         L.i(TAG, "initWebView() called with webView = [", webView, "], url = [", url, "]");
+        webView.setBackgroundColor(0);
         WebSettings webSettings = webView.getSettings();
         //启用支持JS
         webSettings.setJavaScriptEnabled(true);
@@ -528,58 +536,79 @@ public class MainActivity extends BaseTestActivity {
 
     @Override
     protected void test1() {
-        webView.loadUrl("about:blank");
+        ViewGroup.LayoutParams layoutParams = webView.getLayoutParams();
+        if(layoutParams != null) {
+            layoutParams.height = DisplayUtils.dp2Px(200);
+            webView.setLayoutParams(layoutParams);
+        }
     }
 
     @Override
     protected void test2() {
-        webView.clearView();
+        ViewGroup.LayoutParams layoutParams = webView.getLayoutParams();
+        if(layoutParams != null) {
+            layoutParams.height = -1;
+            webView.setLayoutParams(layoutParams);
+        }
     }
 
     @Override
     protected void test3() {
-        webView.clearHistory();
+        webView.scrollTo(0, -10);
     }
 
     @Override
     protected void test4() {
-        webView.loadDataWithBaseURL("xxx", null, null, null, null);
+        webView.onOverScrolled(0, 100, false, false);
     }
 
     @Override
     protected void test5() {
-        webView.loadUrl("http://www.baidu.com");
+        webView.setTranslationY(50);
     }
 
     @Override
     protected void test6() {
-        webView.loadUrl("file:///android_asset/test1.html");
+        webView.requestLayout();
     }
 
     @Override
     protected void test7() {
-        ((ViewGroup) webView.getParent()).removeView(webView);
-        webView.destroy();
-        webView = null;
+        ViewGroup.LayoutParams layoutParams = webView.getLayoutParams();
+        if(layoutParams != null) {
+            layoutParams.height = webView.getHeight() - 10;
+            webView.setLayoutParams(layoutParams);
+        }
     }
 
     @Override
     protected void test8() {
-        webView.removeJavascriptInterface("test");
-        webView.loadUrl("about:blank");
-        jsObject = null;
+//        webView.offsetTopAndBottom(-1);
+//        webView.offsetTopAndBottom(200);
+//        webView.invalidate();
+        int top = webView.getTop();
+        webView.layout(webView.getLeft(), top - 1, webView.getRight(), webView.getBottom());
+        webView.layout(webView.getLeft(), top, webView.getRight(), webView.getBottom());
+        //webView.onLayout(true, webView.getLeft(), webView.getTop(), webView.getRight(), webView.getBottom());
     }
 
     @Override
     protected void test9() {
-//        try {
-//            Log.i(TAG, "test9 getAssets().list()=" + Arrays.toString(getAssets().list("")));
-//            Log.i(TAG, "test9 getAssets().getLocales()=" + Arrays.toString(getAssets().getLocales()));
-//
-//        } catch(IOException e) {
-//            e.printStackTrace();
-//        }
-        webView.loadDataWithBaseURL("lab://xxx", null, null, null, "lab://xxx");
+        OKHttpProvider.getInstance()
+                .newCall(new Request.Builder()
+                        .url("http://172.18.255.66:8888/aaa")
+                        .build())
+                .enqueue(new Callback() {
+                    @Override
+                    public void onFailure(Request request, IOException e) {
+                        L.e(TAG, "onFailure() called with request = ", request, ", e = ", e, "");
+                    }
+
+                    @Override
+                    public void onResponse(Response response) throws IOException {
+                        L.i(TAG, "onResponse() called with response = ", response, " body=", response.body().string());
+                    }
+                });
     }
 
     private JsObject jsObject;

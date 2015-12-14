@@ -41,11 +41,14 @@ public class OKHttpProvider {
 
         @Override
         public Map<String, List<String>> get(URI uri, Map<String, List<String>> requestHeaders) throws IOException {
-            L.i("OKCookieHandler", "get uri=", uri, " getHost=", uri.getHost(), " requestHeaders=", requestHeaders);
             String host = uri.getHost();
-            String cookieStr = CookieManager.getInstance().getCookie(host);
+            String url = uri.toString();
+            L.i("OKCookieHandler", "get uri=", uri, " getHost=", host, " url=", url, " requestHeaders=", requestHeaders);
+            String cookieStr = CookieManager.getInstance().getCookie(url);
             L.i("OKCookieHandler", "get cookieStr=", cookieStr);
-
+            if(cookieStr == null) {
+                return Collections.emptyMap();
+            }
             return Collections.singletonMap("Cookie", Collections.singletonList(cookieStr));
         }
 

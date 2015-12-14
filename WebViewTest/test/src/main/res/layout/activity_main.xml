@@ -2,6 +2,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#ff8888"
     android:orientation="vertical" >
 
     <RelativeLayout
@@ -19,7 +20,7 @@
             android:id="@+id/web_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="#ffdddd"
+            android:background="#88ddee"
             android:visibility="visible">
 
         </FrameLayout>

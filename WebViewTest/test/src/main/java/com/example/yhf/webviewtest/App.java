@@ -26,7 +26,8 @@ public class App extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        refWatcher = LeakCanary.install(this);
+        //refWatcher = LeakCanary.install(this);
+        refWatcher = RefWatcher.DISABLED;
 
         T.init(this);
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {

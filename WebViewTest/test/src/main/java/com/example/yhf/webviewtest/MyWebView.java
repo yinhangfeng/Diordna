@@ -15,6 +15,7 @@ import android.widget.EdgeEffect;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.yhf.webviewtest.util.DisplayUtils;
 import com.example.yhf.webviewtest.util.L;
 
 /**
@@ -58,7 +59,7 @@ public class MyWebView extends WebView {
             Log.i(TAG, "init cls=" + cls);
             cls = cls.getSuperclass();
         }
-        //setOverScrollMode(View.OVER_SCROLL_IF_CONTENT_SCROLLS);
+        setOverScrollMode(View.OVER_SCROLL_NEVER);
         //setWillNotDraw(true);
     }
 
@@ -86,6 +87,7 @@ public class MyWebView extends WebView {
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
+        L.i(TAG, "onLayout() called with changed = ", changed, ", l = ", l, ", t = ", t, ", r = ", r, ", b = ", b, "");
         super.onLayout(changed, l, t, r, b);
         if(getChildCount() > 0) {
             L.LogViewInfo(TAG + "onLayout", this);
@@ -141,15 +143,41 @@ public class MyWebView extends WebView {
         return super.computeVerticalScrollExtent();
     }
 
+    private boolean isSizeChanged;
+
+    @Override
+    protected void onSizeChanged(int w, int h, int ow, int oh) {
+        L.i(TAG, "onSizeChanged() called with w = ", w, ", h = ", h, ", ow = ", ow, ", oh = ", oh, "");
+        if(h - oh > DisplayUtils.dp2Px(100) && oh != 0 && !isSizeChanged) {
+            Log.e(TAG, "onSizeChanged xxxx");
+            isSizeChanged = true;
+            postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    Log.e(TAG, "onSizeChanged xxxx run");
+                    int left = getLeft();
+                    int top = getTop();
+                    int right = getRight();
+                    int bottom = getBottom();
+                    //layout(getLeft(), top - 1, getRight(), bottom);
+//                    offsetTopAndBottom(-1);
+//                    layout(left, top, right, bottom);
+                    isSizeChanged = false;
+                }
+            }, 150);
+        }
+        super.onSizeChanged(w, h, ow, oh);
+    }
+
     @Override
     public void scrollTo(int x, int y) {
-        //Log.i(TAG, "scrollTo() called with " + "x = [" + x + "], y = [" + y + "]");
+        Log.i(TAG, "scrollTo() called with " + "x = [" + x + "], y = [" + y + "]");
         super.scrollTo(x, y);
     }
 
     @Override
     public void scrollBy(int x, int y) {
-        //Log.i(TAG, "scrollBy() called with " + "x = [" + x + "], y = [" + y + "]");
+        Log.i(TAG, "scrollBy() called with " + "x = [" + x + "], y = [" + y + "]");
         super.scrollBy(x, y);
     }
 
@@ -162,14 +190,28 @@ public class MyWebView extends WebView {
 
     @Override
     protected void onOverScrolled(int scrollX, int scrollY, boolean clampedX, boolean clampedY) {
-        //Log.i(TAG, "onOverScrolled() called with " + "scrollX = " + scrollX + ", scrollY = " + scrollY + ", clampedX = " + clampedX + ", clampedY = " + clampedY);
+        Log.i(TAG, "onOverScrolled() called with " + "scrollX = " + scrollX + ", scrollY = " + scrollY + ", clampedX = " + clampedX + ", clampedY = " + clampedY);
         super.onOverScrolled(scrollX, scrollY, clampedX, clampedY);
     }
 
     @Override
     protected void onScrollChanged(int l, int t, int oldl, int oldt) {
-        //Log.i(TAG, "onScrollChanged() called with " + "l = " + l + ", t = " + t + ", oldl = " + oldl + ", oldt = " + oldt);
+        Log.i(TAG, "onScrollChanged() called with " + "l = " + l + ", t = " + t + ", oldl = " + oldl + ", oldt = " + oldt);
         super.onScrollChanged(l, t, oldl, oldt);
+//        if(isSizeChanged) {
+//            isSizeChanged = false;
+//            post(new Runnable() {
+//                @Override
+//                public void run() {
+//                    Log.e(TAG, "onScrollChanged SizeChanged run xxx");
+//
+////                    int top = getTop();
+////                    int bottom = getBottom();
+////                    layout(getLeft(), top - 1, getRight(), bottom - 1);
+////                    layout(getLeft(), top, getRight(), bottom);
+//                }
+//            });
+//        }
     }
 
 
