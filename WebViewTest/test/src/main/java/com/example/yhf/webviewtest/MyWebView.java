@@ -171,32 +171,32 @@ public class MyWebView extends WebView {
 
     @Override
     public void scrollTo(int x, int y) {
-        Log.i(TAG, "scrollTo() called with " + "x = [" + x + "], y = [" + y + "]");
+        //Log.i(TAG, "scrollTo() called with " + "x = [" + x + "], y = [" + y + "]");
         super.scrollTo(x, y);
     }
 
     @Override
     public void scrollBy(int x, int y) {
-        Log.i(TAG, "scrollBy() called with " + "x = [" + x + "], y = [" + y + "]");
+        //Log.i(TAG, "scrollBy() called with " + "x = [" + x + "], y = [" + y + "]");
         super.scrollBy(x, y);
     }
 
     @Override
     protected boolean overScrollBy(int deltaX, int deltaY, int scrollX, int scrollY, int scrollRangeX, int scrollRangeY, int maxOverScrollX, int maxOverScrollY, boolean isTouchEvent) {
-        Log.i(TAG, "overScrollBy() called with " + "deltaX = [" + deltaX + "], deltaY = [" + deltaY + "], scrollX = [" + scrollX + "], scrollY = [" + scrollY + "], scrollRangeX = [" + scrollRangeX + "], scrollRangeY = [" + scrollRangeY + "], maxOverScrollX = [" + maxOverScrollX + "], maxOverScrollY = [" + maxOverScrollY + "], isTouchEvent = [" + isTouchEvent + "]");
+        //Log.i(TAG, "overScrollBy() called with " + "deltaX = [" + deltaX + "], deltaY = [" + deltaY + "], scrollX = [" + scrollX + "], scrollY = [" + scrollY + "], scrollRangeX = [" + scrollRangeX + "], scrollRangeY = [" + scrollRangeY + "], maxOverScrollX = [" + maxOverScrollX + "], maxOverScrollY = [" + maxOverScrollY + "], isTouchEvent = [" + isTouchEvent + "]");
         //return super.overScrollBy(deltaX, deltaY, scrollX, scrollY, scrollRangeX, scrollRangeY, 300, 400, isTouchEvent);
         return super.overScrollBy(deltaX, deltaY, scrollX, scrollY, scrollRangeX, scrollRangeY, 0, 0, isTouchEvent);
     }
 
     @Override
     protected void onOverScrolled(int scrollX, int scrollY, boolean clampedX, boolean clampedY) {
-        Log.i(TAG, "onOverScrolled() called with " + "scrollX = " + scrollX + ", scrollY = " + scrollY + ", clampedX = " + clampedX + ", clampedY = " + clampedY);
+        //Log.i(TAG, "onOverScrolled() called with " + "scrollX = " + scrollX + ", scrollY = " + scrollY + ", clampedX = " + clampedX + ", clampedY = " + clampedY);
         super.onOverScrolled(scrollX, scrollY, clampedX, clampedY);
     }
 
     @Override
     protected void onScrollChanged(int l, int t, int oldl, int oldt) {
-        Log.i(TAG, "onScrollChanged() called with " + "l = " + l + ", t = " + t + ", oldl = " + oldl + ", oldt = " + oldt);
+        //Log.i(TAG, "onScrollChanged() called with " + "l = " + l + ", t = " + t + ", oldl = " + oldl + ", oldt = " + oldt);
         super.onScrollChanged(l, t, oldl, oldt);
 //        if(isSizeChanged) {
 //            isSizeChanged = false;

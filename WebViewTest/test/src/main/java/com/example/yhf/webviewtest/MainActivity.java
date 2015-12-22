@@ -18,7 +18,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.text.Layout;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
@@ -47,7 +46,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.yhf.webviewtest.util.DisplayUtils;
 import com.example.yhf.webviewtest.util.L;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.Request;
@@ -56,10 +54,8 @@ import com.squareup.okhttp.Response;
 import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,7 +73,7 @@ public class MainActivity extends BaseTestActivity {
     private HorizontalScrollView hsv;
     private ViewGroup hsvContent;
 
-    //private static String[] urls = {"file:///android_asset/test1.html", "http://www.baidu.com", "http://weibo.com", "file:///android_asset/test.html"};
+    private static String[] urls = {"file:///android_asset/test.html", "file:///android_asset/test.html"};
     //private static String[] urls = {"http://www.youku.com/", "http://www.tudou.com/", "http://www.letv.com/", "http://tv.sohu.com/comic/"};
 //    private static String[] urls = {
 //            "file:///android_asset/test1.html",
@@ -85,9 +81,11 @@ public class MainActivity extends BaseTestActivity {
 //            "http://app.heyimen.lightappbuilder.com/User/Index/login.html",
 //            "http://app.heyimen.lightappbuilder.com/Farm/Task/seed.html",
 //            "http://app.heyimen.lightappbuilder.com/Farm/Land/find.html"};
-    private static String[] urls = {
-            "http://image.baidu.com/wisebrowse/index?tag1=%E6%91%84%E5%BD%B1&tag2=%E5%85%A8%E9%83%A8&tag3=&pn=0&rn=10&from=index&fmpage=index&pos=magic#/home",
-            "file:///android_asset/iframe_scroll.html"};
+
+    //测试scroll
+//    private static String[] urls = {
+//            "http://image.baidu.com/wisebrowse/index?tag1=%E6%91%84%E5%BD%B1&tag2=%E5%85%A8%E9%83%A8&tag3=&pn=0&rn=10&from=index&fmpage=index&pos=magic#/home",
+//            "file:///android_asset/iframe_scroll.html"};
 
     private List<MyWebView> webViews;
     private ViewPager viewPager;
@@ -127,13 +125,13 @@ public class MainActivity extends BaseTestActivity {
         hsvContent = (ViewGroup) findViewById(R.id.hsv_content);
 
         tabLayout = (TabLayout) findViewById(R.id.tab_layout);
-        for(int i = 0; i < urls.length; ++i) {
+        for(int i = 0; i < 5; ++i) {
             tabLayout.addTab(tabLayout.newTab().setText(Integer.toString(i)));
         }
         tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
-                //viewPager.setCurrentItem(tab.getPosition(), false);
+                viewPager.setCurrentItem(tab.getPosition());
                 //hsv.scrollTo(dm.widthPixels * tab.getPosition(), 0);
                 //hsvContent.setTranslationX(-dm.widthPixels * tab.getPosition());
 //                for(int i = 0; i < urls.length; ++i) {
@@ -160,19 +158,20 @@ public class MainActivity extends BaseTestActivity {
         viewPager = (ViewPager) findViewById(R.id.view_pager);
 
         webContainer = (ViewGroup) findViewById(R.id.web_container);
-        webView = newWebView(this);
-        webContainer.addView(webView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+
+        //webView = newWebView(this);
+        //webContainer.addView(webView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
 
         //file:///android_asset/test1.html
         //http://172.18.255.232/appbuilder/lab3/h5/trunk/lab_test.html
         //initWebView(webView, "file:///android_asset/test2.html");
         //initWebView(webView, "http://qxp.lightappbuilder.com/house/recommend/showRecommend/id/173?a=3#aaa");
         //initWebView(webView, "http://172.18.255.152/User/Map/index?a=111#xxx");
-        initWebView(webView, "file:///android_asset/test2.html");
+        //initWebView(webView, "file:///android_asset/test.html");
 
-        //initWebViewPager();
+        initWebViewPager();
         //initHsv();
-        //webView = webViews.get(0);
+        webView = webViews.get(0);
 
     }
 
@@ -201,19 +200,8 @@ public class MainActivity extends BaseTestActivity {
         WebSettings webSettings = webView.getSettings();
         //启用支持JS
         webSettings.setJavaScriptEnabled(true);
-        //设置使用缓存
-        webSettings.setCacheMode(WebSettings.LOAD_NO_CACHE);
-        //webView.clearHistory();
-
-        //webSettings.setBlockNetworkLoads(true);
-
-
-        //        webView.setVerticalScrollbarOverlay(true); //指定的垂直滚动条有叠加样式
-        //        webSettings.setUseWideViewPort(true);//设定支持viewport
-        //        webSettings.setLoadWithOverviewMode(true);
-        //        webSettings.setBuiltInZoomControls(true);
-        //        webSettings.setSupportZoom(true);//设定支持缩放
-        //        webView.setInitialScale(2);
+        //设置缓存
+        //webSettings.setCacheMode(WebSettings.LOAD_NO_CACHE);
 
         //WebViewClient帮助WevView处理一些页面控制和请求通知
         webView.setWebViewClient(new WebViewClient() {
@@ -222,8 +210,6 @@ public class MainActivity extends BaseTestActivity {
                 Toast.makeText(MainActivity.this, "shouldOverrideUrlLoading url=" + url, Toast.LENGTH_LONG).show();
                 //返回则WebView内的连接在WebView打开，否则会弹出调用第三方浏览器
                 Log.i(TAG, "shouldOverrideUrlLoading tid=" + Thread.currentThread().getId() + " url=" + url);
-                //                view.loadUrl(url);
-                //                return true;
                 return false;
             }
 
@@ -233,7 +219,6 @@ public class MainActivity extends BaseTestActivity {
                 L.i(TAG, "onPageStarted() called with url = [", url, "] tid=", Thread.currentThread().getId());
                 injectionInfo(view, "onPageStarted");
                 //printBackForwardList();
-                //view.clearHistory();
             }
 
             @Override
@@ -242,7 +227,6 @@ public class MainActivity extends BaseTestActivity {
                 L.i(TAG, "onPageFinished() called with url = [", url, "] tid=", Thread.currentThread().getId());
                 injectionInfo(view, "onPageFinished");
                 //printBackForwardList();
-                //view.clearHistory();
             }
 
             @Override
@@ -269,43 +253,35 @@ public class MainActivity extends BaseTestActivity {
                 Log.i(TAG, "shouldInterceptRequest url=" + url);
                 //SystemClock.sleep(60000);
                 //js线程调用
-                //L.e(TAG, "shouldInterceptRequest url=", url, " tid=", Thread.currentThread().getId());
-                //                try {
-                //                    Thread.sleep(1000);
-                //                } catch(InterruptedException e) {
-                //                    e.printStackTrace();
-                //                }
-                //                if(url.endsWith(".png")) {
-                //                    WebResourceResponse response;
-                //                    try {
-                //                        response = new WebResourceResponse(null, null, new InputStreamWrapper(getAssets().open("aaa.png"), url));
-                //                        return response;
-                //                    } catch(IOException e) {
-                //                        e.printStackTrace();
-                //                    }
-                //                }
-//                                if(url.contains("jquery")) {
-//                                    Log.i(TAG, "shouldInterceptRequest xxxxxxxxxxx");
-//                                    try {
-//                                        return new WebResourceResponse(null, null, new InputStreamWrapper(getAssets().open("jquery.min.js"), url));
-//                                    } catch(IOException e) {
-//                                        e.printStackTrace();
-//                                    }
-//                                }
+                if(url.endsWith("test.png")) {
+                    try {
+                        InputStream is = new InputStreamWrapper(getAssets().open("aaa.png"), url);
+                        return new WebResourceResponse("image/png", null, is);
+//                        Map<String, String> responseHeaders = new HashMap<String, String>();
+//                        responseHeaders.put("Cache-Control", "max-age=30");
+//                        return new WebResourceResponse(null, null, 200, "OK", responseHeaders, is);
+                    } catch(IOException e) {
+                        e.printStackTrace();
+                    }
+                }
                 return null;
             }
 
             @TargetApi(Build.VERSION_CODES.LOLLIPOP)
             public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
-                Log.d(TAG, "shouldInterceptRequest() request{ url=" + request.getUrl() + ", method=" + request.getMethod() + ", hasGesture=" + request.hasGesture() + ", isForMainFrame=" + request.isForMainFrame() + ", Headers=" + request.getRequestHeaders() + "} tid=" + Thread.currentThread().getId());
-//                if(request.getUrl().toString().contains("jquery")) {
-//                    Log.i(TAG, "shouldInterceptRequest xxxxxxxxxxx");
-//                    try {
-//                        return new WebResourceResponse(null, null, new InputStreamWrapper(getAssets().open("jquery.min.js"), request.getUrl().toString()));
-//                    } catch(IOException e) {
-//                        e.printStackTrace();
-//                    }
-//                }
+                Log.i(TAG, "shouldInterceptRequest() request{ url=" + request.getUrl() + ", method=" + request.getMethod() + ", hasGesture=" + request.hasGesture() + ", isForMainFrame=" + request.isForMainFrame() + ", Headers=" + request.getRequestHeaders() + "} tid=" + Thread.currentThread().getId());
+                String url = request.getUrl().toString();
+                if(url.endsWith("test.png")) {
+                    try {
+                        InputStream is = new InputStreamWrapper(getAssets().open("aaa.png"), url);
+                        //return new WebResourceResponse("image/png", null, is);
+                        Map<String, String> responseHeaders = new HashMap<String, String>();
+                        responseHeaders.put("Cache-Control", "max-age=30");
+                        return new WebResourceResponse(null, null, 200, "OK", responseHeaders, is);
+                    } catch(IOException e) {
+                        e.printStackTrace();
+                    }
+                }
                 return null;
             }
 
@@ -536,20 +512,12 @@ public class MainActivity extends BaseTestActivity {
 
     @Override
     protected void test1() {
-        ViewGroup.LayoutParams layoutParams = webView.getLayoutParams();
-        if(layoutParams != null) {
-            layoutParams.height = DisplayUtils.dp2Px(200);
-            webView.setLayoutParams(layoutParams);
-        }
+        addViewPagerItem("file:///android_asset/test.html");
     }
 
     @Override
     protected void test2() {
-        ViewGroup.LayoutParams layoutParams = webView.getLayoutParams();
-        if(layoutParams != null) {
-            layoutParams.height = -1;
-            webView.setLayoutParams(layoutParams);
-        }
+        webView.reload();
     }
 
     @Override
@@ -583,13 +551,7 @@ public class MainActivity extends BaseTestActivity {
 
     @Override
     protected void test8() {
-//        webView.offsetTopAndBottom(-1);
-//        webView.offsetTopAndBottom(200);
-//        webView.invalidate();
-        int top = webView.getTop();
-        webView.layout(webView.getLeft(), top - 1, webView.getRight(), webView.getBottom());
-        webView.layout(webView.getLeft(), top, webView.getRight(), webView.getBottom());
-        //webView.onLayout(true, webView.getLeft(), webView.getTop(), webView.getRight(), webView.getBottom());
+        URITest.test("https://wx.qiangxianpai.com:8080/?aaa=1#aaa");
     }
 
     @Override
@@ -692,6 +654,17 @@ public class MainActivity extends BaseTestActivity {
         //viewPager.setAdapter(new MyPagerAdapter());
         viewPager.setAdapter(new MyFragmentPagerAdapter(getSupportFragmentManager()));
         viewPager.setOffscreenPageLimit(8);
+    }
+
+    private void addViewPagerItem(String url) {
+        if(webViews == null) {
+            webViews = new ArrayList<>();
+        }
+        MyWebView webView = newWebView(getApplication());
+        webView.setId(webViews.size());
+        initWebView(webView, url);
+        webViews.add(webView);
+        viewPager.getAdapter().notifyDataSetChanged();
     }
 
     private void initHsv() {

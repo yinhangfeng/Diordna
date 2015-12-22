@@ -17,7 +17,7 @@ public class JsObject {
     private static final String TAG = "JsObject";
     private Handler handler = new Handler(Looper.getMainLooper());
 
-    private byte[] data = new byte[50 * 1024 * 1024];
+    private byte[] data;// = new byte[50 * 1024 * 1024];
 
     private MainActivity mainActivity;
     private WebView webView;

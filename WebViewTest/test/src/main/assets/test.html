@@ -1,15 +1,27 @@
+<!DOCTYPE html>
 <html>
 <head>
     <title>test</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=yes">
     <style>
         button {
-        width:100px;
-        height:40px;
-        display:block;
+			width:100px;
+			height:40px;
+			display:block;
         }
+
+		.test-img {
+			display: block;
+			width: 80px;
+			height: 80px;
+		}
     </style>
 </head>
 <body>
+<img class=".test-img" src="http://aaa/test.png"/>
+<img src="http://m.baidu.com/static/index/plus/plus_logo.png" style="width:100px;">
+<img class=".test-img" src="http://aaa/test.png"/>
 <button class="test1" onclick="test1()">test1</button>
 <button class="test2" onclick="test2()">test2</button>
 <button class="test3" onclick="test3()">test3</button>
@@ -19,18 +31,17 @@
 <button class="test7" onclick="test7()">test7</button>
 <button class="test8" onclick="test8()">test8</button>
 <button class="test9" onclick="test9()">test9</button>
-<img src="http://m.baidu.com/static/index/plus/plus_logo.png">
 <input type="text"/>
 
 <a href="test1.html"><p>test1.html</p></a>
 <a href="http://www.baidu.com"><p>baidu</p></a>
+<img class=".test-img" src="http://aaa/test.png"/>
 <script>
     function test1() {
-
+		location.reload();
     }
 
     function test2() {
-
     }
 
     function test3() {
