@@ -1,12 +1,17 @@
 package com.example.toolbartest;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.res.TypedArray;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.view.MenuCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SearchViewCompat;
 import android.support.v4.widget.TextViewCompat;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
@@ -53,7 +58,11 @@ public class MainActivity extends AppCompatActivity {
 
         toolbar1 = (Toolbar) findViewById(R.id.tool_bar1);
         //相当于 setDisplayHomeAsUpEnabled
-        toolbar1.setNavigationIcon(R.mipmap.ic_launcher);
+        //toolbar1.setNavigationIcon(R.mipmap.ic_launcher);
+        toolbar1.setNavigationIcon(getThemeUpIndicator(this));
+
+        Log.i(TAG, "onCreate: toolbar1.getNavigationIcon=" + toolbar1.getNavigationIcon());
+
 
         toolbar1.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -76,6 +85,42 @@ public class MainActivity extends AppCompatActivity {
 
         toolbar1.addView(getLayoutInflater().inflate(R.layout.actionbar_custom_layout, null));
 
+    }
+
+    /**
+     * 获取返回按钮Drawable
+     */
+    private Drawable getThemeUpIndicator(Activity activity) {
+        if (activity instanceof ActionBarDrawerToggle.DelegateProvider) {
+            return ((ActionBarDrawerToggle.DelegateProvider) activity).getDrawerToggleDelegate().getThemeUpIndicator();
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            final TypedArray a = getActionBarThemedContext(activity).obtainStyledAttributes(null,
+                    new int[]{android.R.attr.homeAsUpIndicator}, android.R.attr.actionBarStyle, 0);
+            final Drawable result = a.getDrawable(0);
+            a.recycle();
+            return result;
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            final int[] THEME_ATTRS = new int[] {
+                    android.R.attr.homeAsUpIndicator
+            };
+            final TypedArray a = activity.obtainStyledAttributes(THEME_ATTRS);
+            final Drawable result = a.getDrawable(0);
+            a.recycle();
+            return result;
+        } else {
+            return null;
+        }
+    }
+
+    private Context getActionBarThemedContext(Activity activity) {
+        final android.app.ActionBar actionBar = activity.getActionBar();
+        final Context context;
+        if (actionBar != null) {
+            context = actionBar.getThemedContext();
+        } else {
+            context = activity;
+        }
+        return context;
     }
 
     @Override

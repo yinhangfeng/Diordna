@@ -4,7 +4,10 @@ import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
@@ -16,12 +19,18 @@ import android.widget.RemoteViews;
 import java.text.DateFormat;
 import java.util.Date;
 
+/**
+ * PendingIntent.getActivity的参数requestCode http://harvey8819.blog.163.com/blog/static/162365181201132691559986/
+ */
 public class MainActivity extends Activity {
     private static final String TAG = "MainActivity";
 
     private static int NOTIFY_COUNT = 0;
 
     public static final int NOTIFICATION_ID = 1;
+    public static final String ACTION_DELETE_NOTIFICATION = "ACTION_DELETE_NOTIFICATION";
+    private DeleteNotificationReceiver deleteNotificationReceiver;
+    private int notificationId = NOTIFICATION_ID;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,6 +42,16 @@ public class MainActivity extends Activity {
             s = "xxx: " + intent.getStringExtra("xxx");
         }
         Log.i(TAG, "onCreate " + s);
+
+        IntentFilter intentFilter = new IntentFilter(ACTION_DELETE_NOTIFICATION);
+        deleteNotificationReceiver = new DeleteNotificationReceiver();
+        registerReceiver(deleteNotificationReceiver, intentFilter);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(deleteNotificationReceiver);
     }
 
     @Override
@@ -59,13 +78,18 @@ public class MainActivity extends Activity {
         //intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
         //flags很重要 PendingIntent.FLAG_UPDATE_CURRENT决定了目标Activity是否能收到新的Extra数据
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        Intent deleteBoradcastIntent = new Intent(ACTION_DELETE_NOTIFICATION);
+        deleteBoradcastIntent.putExtra("id", notificationId);
+        PendingIntent deletePendingIntent = PendingIntent.getBroadcast(this, notificationId, deleteBoradcastIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
 
         builder.setSmallIcon(R.drawable.ic_stat_notification);
 
         builder.setContentIntent(pendingIntent);
+        builder.setDeleteIntent(deletePendingIntent);
 
         builder.setAutoCancel(true);
 
@@ -79,7 +103,7 @@ public class MainActivity extends Activity {
 
         NotificationManager notificationManager = (NotificationManager) getSystemService(
                 NOTIFICATION_SERVICE);
-        notificationManager.notify(NOTIFICATION_ID, builder.build());
+        notificationManager.notify(notificationId, builder.build());
     }
 
     public void customNotification(View view) {
@@ -91,7 +115,7 @@ public class MainActivity extends Activity {
         //Create Intent to launch this Activity again if the notification is clicked.
         Intent i = new Intent(this, MainActivity.class);
         i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        PendingIntent intent = PendingIntent.getActivity(this, 0, i,
+        PendingIntent intent = PendingIntent.getActivity(this, notificationId, i,
                 PendingIntent.FLAG_UPDATE_CURRENT);
         builder.setContentIntent(intent);
 
@@ -143,7 +167,7 @@ public class MainActivity extends Activity {
         // START_INCLUDE(notify)
         // Use the NotificationManager to show the notification
         NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        nm.notify(NOTIFICATION_ID, notification);
+        nm.notify(notificationId, notification);
 
     }
 
@@ -154,5 +178,17 @@ public class MainActivity extends Activity {
 
     public void testActivity(View v) {
         startActivity(new Intent(this, TestActivity.class));
+    }
+
+    public void incNotificationId(View v) {
+        notificationId++;
+    }
+
+    private class DeleteNotificationReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.i("DeleteNotificationReceiver", "onReceive intent.getAction=" + intent.getAction() + " intent.getIntExtra(\"id\", -1)=" + intent.getIntExtra("id", -1));
+        }
     }
 }
