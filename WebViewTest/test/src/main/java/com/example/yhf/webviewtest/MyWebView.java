@@ -145,29 +145,29 @@ public class MyWebView extends WebView {
 
     private boolean isSizeChanged;
 
-    @Override
-    protected void onSizeChanged(int w, int h, int ow, int oh) {
-        L.i(TAG, "onSizeChanged() called with w = ", w, ", h = ", h, ", ow = ", ow, ", oh = ", oh, "");
-        if(h - oh > DisplayUtils.dp2Px(100) && oh != 0 && !isSizeChanged) {
-            Log.e(TAG, "onSizeChanged xxxx");
-            isSizeChanged = true;
-            postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    Log.e(TAG, "onSizeChanged xxxx run");
-                    int left = getLeft();
-                    int top = getTop();
-                    int right = getRight();
-                    int bottom = getBottom();
-                    //layout(getLeft(), top - 1, getRight(), bottom);
-//                    offsetTopAndBottom(-1);
-//                    layout(left, top, right, bottom);
-                    isSizeChanged = false;
-                }
-            }, 150);
-        }
-        super.onSizeChanged(w, h, ow, oh);
-    }
+//    @Override
+//    protected void onSizeChanged(int w, int h, int ow, int oh) {
+//        L.i(TAG, "onSizeChanged() called with w = ", w, ", h = ", h, ", ow = ", ow, ", oh = ", oh, "");
+//        if(h - oh > DisplayUtils.dp2Px(100) && oh != 0 && !isSizeChanged) {
+//            Log.e(TAG, "onSizeChanged xxxx");
+//            isSizeChanged = true;
+//            postDelayed(new Runnable() {
+//                @Override
+//                public void run() {
+//                    Log.e(TAG, "onSizeChanged xxxx run");
+//                    int left = getLeft();
+//                    int top = getTop();
+//                    int right = getRight();
+//                    int bottom = getBottom();
+//                    //layout(getLeft(), top - 1, getRight(), bottom);
+////                    offsetTopAndBottom(-1);
+////                    layout(left, top, right, bottom);
+//                    isSizeChanged = false;
+//                }
+//            }, 150);
+//        }
+//        super.onSizeChanged(w, h, ow, oh);
+//    }
 
     @Override
     public void scrollTo(int x, int y) {
@@ -217,102 +217,102 @@ public class MyWebView extends WebView {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-//        L.i(TAG, "onMeasure childCount=" + getChildCount());
+        L.i(TAG, "onMeasure widthMeasureSpec=", MeasureSpec.toString(widthMeasureSpec), " heightMeasureSpec=", MeasureSpec.toString(heightMeasureSpec));
 //        for(int i = 0; i < getChildCount(); ++i) {
 //            L.i(TAG, "onMeasure v", i, "   ", L.getRecursionViewInfo(getChildAt(i)));
 //        }
 
-
-        int count = getChildCount();
-
-        int maxHeight = 0;
-        int maxWidth = 0;
-
-        for (int i = 0; i < count; ++i) {
-            View child = getChildAt(i);
-            if (child.getVisibility() != GONE) {
-                int rightMargin = 0;
-                int bottomMargin = 0;
-                WebView.LayoutParams lp = (WebView.LayoutParams) child.getLayoutParams();
-                if(lp instanceof LayoutParams) {
-                    rightMargin = ((LayoutParams) lp).rightMargin;
-                    bottomMargin = ((LayoutParams) lp).bottomMargin;
-                } else {
-                    L.w(TAG, "onMeasure xxxxxxxxxxxxx");
-                    Toast.makeText(getContext(), "xxxx", Toast.LENGTH_SHORT).show();
-                }
-
-                int childWidthMeasureSpec = getChildMeasureSpec(widthMeasureSpec,
-                        getPaddingLeft() + getPaddingRight() + lp.x + rightMargin, lp.width);
-                int childHeightMeasureSpec = getChildMeasureSpec(heightMeasureSpec,
-                        getPaddingTop() + getPaddingBottom() + lp.y + bottomMargin, lp.height);
-                child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
-
-                int childRight;
-                int childBottom;
-                childRight = lp.x + child.getMeasuredWidth() + rightMargin;
-                childBottom = lp.y + child.getMeasuredHeight() + bottomMargin;
-
-                maxWidth = Math.max(maxWidth, childRight);
-                maxHeight = Math.max(maxHeight, childBottom);
-            }
-        }
-
-        maxWidth += getPaddingLeft() + getPaddingRight();
-        maxHeight += getPaddingTop() + getPaddingBottom();
-
-        maxHeight = Math.max(maxHeight, getSuggestedMinimumHeight());
-        maxWidth = Math.max(maxWidth, getSuggestedMinimumWidth());
-
-        setMeasuredDimension(resolveSizeAndState(maxWidth, widthMeasureSpec, 0),
-                resolveSizeAndState(maxHeight, heightMeasureSpec, 0));
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+//        int count = getChildCount();
+//
+//        int maxHeight = 0;
+//        int maxWidth = 0;
+//
+//        for (int i = 0; i < count; ++i) {
+//            View child = getChildAt(i);
+//            if (child.getVisibility() != GONE) {
+//                int rightMargin = 0;
+//                int bottomMargin = 0;
+//                WebView.LayoutParams lp = (WebView.LayoutParams) child.getLayoutParams();
+//                if(lp instanceof LayoutParams) {
+//                    rightMargin = ((LayoutParams) lp).rightMargin;
+//                    bottomMargin = ((LayoutParams) lp).bottomMargin;
+//                } else {
+//                    L.w(TAG, "onMeasure xxxxxxxxxxxxx");
+//                    Toast.makeText(getContext(), "xxxx", Toast.LENGTH_SHORT).show();
+//                }
+//
+//                int childWidthMeasureSpec = getChildMeasureSpec(widthMeasureSpec,
+//                        getPaddingLeft() + getPaddingRight() + lp.x + rightMargin, lp.width);
+//                int childHeightMeasureSpec = getChildMeasureSpec(heightMeasureSpec,
+//                        getPaddingTop() + getPaddingBottom() + lp.y + bottomMargin, lp.height);
+//                child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
+//
+//                int childRight;
+//                int childBottom;
+//                childRight = lp.x + child.getMeasuredWidth() + rightMargin;
+//                childBottom = lp.y + child.getMeasuredHeight() + bottomMargin;
+//
+//                maxWidth = Math.max(maxWidth, childRight);
+//                maxHeight = Math.max(maxHeight, childBottom);
+//            }
+//        }
+//
+//        maxWidth += getPaddingLeft() + getPaddingRight();
+//        maxHeight += getPaddingTop() + getPaddingBottom();
+//
+//        maxHeight = Math.max(maxHeight, getSuggestedMinimumHeight());
+//        maxWidth = Math.max(maxWidth, getSuggestedMinimumWidth());
+//
+//        setMeasuredDimension(resolveSizeAndState(maxWidth, widthMeasureSpec, 0),
+//                resolveSizeAndState(maxHeight, heightMeasureSpec, 0));
     }
 
-    @Override
-    protected ViewGroup.LayoutParams generateDefaultLayoutParams() {
-        L.i(TAG, "generateDefaultLayoutParams");
-        return new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, 0, 0);
-    }
-
-    @Override
-    public ViewGroup.LayoutParams generateLayoutParams(AttributeSet attrs) {
-        L.i(TAG, "generateLayoutParams() called with attrs = ", attrs);
-        return new LayoutParams(getContext(), attrs);
-    }
-
-    @Override
-    protected boolean checkLayoutParams(ViewGroup.LayoutParams p) {
-        L.i(TAG, "checkLayoutParams p=" + (p == null ? "null" : p.getClass()));
-        return p instanceof LayoutParams;
-    }
-
-    @Override
-    protected ViewGroup.LayoutParams generateLayoutParams(ViewGroup.LayoutParams p) {
-        L.i(TAG, "generateLayoutParams p=" + (p == null ? "null" : p.getClass()));
-        return new LayoutParams(p);
-    }
-
-    public static class LayoutParams extends WebView.LayoutParams {
-
-        public int rightMargin;
-        public int bottomMargin;
-
-        public LayoutParams(int width, int height, int x, int y) {
-            super(width, height, x, y);
-        }
-
-        public LayoutParams(int width, int height, int x, int y, int rightMargin, int bottomMargin) {
-            super(width, height, x, y);
-            this.rightMargin = rightMargin;
-            this.bottomMargin = bottomMargin;
-        }
-
-        public LayoutParams(Context c, AttributeSet attrs) {
-            super(c, attrs);
-        }
-
-        public LayoutParams(ViewGroup.LayoutParams source) {
-            super(source);
-        }
-    }
+//    @Override
+//    protected ViewGroup.LayoutParams generateDefaultLayoutParams() {
+//        L.i(TAG, "generateDefaultLayoutParams");
+//        return new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, 0, 0);
+//    }
+//
+//    @Override
+//    public ViewGroup.LayoutParams generateLayoutParams(AttributeSet attrs) {
+//        L.i(TAG, "generateLayoutParams() called with attrs = ", attrs);
+//        return new LayoutParams(getContext(), attrs);
+//    }
+//
+//    @Override
+//    protected boolean checkLayoutParams(ViewGroup.LayoutParams p) {
+//        L.i(TAG, "checkLayoutParams p=" + (p == null ? "null" : p.getClass()));
+//        return p instanceof LayoutParams;
+//    }
+//
+//    @Override
+//    protected ViewGroup.LayoutParams generateLayoutParams(ViewGroup.LayoutParams p) {
+//        L.i(TAG, "generateLayoutParams p=" + (p == null ? "null" : p.getClass()));
+//        return new LayoutParams(p);
+//    }
+//
+//    public static class LayoutParams extends WebView.LayoutParams {
+//
+//        public int rightMargin;
+//        public int bottomMargin;
+//
+//        public LayoutParams(int width, int height, int x, int y) {
+//            super(width, height, x, y);
+//        }
+//
+//        public LayoutParams(int width, int height, int x, int y, int rightMargin, int bottomMargin) {
+//            super(width, height, x, y);
+//            this.rightMargin = rightMargin;
+//            this.bottomMargin = bottomMargin;
+//        }
+//
+//        public LayoutParams(Context c, AttributeSet attrs) {
+//            super(c, attrs);
+//        }
+//
+//        public LayoutParams(ViewGroup.LayoutParams source) {
+//            super(source);
+//        }
+//    }
 }

@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="12dp"
+    android:background="#77aa77"
     android:orientation="vertical"
     tools:context=".MainActivity">
 
@@ -35,4 +36,15 @@
         android:textColor="@android:color/white"
         android:textSize="40sp"
         android:text="1.5万"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="xxasdgdfgsdfg"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:enabled="false"
+        android:text="xxasdgdfgsdfg"/>
 </LinearLayout>

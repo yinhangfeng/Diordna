@@ -20,7 +20,6 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +33,7 @@ import android.webkit.SslErrorHandler;
 import android.webkit.ValueCallback;
 import android.webkit.WebBackForwardList;
 import android.webkit.WebChromeClient;
+import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
@@ -43,13 +43,11 @@ import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.yhf.webviewtest.util.L;
-import com.squareup.okhttp.Callback;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
 
 import org.apache.commons.io.IOUtils;
 
@@ -160,18 +158,20 @@ public class MainActivity extends BaseTestActivity {
         webContainer = (ViewGroup) findViewById(R.id.web_container);
 
         //webView = newWebView(this);
-        //webContainer.addView(webView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        webView = (MyWebView) findViewById(R.id.web_view);
+        //webContainer.addView(webView, ViewGroup.LayoutParams.MATCH_PARENT, 500);
 
         //file:///android_asset/test1.html
         //http://172.18.255.232/appbuilder/lab3/h5/trunk/lab_test.html
         //initWebView(webView, "file:///android_asset/test2.html");
         //initWebView(webView, "http://qxp.lightappbuilder.com/house/recommend/showRecommend/id/173?a=3#aaa");
-        //initWebView(webView, "http://172.18.255.152/User/Map/index?a=111#xxx");
         //initWebView(webView, "file:///android_asset/test.html");
+        //initWebView(webView, "http://image.baidu.com/search/wiseala?tn=wiseala&ie=utf8&from=index&fmpage=index&word=%E7%A7%BB%E8%BD%B4%E6%91%84%E5%BD%B1&pos=magic#!search");
+        initWebView(webView, "http://172.18.255.71:9000/error");
 
-        initWebViewPager();
+        //initWebViewPager();
         //initHsv();
-        webView = webViews.get(0);
+        //webView = webViews.get(0);
 
     }
 
@@ -218,22 +218,35 @@ public class MainActivity extends BaseTestActivity {
                 super.onPageStarted(view, url, favicon);
                 L.i(TAG, "onPageStarted() called with url = [", url, "] tid=", Thread.currentThread().getId());
                 injectionInfo(view, "onPageStarted");
+                logWebViewSize();
                 //printBackForwardList();
             }
 
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
-                L.i(TAG, "onPageFinished() called with url = [", url, "] tid=", Thread.currentThread().getId());
+                L.i(TAG, "onPageFinished() called with url = [", url, "] tid=", Thread.currentThread().getId() + " title:" + view.getTitle());
                 injectionInfo(view, "onPageFinished");
+                logWebViewSize();
                 //printBackForwardList();
             }
 
             @Override
             public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
-                super.onReceivedError(view, errorCode, description, failingUrl);
                 Log.e(TAG, "onReceivedError() called with " + "view = " + view + ", errorCode = " + errorCode + ", description = " + description + ", failingUrl = " + failingUrl + "");
+                super.onReceivedError(view, errorCode, description, failingUrl);
                 //printBackForwardList();
+            }
+
+            @Override
+            public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
+                super.onReceivedError(view, request, error);
+            }
+
+            @Override
+            public void onReceivedHttpError(WebView view, WebResourceRequest request, WebResourceResponse errorResponse) {
+                Log.e(TAG, "onReceivedHttpError() called with: " + "view = [" + view + "], request = [" + request + "], errorResponse = [" + errorResponse + "]");
+                super.onReceivedHttpError(view, request, errorResponse);
             }
 
             @Override
@@ -253,41 +266,41 @@ public class MainActivity extends BaseTestActivity {
                 Log.i(TAG, "shouldInterceptRequest url=" + url);
                 //SystemClock.sleep(60000);
                 //js线程调用
-                if(url.endsWith("test.png")) {
-                    try {
-                        InputStream is = new InputStreamWrapper(getAssets().open("aaa.png"), url);
-                        return new WebResourceResponse("image/png", null, is);
+//                if(url.endsWith("test.png")) {
+//                    try {
+//                        InputStream is = new InputStreamWrapper(getAssets().open("aaa.png"), url);
+//                        return new WebResourceResponse("image/png", null, is);
+////                        Map<String, String> responseHeaders = new HashMap<String, String>();
+////                        responseHeaders.put("Cache-Control", "max-age=30");
+////                        return new WebResourceResponse(null, null, 200, "OK", responseHeaders, is);
+//                    } catch(IOException e) {
+//                        e.printStackTrace();
+//                    }
+//                }
+                return null;
+            }
+
+//            @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+//            public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
+//                //Log.i(TAG, "shouldInterceptRequest() request{ url=" + request.getUrl() + ", method=" + request.getMethod() + ", hasGesture=" + request.hasGesture() + ", isForMainFrame=" + request.isForMainFrame() + ", Headers=" + request.getRequestHeaders() + "} tid=" + Thread.currentThread().getId());
+//                String url = request.getUrl().toString();
+//                if(url.endsWith("test.png")) {
+//                    try {
+//                        InputStream is = new InputStreamWrapper(getAssets().open("aaa.png"), url);
+//                        //return new WebResourceResponse("image/png", null, is);
 //                        Map<String, String> responseHeaders = new HashMap<String, String>();
 //                        responseHeaders.put("Cache-Control", "max-age=30");
 //                        return new WebResourceResponse(null, null, 200, "OK", responseHeaders, is);
-                    } catch(IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-                return null;
-            }
-
-            @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-            public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
-                Log.i(TAG, "shouldInterceptRequest() request{ url=" + request.getUrl() + ", method=" + request.getMethod() + ", hasGesture=" + request.hasGesture() + ", isForMainFrame=" + request.isForMainFrame() + ", Headers=" + request.getRequestHeaders() + "} tid=" + Thread.currentThread().getId());
-                String url = request.getUrl().toString();
-                if(url.endsWith("test.png")) {
-                    try {
-                        InputStream is = new InputStreamWrapper(getAssets().open("aaa.png"), url);
-                        //return new WebResourceResponse("image/png", null, is);
-                        Map<String, String> responseHeaders = new HashMap<String, String>();
-                        responseHeaders.put("Cache-Control", "max-age=30");
-                        return new WebResourceResponse(null, null, 200, "OK", responseHeaders, is);
-                    } catch(IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-                return null;
-            }
+//                    } catch(IOException e) {
+//                        e.printStackTrace();
+//                    }
+//                }
+//                return null;
+//            }
 
             @Override
             public void onLoadResource(WebView view, String url) {
-                L.w(TAG, "onLoadResource url=", url, " tid=", Thread.currentThread().getId());
+                //L.w(TAG, "onLoadResource url=", url, " tid=", Thread.currentThread().getId());
                 //如果在shouldInterceptRequest 拦截了请求  则不会调用这里
                 super.onLoadResource(view, url);
             }
@@ -395,6 +408,12 @@ public class MainActivity extends BaseTestActivity {
                 L.i(TAG, "onShowFileChooser() called with webView = [", webView, "], filePathCallback = [", filePathCallback, "], fileChooserParams = [", fileChooserParams, "] b=", b);
                 return b;
             }
+
+            @Override
+            public void onReceivedTitle(WebView view, String title) {
+                super.onReceivedTitle(view, title);
+                L.d(TAG, "onReceivedTitle() called with view = ", view, ", title = ", title, "");
+            }
         });
 
         jsObject = new JsObject(this, webView);
@@ -499,20 +518,26 @@ public class MainActivity extends BaseTestActivity {
     private TextView tv;
 
     private void addViewTest() {
-        tv = new TextView(this);
-        tv.setText("987654321");
-        tv.setGravity(Gravity.RIGHT);
-        tv.setTextSize(20);
-        tv.setBackgroundColor(0xffccffcc);
+//        tv = new TextView(this);
+//        tv.setText("987654321");
+//        tv.setGravity(Gravity.RIGHT);
+//        tv.setTextSize(20);
+//        tv.setBackgroundColor(0xffccffcc);
+//
+//        WebView.LayoutParams lp = new MyWebView.LayoutParams(2300, 1600, 100, 2000, 0, 0);
+//
+//        webView.addView(tv, lp);
+    }
 
-        WebView.LayoutParams lp = new MyWebView.LayoutParams(2300, 1600, 100, 2000, 0, 0);
-
-        webView.addView(tv, lp);
+    private void logWebViewSize() {
+        L.i(TAG, "logWebViewSize webView.getContentHeight()=", webView.getContentHeight(), " webView.getHeight()=", webView.getHeight(), " webView.computeVerticalScrollExtent()", webView.computeVerticalScrollExtent(), " webView.computeVerticalScrollOffset()", webView.computeVerticalScrollOffset(), " webView.computeVerticalScrollRange()", webView.computeVerticalScrollRange());
     }
 
     @Override
     protected void test1() {
-        addViewPagerItem("file:///android_asset/test.html");
+        //addViewPagerItem("file:///android_asset/test.html");
+        //webView.loadUrl("http://172.18.255.71:3100/xxx/flex-scroll1.html");
+        logWebViewSize();
     }
 
     @Override
@@ -522,7 +547,7 @@ public class MainActivity extends BaseTestActivity {
 
     @Override
     protected void test3() {
-        webView.scrollTo(0, -10);
+        webView.setLayoutParams(new ScrollView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 500));
     }
 
     @Override
@@ -556,21 +581,22 @@ public class MainActivity extends BaseTestActivity {
 
     @Override
     protected void test9() {
-        OKHttpProvider.getInstance()
-                .newCall(new Request.Builder()
-                        .url("http://172.18.255.66:8888/aaa")
-                        .build())
-                .enqueue(new Callback() {
-                    @Override
-                    public void onFailure(Request request, IOException e) {
-                        L.e(TAG, "onFailure() called with request = ", request, ", e = ", e, "");
-                    }
-
-                    @Override
-                    public void onResponse(Response response) throws IOException {
-                        L.i(TAG, "onResponse() called with response = ", response, " body=", response.body().string());
-                    }
-                });
+//        OKHttpProvider.getInstance()
+//                .newCall(new Request.Builder()
+//                        .url("http://172.18.255.66:8888/aaa")
+//                        .build())
+//                .enqueue(new Callback() {
+//                    @Override
+//                    public void onFailure(Request request, IOException e) {
+//                        L.e(TAG, "onFailure() called with request = ", request, ", e = ", e, "");
+//                    }
+//
+//                    @Override
+//                    public void onResponse(Response response) throws IOException {
+//                        L.i(TAG, "onResponse() called with response = ", response, " body=", response.body().string());
+//                    }
+//                });
+        startActivity(new Intent(this, Test1Activity.class));
     }
 
     private JsObject jsObject;
