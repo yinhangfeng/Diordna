@@ -11,16 +11,17 @@
 
         <!--<item name="android:fitsSystemWindows">true</item>-->
 
-         <!--&lt;!&ndash;透明状态栏&ndash;&gt;-->
-        <!--<item name="android:windowTranslucentStatus">true</item>-->
+         <!--透明状态栏-->
+        <item name="android:windowTranslucentStatus">true</item>
          <!--&lt;!&ndash;透明导航栏&ndash;&gt;-->
         <!--<item name="android:windowTranslucentNavigation">true</item>-->
 
         <!-- window绘制范围包括系统栏(状态栏 导航栏),但Activity的content view如果未设置fitsSystemWindows是不会跑到系统栏下面的(DrawLayout有特殊处理 不然一般的如FrameLayout设置了页没用) -->
-        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <!--<item name="android:windowDrawsSystemBarBackgrounds">true</item>-->
         <!-- 设置状态栏为透明 -->
-        <item name="android:statusBarColor">@android:color/transparent</item>
-        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <!--<item name="android:statusBarColor">@android:color/transparent</item>-->
+        <!--<item name="android:statusBarColor">@color/systembar1</item>-->
+        <!--<item name="android:navigationBarColor">@android:color/transparent</item>-->
     </style>
 
 </resources>
