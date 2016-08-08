@@ -23,6 +23,7 @@
         <activity
             android:name=".DrawerActivity"
             android:label="@string/title_activity_drawer"
+            android:windowSoftInputMode="adjustResize|stateHidden"
             android:theme="@style/AppTheme">
         </activity>
     </application>

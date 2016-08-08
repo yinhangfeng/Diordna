@@ -8,16 +8,18 @@
     android:background="#ff9999"
     tools:context="com.example.yhf.statusbartest.TestActivity">
 
-    <View
+    <FrameLayout
         android:id="@+id/colorView"
         android:layout_width="match_parent"
         android:layout_height="30dp"
-        android:background="#FFF"/>
-
-    <TextView
+        android:background="#FFF">
+        <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="xxxxxx"/>
+    </FrameLayout>
+
+
 
     <TextView
         android:layout_marginTop="100dp"
@@ -51,5 +53,17 @@
         android:layout_height="50dp"
         android:layout_marginBottom="30dp"
         android:layout_gravity="bottom"/>
+
+    <FrameLayout
+        android:id="@+id/bottomColorView"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:layout_gravity="bottom"
+        android:background="#FFF">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="xxxxxx"/>
+    </FrameLayout>
 
 </com.example.yhf.statusbartest.MyFrameLayout>

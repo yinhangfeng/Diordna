@@ -42,8 +42,9 @@ public class MyFrameLayout extends FrameLayout {
     @Override
     public WindowInsets onApplyWindowInsets(WindowInsets insets) {
         //API 20以上 获取键盘 系统栏高度的更好方法
-        Log.d(TAG, "onApplyWindowInsets() called with " + "insets = " + insets + "");
-        return super.onApplyWindowInsets(insets);
+        WindowInsets ret = super.onApplyWindowInsets(insets);
+        Log.d(TAG, "onApplyWindowInsets() called with " + "insets = " + insets + " ret=" + ret);
+        return ret;
     }
 
     @Override

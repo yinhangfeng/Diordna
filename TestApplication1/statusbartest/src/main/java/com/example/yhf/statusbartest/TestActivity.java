@@ -33,9 +33,11 @@ public class TestActivity extends Activity {
 //        //设置状态栏颜色
 //        window.setStatusBarColor(getResources().getColor(R.color.systembar1));
 
-        //getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+        //DrawLayout 在设置fitsSystemWindows之后的处理
+        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
 
-        //XXX 关注API>=21 FLAG_TRANSLUCENT_STATUS 之后完全透明与半透明的statusBarColor的区别
+        //魅族上FLAG_TRANSLUCENT_STATUS statusBar是全透明的，也无法更改颜色， 但获取的颜色还是配置的
         if (Build.VERSION.SDK_INT >= 21)
             Log.i(TAG, "onCreate: statusBarColor " + getWindow().getStatusBarColor());
     }
