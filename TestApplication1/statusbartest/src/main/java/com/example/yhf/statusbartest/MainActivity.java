@@ -101,6 +101,9 @@ public class MainActivity extends AppCompatActivity {
         startActivity(new Intent(this, TestActivity.class));
     }
 
+    public void goToDrawerActivity(View v) {
+        startActivity(new Intent(this, DrawerActivity.class));
+    }
     private void showPop() {
         final PopupWindow mPopupWindow = new PopupWindow(this);
         mPopupWindow.setWidth(ViewGroup.LayoutParams.MATCH_PARENT);

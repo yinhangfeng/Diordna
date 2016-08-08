@@ -9,8 +9,15 @@
         android:layout_marginTop="50dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="testActivity"
+        android:text="TestActivity"
         android:onClick="goToTestActivity"/>
+
+    <Button
+        android:layout_marginTop="100dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="DrawerActivity"
+        android:onClick="goToDrawerActivity"/>
 
     <EditText
         android:layout_gravity="bottom"
