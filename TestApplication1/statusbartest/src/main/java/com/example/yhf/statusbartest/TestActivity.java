@@ -12,10 +12,17 @@ import android.view.WindowManager;
 public class TestActivity extends Activity {
     private static final String TAG = "TestActivity";
 
+    private View container;
+    private View colorView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test);
+
+        container = (View) findViewById(R.id.container);
+        colorView = (View) findViewById(R.id.colorView);
+        //colorView = container;
 
         Window window = getWindow();
 
@@ -30,6 +37,18 @@ public class TestActivity extends Activity {
 
         //XXX 关注API>=21 FLAG_TRANSLUCENT_STATUS 之后完全透明与半透明的statusBarColor的区别
         if (Build.VERSION.SDK_INT >= 21)
-            Log.i(TAG, "onCreate: statusBarColor" + getWindow().getStatusBarColor());
+            Log.i(TAG, "onCreate: statusBarColor " + getWindow().getStatusBarColor());
+    }
+
+    public void test1(View v) {
+            colorView.setBackgroundColor(0xFFEEFFF7);
+    }
+
+    public void test2(View v) {
+        colorView.setBackgroundColor(0xFF1B6731);
+    }
+
+    public void test3(View v) {
+        getWindow().setStatusBarColor(0xFFEEFFF7);
     }
 }
