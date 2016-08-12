@@ -48,9 +48,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.yhf.webviewtest.util.L;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.Response;
 
 import org.apache.commons.io.IOUtils;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -167,7 +170,7 @@ public class MainActivity extends BaseTestActivity {
         //initWebView(webView, "http://qxp.lightappbuilder.com/house/recommend/showRecommend/id/173?a=3#aaa");
         //initWebView(webView, "file:///android_asset/test.html");
         //initWebView(webView, "http://image.baidu.com/search/wiseala?tn=wiseala&ie=utf8&from=index&fmpage=index&word=%E7%A7%BB%E8%BD%B4%E6%91%84%E5%BD%B1&pos=magic#!search");
-        initWebView(webView, "http://172.18.255.71:9000/error");
+        initWebView(webView, "http://www.baidu.com");
 
         //initWebViewPager();
         //initHsv();
@@ -264,6 +267,24 @@ public class MainActivity extends BaseTestActivity {
             @Override
             public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
                 Log.i(TAG, "shouldInterceptRequest url=" + url);
+
+//                if (url.startsWith("http://www.baidu.com")) {
+//                    //在低版本手机上无法直接在shouldInterceptRequest中发起网络请求 (目前测试4.4不行)
+//                    try {
+//                        Response response = OKHttpProvider.getInstance().newCall(new Request.Builder().url("http://www.baidu.com").build()).execute();
+//                        String s = response.body().string();
+//                        Log.i(TAG, "shouldInterceptRequest: xxxxxx");
+//                        return new WebResourceResponse("text/html", "UTF-8", new ByteArrayInputStream(s.getBytes()));
+//                    } catch (IOException e) {
+//                        e.printStackTrace();
+//                    }
+//                }
+
+                //在低版本手机上 返回的WebResourceResponse的InputStream中读取错误会引起WebView native崩溃 (目前测试4.4会)
+                return new WebResourceResponse("text/html", "UTF-8", new TestInputStream());
+                //return null;
+
+
                 //SystemClock.sleep(60000);
                 //js线程调用
 //                if(url.endsWith("test.png")) {
@@ -277,7 +298,6 @@ public class MainActivity extends BaseTestActivity {
 //                        e.printStackTrace();
 //                    }
 //                }
-                return null;
             }
 
 //            @TargetApi(Build.VERSION_CODES.LOLLIPOP)
