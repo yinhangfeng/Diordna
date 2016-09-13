@@ -23,6 +23,7 @@ public class BaseTestActivity extends AppCompatActivity {
 		menu.add(0, 7, 0, "test7");
 		menu.add(0, 8, 0, "test8");
 		menu.add(0, 9, 0, "test9");
+		menu.add(0, 10, 0, "reload");
 		return super.onCreateOptionsMenu(menu);
 	}
 
@@ -56,6 +57,9 @@ public class BaseTestActivity extends AppCompatActivity {
 			break;
 		case 9:
 			test9();
+			break;
+		case 10:
+			reload();
 			break;
 		}
 		return true;
@@ -94,6 +98,10 @@ public class BaseTestActivity extends AppCompatActivity {
 	}
 
 	protected void test1() {
+
+	}
+
+	protected void reload() {
 
 	}
 

@@ -24,6 +24,8 @@ import com.example.yhf.webviewtest.util.L;
 public class MyWebView extends WebView {
     private String TAG = "MyWebView";
 
+    boolean xxx = true;
+
     public void setId(int id) {
         TAG = "MyWebView_" + id;
     }
@@ -130,24 +132,27 @@ public class MyWebView extends WebView {
 
     @Override
     public int computeVerticalScrollOffset() {
+        Log.i(TAG, "computeVerticalScrollOffset:");
         return super.computeVerticalScrollOffset();
     }
 
     @Override
     public int computeVerticalScrollRange() {
+        Log.i(TAG, "computeVerticalScrollRange: ");
         return super.computeVerticalScrollRange();
     }
 
     @Override
     public int computeVerticalScrollExtent() {
+        Log.i(TAG, "computeVerticalScrollExtent:");
         return super.computeVerticalScrollExtent();
     }
 
     private boolean isSizeChanged;
 
-//    @Override
-//    protected void onSizeChanged(int w, int h, int ow, int oh) {
-//        L.i(TAG, "onSizeChanged() called with w = ", w, ", h = ", h, ", ow = ", ow, ", oh = ", oh, "");
+    @Override
+    protected void onSizeChanged(int w, int h, int ow, int oh) {
+        L.i(TAG, "onSizeChanged() called with w = ", w, ", h = ", h, ", ow = ", ow, ", oh = ", oh, "");
 //        if(h - oh > DisplayUtils.dp2Px(100) && oh != 0 && !isSizeChanged) {
 //            Log.e(TAG, "onSizeChanged xxxx");
 //            isSizeChanged = true;
@@ -166,18 +171,18 @@ public class MyWebView extends WebView {
 //                }
 //            }, 150);
 //        }
-//        super.onSizeChanged(w, h, ow, oh);
-//    }
+        super.onSizeChanged(w, h, ow, oh);
+    }
 
     @Override
     public void scrollTo(int x, int y) {
-        //Log.i(TAG, "scrollTo() called with " + "x = [" + x + "], y = [" + y + "]");
+        Log.i(TAG, "scrollTo() called with " + "x = [" + x + "], y = [" + y + "]");
         super.scrollTo(x, y);
     }
 
     @Override
     public void scrollBy(int x, int y) {
-        //Log.i(TAG, "scrollBy() called with " + "x = [" + x + "], y = [" + y + "]");
+        Log.i(TAG, "scrollBy() called with " + "x = [" + x + "], y = [" + y + "]");
         super.scrollBy(x, y);
     }
 
@@ -196,7 +201,7 @@ public class MyWebView extends WebView {
 
     @Override
     protected void onScrollChanged(int l, int t, int oldl, int oldt) {
-        //Log.i(TAG, "onScrollChanged() called with " + "l = " + l + ", t = " + t + ", oldl = " + oldl + ", oldt = " + oldt);
+        Log.i(TAG, "onScrollChanged() called with " + "l = " + l + ", t = " + t + ", oldl = " + oldl + ", oldt = " + oldt);
         super.onScrollChanged(l, t, oldl, oldt);
 //        if(isSizeChanged) {
 //            isSizeChanged = false;
@@ -214,6 +219,19 @@ public class MyWebView extends WebView {
 //        }
     }
 
+    @Override
+    public void requestLayout() {
+        if (xxx) {
+            super.requestLayout();
+        }
+        Log.i(TAG, "requestLayout:");
+    }
+
+    @Override
+    public void forceLayout() {
+        super.forceLayout();
+        Log.i(TAG, "forceLayout:");
+    }
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
@@ -228,41 +246,34 @@ public class MyWebView extends WebView {
 //        int maxHeight = 0;
 //        int maxWidth = 0;
 //
-//        for (int i = 0; i < count; ++i) {
+//        // Find out how big everyone wants to be
+//        measureChildren(widthMeasureSpec, heightMeasureSpec);
+//
+//        // Find rightmost and bottom-most child
+//        for (int i = 0; i < count; i++) {
 //            View child = getChildAt(i);
 //            if (child.getVisibility() != GONE) {
-//                int rightMargin = 0;
-//                int bottomMargin = 0;
-//                WebView.LayoutParams lp = (WebView.LayoutParams) child.getLayoutParams();
-//                if(lp instanceof LayoutParams) {
-//                    rightMargin = ((LayoutParams) lp).rightMargin;
-//                    bottomMargin = ((LayoutParams) lp).bottomMargin;
-//                } else {
-//                    L.w(TAG, "onMeasure xxxxxxxxxxxxx");
-//                    Toast.makeText(getContext(), "xxxx", Toast.LENGTH_SHORT).show();
-//                }
-//
-//                int childWidthMeasureSpec = getChildMeasureSpec(widthMeasureSpec,
-//                        getPaddingLeft() + getPaddingRight() + lp.x + rightMargin, lp.width);
-//                int childHeightMeasureSpec = getChildMeasureSpec(heightMeasureSpec,
-//                        getPaddingTop() + getPaddingBottom() + lp.y + bottomMargin, lp.height);
-//                child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
-//
 //                int childRight;
 //                int childBottom;
-//                childRight = lp.x + child.getMeasuredWidth() + rightMargin;
-//                childBottom = lp.y + child.getMeasuredHeight() + bottomMargin;
+//
+//                AbsoluteLayout.LayoutParams lp
+//                        = (AbsoluteLayout.LayoutParams) child.getLayoutParams();
+//
+//                childRight = lp.x + child.getMeasuredWidth();
+//                childBottom = lp.y + child.getMeasuredHeight();
 //
 //                maxWidth = Math.max(maxWidth, childRight);
 //                maxHeight = Math.max(maxHeight, childBottom);
 //            }
 //        }
 //
+//        // Account for padding too
 //        maxWidth += getPaddingLeft() + getPaddingRight();
 //        maxHeight += getPaddingTop() + getPaddingBottom();
 //
-//        maxHeight = Math.max(maxHeight, getSuggestedMinimumHeight());
-//        maxWidth = Math.max(maxWidth, getSuggestedMinimumWidth());
+//        // Check against minimum height and width
+//        maxHeight = Math.max(maxHeight, 200);
+//        maxWidth = Math.max(maxWidth, 200);
 //
 //        setMeasuredDimension(resolveSizeAndState(maxWidth, widthMeasureSpec, 0),
 //                resolveSizeAndState(maxHeight, heightMeasureSpec, 0));

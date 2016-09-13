@@ -5,6 +5,14 @@
     android:background="#ff8888"
     android:orientation="vertical" >
 
+    <EditText
+        android:id="@+id/uri_edit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="http://"
+        android:singleLine="true"
+        android:imeOptions="actionGo"/>
+
     <RelativeLayout
         android:visibility="visible"
         android:layout_width="match_parent"
@@ -16,19 +24,18 @@
             android:layout_height="match_parent"
             android:visibility="gone"/>
 
-        <ScrollView
+        <FrameLayout
             android:id="@+id/web_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:padding="10dp"
             android:background="#88ddee"
             android:visibility="visible">
             <com.example.yhf.webviewtest.MyWebView
                 android:id="@+id/web_view"
                 android:background="#cc9999"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
-        </ScrollView>
+                android:layout_height="match_parent"/>
+        </FrameLayout>
 
 
         <HorizontalScrollView

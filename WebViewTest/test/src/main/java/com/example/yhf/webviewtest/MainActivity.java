@@ -26,6 +26,7 @@ import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.AnimationSet;
 import android.view.animation.TranslateAnimation;
+import android.view.inputmethod.EditorInfo;
 import android.webkit.ConsoleMessage;
 import android.webkit.JsPromptResult;
 import android.webkit.JsResult;
@@ -39,6 +40,7 @@ import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
@@ -118,8 +120,21 @@ public class MainActivity extends BaseTestActivity {
         }
 
         Log.e(TAG, "onCreate Thread.currentThread().getId()=" + Thread.currentThread().getId());
-        L.i(TAG, "onCreate density=", getResources().getDisplayMetrics().density);
+        //L.i(TAG, "onCreate density=", getResources().getDisplayMetrics().density);
         setContentView(R.layout.activity_main);
+
+        EditText uriEdit = (EditText) findViewById(R.id.uri_edit);
+        uriEdit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (EditorInfo.IME_ACTION_GO == actionId) {
+                    webView.loadUrl(v.getText().toString());
+                    return true;
+                }
+                return false;
+            }
+        });
+
         imageView = (ImageView) findViewById(R.id.image);
         videoViewLayout = (FrameLayout) findViewById(R.id.video_view_layout);
         hsv = (HorizontalScrollView) findViewById(R.id.hsv);
@@ -164,13 +179,12 @@ public class MainActivity extends BaseTestActivity {
         webView = (MyWebView) findViewById(R.id.web_view);
         //webContainer.addView(webView, ViewGroup.LayoutParams.MATCH_PARENT, 500);
 
-        //file:///android_asset/test1.html
-        //http://172.18.255.232/appbuilder/lab3/h5/trunk/lab_test.html
-        //initWebView(webView, "file:///android_asset/test2.html");
+
+        initWebView(webView, "file:///android_asset/testfit.html");
         //initWebView(webView, "http://qxp.lightappbuilder.com/house/recommend/showRecommend/id/173?a=3#aaa");
         //initWebView(webView, "file:///android_asset/test.html");
         //initWebView(webView, "http://image.baidu.com/search/wiseala?tn=wiseala&ie=utf8&from=index&fmpage=index&word=%E7%A7%BB%E8%BD%B4%E6%91%84%E5%BD%B1&pos=magic#!search");
-        initWebView(webView, "http://www.baidu.com");
+        //initWebView(webView, "http://www.baidu.com");
 
         //initWebViewPager();
         //initHsv();
@@ -281,8 +295,8 @@ public class MainActivity extends BaseTestActivity {
 //                }
 
                 //在低版本手机上 返回的WebResourceResponse的InputStream中读取错误会引起WebView native崩溃 (目前测试4.4会)
-                return new WebResourceResponse("text/html", "UTF-8", new TestInputStream());
-                //return null;
+                //return new WebResourceResponse("text/html", "UTF-8", new TestInputStream());
+                return null;
 
 
                 //SystemClock.sleep(60000);
@@ -577,26 +591,22 @@ public class MainActivity extends BaseTestActivity {
 
     @Override
     protected void test5() {
-        webView.setTranslationY(50);
+        webView.loadUrl("javascript:(function(){document.getElementById('content-div').style.height = (document.querySelector('#content-div').clientHeight + 100) + 'px'})();");
     }
 
     @Override
     protected void test6() {
-        webView.requestLayout();
+        webView.loadUrl("javascript:(function(){document.getElementById('content-div').style.height = (document.querySelector('#content-div').clientHeight - 100) + 'px'})();");
     }
 
     @Override
     protected void test7() {
-        ViewGroup.LayoutParams layoutParams = webView.getLayoutParams();
-        if(layoutParams != null) {
-            layoutParams.height = webView.getHeight() - 10;
-            webView.setLayoutParams(layoutParams);
-        }
+        webView.scrollTo(webView.getScrollX(), -50);
     }
 
     @Override
     protected void test8() {
-        URITest.test("https://wx.qiangxianpai.com:8080/?aaa=1#aaa");
+        webView.xxx = false;
     }
 
     @Override
@@ -617,6 +627,11 @@ public class MainActivity extends BaseTestActivity {
 //                    }
 //                });
         startActivity(new Intent(this, Test1Activity.class));
+    }
+
+    @Override
+    protected void reload() {
+        webView.reload();
     }
 
     private JsObject jsObject;
