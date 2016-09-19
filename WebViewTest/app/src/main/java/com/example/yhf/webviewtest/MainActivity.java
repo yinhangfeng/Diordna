@@ -21,6 +21,8 @@ import android.support.v4.view.ViewPager;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
@@ -28,6 +30,8 @@ import android.view.animation.AnimationSet;
 import android.view.animation.TranslateAnimation;
 import android.view.inputmethod.EditorInfo;
 import android.webkit.ConsoleMessage;
+import android.webkit.CookieManager;
+import android.webkit.CookieSyncManager;
 import android.webkit.JsPromptResult;
 import android.webkit.JsResult;
 import android.webkit.SslErrorHandler;
@@ -50,8 +54,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.yhf.webviewtest.util.L;
+import com.example.yhf.webviewtest.util.TestUtils;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
+import com.thefinestartist.finestwebview.FinestWebView;
 
 import org.apache.commons.io.IOUtils;
 
@@ -70,6 +76,7 @@ public class MainActivity extends BaseTestActivity {
     private static final String TAG = "MainActivity";
     private static final String BAIDU = "http://www.baidu.com";
 
+    private CookieManager mCookieManager;
     private ImageView imageView;
     private ViewGroup webContainer;
     private MyWebView webView;
@@ -109,6 +116,8 @@ public class MainActivity extends BaseTestActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         dm = getResources().getDisplayMetrics();
+
+        mCookieManager = TestUtils.getCookieManager(this);
 
 //        if(Build.VERSION.SDK_INT >= 21) {
 //            L.e(TAG, "onCreate enableSlowWholeDocumentDraw");
@@ -180,8 +189,12 @@ public class MainActivity extends BaseTestActivity {
         //webContainer.addView(webView, ViewGroup.LayoutParams.MATCH_PARENT, 500);
 
 
-        initWebView(webView, "file:///android_asset/testfit.html");
-        //initWebView(webView, "http://qxp.lightappbuilder.com/house/recommend/showRecommend/id/173?a=3#aaa");
+        //设置pc的user agent
+        //webView.getSettings().setUserAgentString("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.27 Safari/537.36");
+
+        //initWebView(webView, "file:///android_asset/testfit.html");
+        initWebView(webView, "http://1688.com");
+        //initWebView(webView, "https://lo gin.taobao.com/member/login.jhtml?style=b2b&from=b2b&newMini=true");
         //initWebView(webView, "file:///android_asset/test.html");
         //initWebView(webView, "http://image.baidu.com/search/wiseala?tn=wiseala&ie=utf8&from=index&fmpage=index&word=%E7%A7%BB%E8%BD%B4%E6%91%84%E5%BD%B1&pos=magic#!search");
         //initWebView(webView, "http://www.baidu.com");
@@ -189,7 +202,6 @@ public class MainActivity extends BaseTestActivity {
         //initWebViewPager();
         //initHsv();
         //webView = webViews.get(0);
-
     }
 
     @Override
@@ -220,6 +232,12 @@ public class MainActivity extends BaseTestActivity {
         //设置缓存
         //webSettings.setCacheMode(WebSettings.LOAD_NO_CACHE);
 
+        webSettings.setDomStorageEnabled(true);
+        webSettings.setGeolocationEnabled(true);
+        webSettings.setDatabaseEnabled(true);
+        String databasePath = this.getDir("web_database_storage", Context.MODE_PRIVATE).getPath();
+        webSettings.setDatabasePath(databasePath);
+
         //WebViewClient帮助WevView处理一些页面控制和请求通知
         webView.setWebViewClient(new WebViewClient() {
             @Override
@@ -235,7 +253,7 @@ public class MainActivity extends BaseTestActivity {
                 super.onPageStarted(view, url, favicon);
                 L.i(TAG, "onPageStarted() called with url = [", url, "] tid=", Thread.currentThread().getId());
                 injectionInfo(view, "onPageStarted");
-                logWebViewSize();
+                //logWebViewSize();
                 //printBackForwardList();
             }
 
@@ -244,7 +262,7 @@ public class MainActivity extends BaseTestActivity {
                 super.onPageFinished(view, url);
                 L.i(TAG, "onPageFinished() called with url = [", url, "] tid=", Thread.currentThread().getId() + " title:" + view.getTitle());
                 injectionInfo(view, "onPageFinished");
-                logWebViewSize();
+                //logWebViewSize();
                 //printBackForwardList();
             }
 
@@ -281,6 +299,7 @@ public class MainActivity extends BaseTestActivity {
             @Override
             public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
                 Log.i(TAG, "shouldInterceptRequest url=" + url);
+                return null;
 
 //                if (url.startsWith("http://www.baidu.com")) {
 //                    //在低版本手机上无法直接在shouldInterceptRequest中发起网络请求 (目前测试4.4不行)
@@ -296,7 +315,6 @@ public class MainActivity extends BaseTestActivity {
 
                 //在低版本手机上 返回的WebResourceResponse的InputStream中读取错误会引起WebView native崩溃 (目前测试4.4会)
                 //return new WebResourceResponse("text/html", "UTF-8", new TestInputStream());
-                return null;
 
 
                 //SystemClock.sleep(60000);
@@ -450,13 +468,13 @@ public class MainActivity extends BaseTestActivity {
             }
         });
 
-        jsObject = new JsObject(this, webView);
-        webView.addJavascriptInterface(jsObject, "test");
+//        jsObject = new JsObject(this, webView);
+//        webView.addJavascriptInterface(jsObject, "test");
 
         injectionInfo(webView, "111");
-        Map<String, String> additionalHttpHeaders = new HashMap<>();
-        additionalHttpHeaders.put("xxx", "xxxx");
-        webView.loadUrl(url, additionalHttpHeaders);
+//        Map<String, String> additionalHttpHeaders = new HashMap<>();
+//        additionalHttpHeaders.put("xxx", "xxxx");
+        webView.loadUrl(url);
         injectionInfo(webView, "222");
 
         L.i(TAG, "initWebView webView.getScale()=", webView.getScale());
@@ -601,12 +619,14 @@ public class MainActivity extends BaseTestActivity {
 
     @Override
     protected void test7() {
-        webView.scrollTo(webView.getScrollX(), -50);
+        mCookieManager.removeAllCookie();
     }
 
     @Override
     protected void test8() {
-        webView.xxx = false;
+        Log.i(TAG, "cookie 1688.com:\n" + mCookieManager.getCookie("https://1688.com"));
+        Log.i(TAG, "cookie taobao.com:\n" + mCookieManager.getCookie("https://taobao.com"));
+        Log.i(TAG, "cookie: sycm.1688.com:\n" + mCookieManager.getCookie("https://sycm.1688.com"));
     }
 
     @Override
@@ -799,5 +819,31 @@ public class MainActivity extends BaseTestActivity {
         }else if(newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
             Log.i("webview", "   现在是竖屏1");
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        menu.add(1, 0, 0, "finestwebview");
+        menu.add(1, 1, 0, "CrosswalkActivity");
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getGroupId() == 1) {
+            switch (item.getItemId()) {
+                case 0:
+                    finestwebview();
+                    return true;
+                case 1:
+                    startActivity(new Intent(this, CrosswalkActivity.class));
+                    return true;
+            }
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    protected void finestwebview() {
+        new FinestWebView.Builder(this).show("http://1688.com");
     }
 }

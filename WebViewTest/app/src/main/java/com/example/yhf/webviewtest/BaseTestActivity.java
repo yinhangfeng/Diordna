@@ -9,8 +9,6 @@ import android.view.MenuItem;
 import java.io.File;
 
 public class BaseTestActivity extends AppCompatActivity {
-	
-	protected File testRootFile = new File(Environment.getExternalStorageDirectory(), "TEST");
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {

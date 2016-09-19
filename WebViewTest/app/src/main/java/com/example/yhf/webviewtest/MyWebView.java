@@ -132,19 +132,19 @@ public class MyWebView extends WebView {
 
     @Override
     public int computeVerticalScrollOffset() {
-        Log.i(TAG, "computeVerticalScrollOffset:");
+        //Log.i(TAG, "computeVerticalScrollOffset:");
         return super.computeVerticalScrollOffset();
     }
 
     @Override
     public int computeVerticalScrollRange() {
-        Log.i(TAG, "computeVerticalScrollRange: ");
+        //Log.i(TAG, "computeVerticalScrollRange: ");
         return super.computeVerticalScrollRange();
     }
 
     @Override
     public int computeVerticalScrollExtent() {
-        Log.i(TAG, "computeVerticalScrollExtent:");
+        //Log.i(TAG, "computeVerticalScrollExtent:");
         return super.computeVerticalScrollExtent();
     }
 
@@ -176,13 +176,13 @@ public class MyWebView extends WebView {
 
     @Override
     public void scrollTo(int x, int y) {
-        Log.i(TAG, "scrollTo() called with " + "x = [" + x + "], y = [" + y + "]");
+        //Log.i(TAG, "scrollTo() called with " + "x = [" + x + "], y = [" + y + "]");
         super.scrollTo(x, y);
     }
 
     @Override
     public void scrollBy(int x, int y) {
-        Log.i(TAG, "scrollBy() called with " + "x = [" + x + "], y = [" + y + "]");
+        //Log.i(TAG, "scrollBy() called with " + "x = [" + x + "], y = [" + y + "]");
         super.scrollBy(x, y);
     }
 
@@ -201,7 +201,7 @@ public class MyWebView extends WebView {
 
     @Override
     protected void onScrollChanged(int l, int t, int oldl, int oldt) {
-        Log.i(TAG, "onScrollChanged() called with " + "l = " + l + ", t = " + t + ", oldl = " + oldl + ", oldt = " + oldt);
+        //Log.i(TAG, "onScrollChanged() called with " + "l = " + l + ", t = " + t + ", oldl = " + oldl + ", oldt = " + oldt);
         super.onScrollChanged(l, t, oldl, oldt);
 //        if(isSizeChanged) {
 //            isSizeChanged = false;
@@ -224,18 +224,18 @@ public class MyWebView extends WebView {
         if (xxx) {
             super.requestLayout();
         }
-        Log.i(TAG, "requestLayout:");
+        //Log.i(TAG, "requestLayout:");
     }
 
     @Override
     public void forceLayout() {
         super.forceLayout();
-        Log.i(TAG, "forceLayout:");
+        //Log.i(TAG, "forceLayout:");
     }
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        L.i(TAG, "onMeasure widthMeasureSpec=", MeasureSpec.toString(widthMeasureSpec), " heightMeasureSpec=", MeasureSpec.toString(heightMeasureSpec));
+        //L.i(TAG, "onMeasure widthMeasureSpec=", MeasureSpec.toString(widthMeasureSpec), " heightMeasureSpec=", MeasureSpec.toString(heightMeasureSpec));
 //        for(int i = 0; i < getChildCount(); ++i) {
 //            L.i(TAG, "onMeasure v", i, "   ", L.getRecursionViewInfo(getChildAt(i)));
 //        }
