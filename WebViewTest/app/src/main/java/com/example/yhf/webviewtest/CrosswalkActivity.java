@@ -26,12 +26,14 @@ public class CrosswalkActivity extends BaseTestActivity {
 
     private CookieManager mCookieManager;
     private XWalkView webView;
+    private XWalkCookieManager xWalkCookieManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         mCookieManager = TestUtils.getCookieManager(this);
+        xWalkCookieManager = new XWalkCookieManager();
 
         setContentView(R.layout.activity_crosswalk);
 
@@ -119,13 +121,12 @@ public class CrosswalkActivity extends BaseTestActivity {
 
     @Override
     protected void test7() {
-        mCookieManager.removeAllCookie();
+        xWalkCookieManager.removeAllCookie();
     }
 
     @Override
     protected void test8() {
-        Log.i(TAG, "cookie 1688.com:\n" + mCookieManager.getCookie("https://1688.com"));
-        Log.i(TAG, "cookie taobao.com:\n" + mCookieManager.getCookie("https://taobao.com"));
-        Log.i(TAG, "cookie: sycm.1688.com:\n" + mCookieManager.getCookie("https://sycm.1688.com"));
+        Log.i(TAG, "cookie 1688.com:\n" + xWalkCookieManager.getCookie("https://1688.com"));
+        Log.i(TAG, "cookie taobao.com:\n" + xWalkCookieManager.getCookie("https://taobao.com"));
     }
 }
