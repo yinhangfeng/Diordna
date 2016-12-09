@@ -1,6 +1,5 @@
 package com.example.yhf.webviewtest;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -31,7 +30,6 @@ import android.view.animation.TranslateAnimation;
 import android.view.inputmethod.EditorInfo;
 import android.webkit.ConsoleMessage;
 import android.webkit.CookieManager;
-import android.webkit.CookieSyncManager;
 import android.webkit.JsPromptResult;
 import android.webkit.JsResult;
 import android.webkit.SslErrorHandler;
@@ -51,23 +49,17 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.example.yhf.webviewtest.util.L;
-import com.example.yhf.webviewtest.util.TestUtils;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
+import com.example.lib.BaseTestActivity;
+import com.example.lib.util.L;
+import com.example.lib.util.TestUtils;
 import com.thefinestartist.finestwebview.FinestWebView;
 
 import org.apache.commons.io.IOUtils;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Wrong type of context, can't create fullscreen video 要全屏播放视屏 创建WebView传入的Context 必须为activity
@@ -193,8 +185,9 @@ public class MainActivity extends BaseTestActivity {
         //webView.getSettings().setUserAgentString("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.27 Safari/537.36");
 
         //initWebView(webView, "file:///android_asset/testfit.html");
-        initWebView(webView, "http://1688.com");
-        //initWebView(webView, "https://lo gin.taobao.com/member/login.jhtml?style=b2b&from=b2b&newMini=true");
+        //initWebView(webView, "file:///android_asset/test.html");
+        initWebView(webView, "https://login.1688.com/member/signin.htm?Done=https%3A%2F%2Fwork.1688.com");
+        webView.getSettings().setUserAgentString("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.82 Safari/537.36");
         //initWebView(webView, "file:///android_asset/test.html");
         //initWebView(webView, "http://image.baidu.com/search/wiseala?tn=wiseala&ie=utf8&from=index&fmpage=index&word=%E7%A7%BB%E8%BD%B4%E6%91%84%E5%BD%B1&pos=magic#!search");
         //initWebView(webView, "http://www.baidu.com");
@@ -242,9 +235,14 @@ public class MainActivity extends BaseTestActivity {
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                Toast.makeText(MainActivity.this, "shouldOverrideUrlLoading url=" + url, Toast.LENGTH_LONG).show();
                 //返回则WebView内的连接在WebView打开，否则会弹出调用第三方浏览器
                 Log.i(TAG, "shouldOverrideUrlLoading tid=" + Thread.currentThread().getId() + " url=" + url);
+                return false;
+            }
+
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                Log.i(TAG, "shouldOverrideUrlLoading tid=" + Thread.currentThread().getId() + " request url:" + request.getUrl() + " method:" + request.getMethod() + " getRequestHeaders:" + request.getRequestHeaders() + " hasGesture:" + request.hasGesture() + " isForMainFrame:" + request.isForMainFrame());
                 return false;
             }
 
@@ -589,7 +587,8 @@ public class MainActivity extends BaseTestActivity {
     protected void test1() {
         //addViewPagerItem("file:///android_asset/test.html");
         //webView.loadUrl("http://172.18.255.71:3100/xxx/flex-scroll1.html");
-        logWebViewSize();
+        //logWebViewSize();
+        webView.loadUrl("http://www.baidu.com");
     }
 
     @Override
@@ -824,7 +823,6 @@ public class MainActivity extends BaseTestActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         menu.add(1, 0, 0, "finestwebview");
-        menu.add(1, 1, 0, "CrosswalkActivity");
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -834,9 +832,6 @@ public class MainActivity extends BaseTestActivity {
             switch (item.getItemId()) {
                 case 0:
                     finestwebview();
-                    return true;
-                case 1:
-                    startActivity(new Intent(this, CrosswalkActivity.class));
                     return true;
             }
         }

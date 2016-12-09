@@ -3,13 +3,10 @@ package com.example.yhf.webviewtest;
 import android.app.Application;
 import android.content.res.Configuration;
 import android.os.Build;
-import android.util.Log;
 import android.webkit.WebView;
 
-import com.example.yhf.webviewtest.util.L;
-import com.example.yhf.webviewtest.util.T;
+import com.example.lib.util.L;
 import com.squareup.leakcanary.RefWatcher;
-import com.squareup.leakcanary.LeakCanary;
 
 /**
  * Created by dmd on 2015/1/6.
@@ -29,18 +26,17 @@ public class App extends Application {
         //refWatcher = LeakCanary.install(this);
         refWatcher = RefWatcher.DISABLED;
 
-        T.init(this);
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             WebView.setWebContentsDebuggingEnabled(true);
         }
-        OKHttpProvider.init();
 
-        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-            @Override
-            public void uncaughtException(Thread thread, Throwable ex) {
-                Log.e("LABApplication", "xxxxxxxxxxxxxxxxx", ex);
-            }
-        });
+//        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+//            @Override
+//            public void uncaughtException(Thread thread, Throwable ex) {
+//                Log.e("LABApplication", "xxxxxxxxxxxxxxxxx", ex);
+//            }
+//        });
+
     }
 
     @Override

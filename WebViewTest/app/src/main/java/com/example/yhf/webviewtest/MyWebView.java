@@ -11,12 +11,8 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.webkit.WebView;
 import android.widget.AbsoluteLayout;
-import android.widget.EdgeEffect;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import com.example.yhf.webviewtest.util.DisplayUtils;
-import com.example.yhf.webviewtest.util.L;
+import com.example.lib.util.L;
 
 /**
  * Created by yhf on 2015/6/19.

@@ -35,21 +35,26 @@
 
 <a href="test1.html"><p>test1.html</p></a>
 <a href="http://www.baidu.com"><p>baidu</p></a>
+<a href="http://www.baidu.com" target="_blank"><p>baidu_blank</p></a>
 <img class=".test-img" src="http://aaa/test.png"/>
+<form action="test.html?111">
+    <button type="submit" >submit</button>
+</form>
 <script>
     function test1() {
 		location.reload();
     }
 
     function test2() {
+        location.href='http://www.baidu.com';
     }
 
     function test3() {
-
+        location.href='?aa';
     }
 
     function test4() {
-
+        history.go(-1);
     }
 
     function test5() {

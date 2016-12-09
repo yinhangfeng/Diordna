@@ -23,7 +23,8 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
 
-import com.example.yhf.webviewtest.util.L;
+import com.example.lib.BaseTestActivity;
+import com.example.lib.util.L;
 
 public class Test1Activity extends BaseTestActivity {
     private static final String TAG = "Test1Activity";

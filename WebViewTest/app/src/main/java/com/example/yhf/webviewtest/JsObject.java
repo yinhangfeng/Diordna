@@ -5,10 +5,9 @@ import android.os.Looper;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.yhf.webviewtest.util.L;
+import com.example.lib.util.L;
 
 /**
  * Created by dmd on 2015/1/6.
