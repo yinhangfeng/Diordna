@@ -12,12 +12,6 @@
 
     <com.example.yinhf.viewtest.MyView
         android:id="@+id/my_view"
-        android:layout_width="100dp"
-        android:layout_height="100dp" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:onClick="test1OnClick"
-        android:text="test1"/>
+        android:layout_width="match_parent"
+        android:layout_height="400dp" />
 </LinearLayout>

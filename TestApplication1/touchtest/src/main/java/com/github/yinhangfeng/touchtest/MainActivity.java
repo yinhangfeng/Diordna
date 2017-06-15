@@ -38,33 +38,33 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public boolean dispatchTouchEvent(MotionEvent ev) {
-        switch(ev.getAction()) {
-        case MotionEvent.ACTION_DOWN:
-            Log.i(TAG, "dispatchKeyEvent ACTION_DOWN");
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    Log.e(TAG, "ACTION_DOWN before sleep post");
-                }
-            });
-            SystemClock.sleep(2000);
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    Log.e(TAG, "ACTION_DOWN after sleep post");
-                }
-            });
-            Log.i(TAG, "dispatchKeyEvent ACTION_DOWN END");
-            break;
-        case MotionEvent.ACTION_MOVE:
-            Log.i(TAG, "dispatchKeyEvent ACTION_MOVE");
-            break;
-        case MotionEvent.ACTION_UP:
-            Log.i(TAG, "dispatchKeyEvent ACTION_UP");
-            break;
-        }
-        return true;
-    }
+//    @Override
+//    public boolean dispatchTouchEvent(MotionEvent ev) {
+//        switch(ev.getAction()) {
+//        case MotionEvent.ACTION_DOWN:
+//            Log.i(TAG, "dispatchKeyEvent ACTION_DOWN");
+//            handler.post(new Runnable() {
+//                @Override
+//                public void run() {
+//                    Log.e(TAG, "ACTION_DOWN before sleep post");
+//                }
+//            });
+//            SystemClock.sleep(2000);
+//            handler.post(new Runnable() {
+//                @Override
+//                public void run() {
+//                    Log.e(TAG, "ACTION_DOWN after sleep post");
+//                }
+//            });
+//            Log.i(TAG, "dispatchKeyEvent ACTION_DOWN END");
+//            break;
+//        case MotionEvent.ACTION_MOVE:
+//            Log.i(TAG, "dispatchKeyEvent ACTION_MOVE");
+//            break;
+//        case MotionEvent.ACTION_UP:
+//            Log.i(TAG, "dispatchKeyEvent ACTION_UP");
+//            break;
+//        }
+//        return true;
+//    }
 }

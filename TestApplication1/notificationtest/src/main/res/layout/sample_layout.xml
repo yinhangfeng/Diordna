@@ -52,4 +52,10 @@ limitations under the License.
         android:onClick="incNotificationId"
         android:text="incNotificationId"/>
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="playRingtone"
+        android:text="playRingtone"/>
+
 </LinearLayout>

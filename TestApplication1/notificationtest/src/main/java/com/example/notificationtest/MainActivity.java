@@ -9,6 +9,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.BitmapFactory;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
@@ -99,7 +101,9 @@ public class MainActivity extends Activity {
         builder.setContentText("Time to learn about notifications!");
         //builder.setSubText("Tap to view documentation about notifications.");
 
-        builder.setDefaults(NotificationCompat.DEFAULT_SOUND);
+//        builder.setDefaults(NotificationCompat.DEFAULT_SOUND);
+
+        builder.setSound(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.sound1));
 
         NotificationManager notificationManager = (NotificationManager) getSystemService(
                 NOTIFICATION_SERVICE);
@@ -182,6 +186,9 @@ public class MainActivity extends Activity {
 
     public void incNotificationId(View v) {
         notificationId++;
+    }
+
+    public void playRingtone(View v) {
     }
 
     private class DeleteNotificationReceiver extends BroadcastReceiver {

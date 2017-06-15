@@ -74,20 +74,9 @@ public class MainActivity extends BaseTestActivity {
     private MyWebView webView;
     private HorizontalScrollView hsv;
     private ViewGroup hsvContent;
+    private EditText uriEdit;
 
     private static String[] urls = {"file:///android_asset/test.html", "file:///android_asset/test.html"};
-    //private static String[] urls = {"http://www.youku.com/", "http://www.tudou.com/", "http://www.letv.com/", "http://tv.sohu.com/comic/"};
-//    private static String[] urls = {
-//            "file:///android_asset/test1.html",
-//            "file:///android_asset/test.html",
-//            "http://app.heyimen.lightappbuilder.com/User/Index/login.html",
-//            "http://app.heyimen.lightappbuilder.com/Farm/Task/seed.html",
-//            "http://app.heyimen.lightappbuilder.com/Farm/Land/find.html"};
-
-    //测试scroll
-//    private static String[] urls = {
-//            "http://image.baidu.com/wisebrowse/index?tag1=%E6%91%84%E5%BD%B1&tag2=%E5%85%A8%E9%83%A8&tag3=&pn=0&rn=10&from=index&fmpage=index&pos=magic#/home",
-//            "file:///android_asset/iframe_scroll.html"};
 
     private List<MyWebView> webViews;
     private ViewPager viewPager;
@@ -110,21 +99,15 @@ public class MainActivity extends BaseTestActivity {
         dm = getResources().getDisplayMetrics();
 
         mCookieManager = TestUtils.getCookieManager(this);
+        mCookieManager.setAcceptCookie(true);
 
-//        if(Build.VERSION.SDK_INT >= 21) {
-//            L.e(TAG, "onCreate enableSlowWholeDocumentDraw");
-//            WebView.enableSlowWholeDocumentDraw();
-        //        }
-
-        if(Build.VERSION.SDK_INT >= 19) {
+        if (Build.VERSION.SDK_INT >= 19) {
             WebView.setWebContentsDebuggingEnabled(true);
         }
 
-        Log.e(TAG, "onCreate Thread.currentThread().getId()=" + Thread.currentThread().getId());
-        //L.i(TAG, "onCreate density=", getResources().getDisplayMetrics().density);
         setContentView(R.layout.activity_main);
 
-        EditText uriEdit = (EditText) findViewById(R.id.uri_edit);
+        uriEdit = (EditText) findViewById(R.id.uri_edit);
         uriEdit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -142,7 +125,7 @@ public class MainActivity extends BaseTestActivity {
         hsvContent = (ViewGroup) findViewById(R.id.hsv_content);
 
         tabLayout = (TabLayout) findViewById(R.id.tab_layout);
-        for(int i = 0; i < 5; ++i) {
+        for (int i = 0; i < 5; ++i) {
             tabLayout.addTab(tabLayout.newTab().setText(Integer.toString(i)));
         }
         tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
@@ -171,37 +154,28 @@ public class MainActivity extends BaseTestActivity {
 
             }
         });
-
         viewPager = (ViewPager) findViewById(R.id.view_pager);
-
         webContainer = (ViewGroup) findViewById(R.id.web_container);
 
         //webView = newWebView(this);
         webView = (MyWebView) findViewById(R.id.web_view);
         //webContainer.addView(webView, ViewGroup.LayoutParams.MATCH_PARENT, 500);
 
-
-        //设置pc的user agent
-        //webView.getSettings().setUserAgentString("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.27 Safari/537.36");
-
-        //initWebView(webView, "file:///android_asset/testfit.html");
-        //initWebView(webView, "file:///android_asset/test.html");
-        initWebView(webView, "https://login.1688.com/member/signin.htm?Done=https%3A%2F%2Fwork.1688.com");
-        webView.getSettings().setUserAgentString("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.82 Safari/537.36");
-        //initWebView(webView, "file:///android_asset/test.html");
-        //initWebView(webView, "http://image.baidu.com/search/wiseala?tn=wiseala&ie=utf8&from=index&fmpage=index&word=%E7%A7%BB%E8%BD%B4%E6%91%84%E5%BD%B1&pos=magic#!search");
-        //initWebView(webView, "http://www.baidu.com");
-
         //initWebViewPager();
         //initHsv();
         //webView = webViews.get(0);
+
+
+        //设置pc的user agent
+        //webView.getSettings().setUserAgentString("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.27 Safari/537.36");
+        initWebView(webView, "https://login.1688.com");
     }
 
     @Override
     protected void onDestroy() {
-        if(webView != null) {
+        if (webView != null) {
             ViewGroup p = (ViewGroup) webView.getParent();
-            if(p != null) {
+            if (p != null) {
                 p.removeView(webView);
             }
             webView.setWebViewClient(null);
@@ -217,7 +191,9 @@ public class MainActivity extends BaseTestActivity {
     }
 
     private void initWebView(final WebView webView, String url) {
-        L.i(TAG, "initWebView() called with webView = [", webView, "], url = [", url, "]");
+        if (Build.VERSION.SDK_INT >= 21) {
+            mCookieManager.setAcceptThirdPartyCookies(webView, true);
+        }
         webView.setBackgroundColor(0);
         WebSettings webSettings = webView.getSettings();
         //启用支持JS
@@ -228,8 +204,8 @@ public class MainActivity extends BaseTestActivity {
         webSettings.setDomStorageEnabled(true);
         webSettings.setGeolocationEnabled(true);
         webSettings.setDatabaseEnabled(true);
-        String databasePath = this.getDir("web_database_storage", Context.MODE_PRIVATE).getPath();
-        webSettings.setDatabasePath(databasePath);
+//        String databasePath = this.getDir("web_database_storage", Context.MODE_PRIVATE).getPath();
+//        webSettings.setDatabasePath(databasePath);
 
         //WebViewClient帮助WevView处理一些页面控制和请求通知
         webView.setWebViewClient(new WebViewClient() {
@@ -253,6 +229,8 @@ public class MainActivity extends BaseTestActivity {
                 injectionInfo(view, "onPageStarted");
                 //logWebViewSize();
                 //printBackForwardList();
+
+
             }
 
             @Override
@@ -262,6 +240,8 @@ public class MainActivity extends BaseTestActivity {
                 injectionInfo(view, "onPageFinished");
                 //logWebViewSize();
                 //printBackForwardList();
+
+                uriEdit.setText(url);
             }
 
             @Override
@@ -410,14 +390,14 @@ public class MainActivity extends BaseTestActivity {
             @Override
             public void onShowCustomView(View view, CustomViewCallback callback) {
                 L.i(TAG, "onShowCustomView view=", view, " parent=", view.getParent(), ", callback=", callback);
-                if(view instanceof ViewGroup) {
+                if (view instanceof ViewGroup) {
                     ViewGroup viewGroup = (ViewGroup) view;
-                    for(int i = 0; i < viewGroup.getChildCount(); ++i) {
+                    for (int i = 0; i < viewGroup.getChildCount(); ++i) {
                         L.i(TAG, "onShowCustomView v", i, "  ", L.getRecursionViewInfo(viewGroup.getChildAt(i)));
                     }
                 }
                 //setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-                if(xCustomView != null) {
+                if (xCustomView != null) {
                     L.e(TAG, "onShowCustomView xCustomView != null");
                     callback.onCustomViewHidden();
                     return;
@@ -472,7 +452,9 @@ public class MainActivity extends BaseTestActivity {
         injectionInfo(webView, "111");
 //        Map<String, String> additionalHttpHeaders = new HashMap<>();
 //        additionalHttpHeaders.put("xxx", "xxxx");
-        webView.loadUrl(url);
+        if (url != null) {
+            webView.loadUrl(url);
+        }
         injectionInfo(webView, "222");
 
         L.i(TAG, "initWebView webView.getScale()=", webView.getScale());
@@ -485,10 +467,10 @@ public class MainActivity extends BaseTestActivity {
                 Log.i(TAG, "onKeyDown KEYCODE_BACK inCustomViewShow");
                 hideCustomView();
                 return true;
-            }else {
-                if(webView != null && webView.getParent() != null) {
+            } else {
+                if (webView != null && webView.getParent() != null) {
                     printBackForwardList();
-                    if(webView.canGoBack()) {
+                    if (webView.canGoBack()) {
                         Log.e(TAG, "onKeyDown canGoBack");
                         webView.goBack();
                         return true;
@@ -502,7 +484,7 @@ public class MainActivity extends BaseTestActivity {
     private void printBackForwardList() {
         Log.d(TAG, "printBackForwardList START");
         WebBackForwardList list = webView.copyBackForwardList();
-        for(int i = 0, size = list.getSize(); i < size; ++i) {
+        for (int i = 0, size = list.getSize(); i < size; ++i) {
             Log.d(TAG, "printBackForwardList index:" + i + " url:" + list.getItemAtIndex(i).getUrl());
         }
         Log.d(TAG, "printBackForwardList END CurrentIndex:" + list.getCurrentIndex());
@@ -514,13 +496,13 @@ public class MainActivity extends BaseTestActivity {
 
     public void hideCustomView() {
         L.i(TAG, "hideCustomView xCustomView=" + xCustomView);
-        if(xCustomView == null) {
+        if (xCustomView == null) {
             return;
         }
         xCustomView = null;
         try {
             xCustomViewCallback.onCustomViewHidden();
-        } catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         xCustomViewCallback = null;
@@ -541,7 +523,7 @@ public class MainActivity extends BaseTestActivity {
     protected void onResume() {
         super.onResume();
         L.d(TAG, "onResume");
-        if(webView != null) {
+        if (webView != null) {
             webView.onResume();
         }
     }
@@ -550,7 +532,7 @@ public class MainActivity extends BaseTestActivity {
     protected void onPause() {
         super.onPause();
         L.d(TAG, "onPause");
-        if(webView != null) {
+        if (webView != null) {
             webView.onPause();
         }
     }
@@ -559,7 +541,7 @@ public class MainActivity extends BaseTestActivity {
     public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
         super.onSaveInstanceState(outState, outPersistentState);
         L.d(TAG, "onSaveInstanceState() called with outState = [", outState);
-        if(webView != null) {
+        if (webView != null) {
             webView.saveState(outState);
         }
         L.d(TAG, "onSaveInstanceState() called with outState = [", outState);
@@ -664,7 +646,7 @@ public class MainActivity extends BaseTestActivity {
 
     private void destroyWebView() {
         ViewGroup p = (ViewGroup) webView.getParent();
-        if(p != null) {
+        if (p != null) {
             p.removeView(webView);
         }
         webView.destroy();
@@ -703,17 +685,17 @@ public class MainActivity extends BaseTestActivity {
             String html = IOUtils.toString(getAssets().open("test1.html"), "UTF-8");
             Log.i(TAG, "html=" + html);
             webView.loadDataWithBaseURL("http://www.baidu.com", html, "text/html", "UTF-8", "http://www.baidu.com");
-        } catch(IOException e) {
+        } catch (IOException e) {
             Log.e(TAG, Log.getStackTraceString(e));
         }
     }
 
     private static void process() {
         try {
-            Process process = Runtime.getRuntime().exec(new String[] {"ls", "/mnt/sdcard/"});
+            Process process = Runtime.getRuntime().exec(new String[]{"ls", "/mnt/sdcard/"});
             String str = IOUtils.toString(process.getInputStream(), "UTF-8");
             Log.i(TAG, str);
-        } catch(IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -725,7 +707,7 @@ public class MainActivity extends BaseTestActivity {
 
     private void initWebViewPager() {
         webViews = new ArrayList<>();
-        for(int i = 0; i < urls.length; ++i) {
+        for (int i = 0; i < urls.length; ++i) {
             MyWebView webView = newWebView(getApplication());
             webView.setId(i);
             initWebView(webView, urls[i]);
@@ -737,7 +719,7 @@ public class MainActivity extends BaseTestActivity {
     }
 
     private void addViewPagerItem(String url) {
-        if(webViews == null) {
+        if (webViews == null) {
             webViews = new ArrayList<>();
         }
         MyWebView webView = newWebView(getApplication());
@@ -750,7 +732,7 @@ public class MainActivity extends BaseTestActivity {
     private void initHsv() {
         int width = getResources().getDisplayMetrics().widthPixels;
         webViews = new ArrayList<>();
-        for(int i = 0; i < urls.length; ++i) {
+        for (int i = 0; i < urls.length; ++i) {
             MyWebView webView = newWebView(getApplication());
             webView.setId(i);
             initWebView(webView, urls[i]);
@@ -813,9 +795,9 @@ public class MainActivity extends BaseTestActivity {
         Log.i("testwebview", "=====<<<  onConfigurationChanged  >>>=====");
         super.onConfigurationChanged(newConfig);
 
-        if(newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE){
+        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
             Log.i("webview", "   现在是横屏1");
-        }else if(newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
+        } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
             Log.i("webview", "   现在是竖屏1");
         }
     }

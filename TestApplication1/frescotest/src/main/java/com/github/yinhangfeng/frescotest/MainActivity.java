@@ -1,14 +1,23 @@
 package com.github.yinhangfeng.frescotest;
 
+import android.graphics.drawable.Animatable;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.facebook.drawee.backends.pipeline.Fresco;
+import com.facebook.drawee.backends.pipeline.PipelineDraweeControllerBuilder;
+import com.facebook.drawee.controller.BaseControllerListener;
 import com.facebook.drawee.view.SimpleDraweeView;
+import com.facebook.imagepipeline.common.ResizeOptions;
+import com.facebook.imagepipeline.image.ImageInfo;
+import com.facebook.imagepipeline.request.ImageRequestBuilder;
 
 public class MainActivity extends AppCompatActivity {
+    private static final String TAG = "MainActivity";
 
     private SimpleDraweeView draweeView;
 
@@ -18,7 +27,45 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         draweeView = (SimpleDraweeView) findViewById(R.id.avatar);
-        draweeView.setImageURI(Uri.parse("http://imgsrc.baidu.com/forum/pic/item/09be3f094b36acaf0ad6eb717cd98d1000e99cde.jpg"));
+
+        Uri uri = Uri.parse("http://172.18.255.71:9000/test/map.jpg");
+
+        draweeView.setImageURI(uri);
+
+//        PipelineDraweeControllerBuilder controllerBuilder = Fresco.newDraweeControllerBuilder();
+//        // 默认setUri 不会按照控件大小缩放图片 所以加载过大图片会失败
+//        //controller.setUri(uri);
+//        controllerBuilder.setImageRequest(ImageRequestBuilder.newBuilderWithSource(uri).setResizeOptions(new ResizeOptions(2500, 2000)).build());
+//        controllerBuilder.setOldController(draweeView.getController());
+//        controllerBuilder.setControllerListener(new BaseControllerListener<ImageInfo>() {
+//            @Override
+//            public void onSubmit(String id, Object callerContext) {
+//                super.onSubmit(id, callerContext);
+//                Log.i(TAG, "onSubmit: ");
+//            }
+//
+//            @Override
+//            public void onFinalImageSet(String id, ImageInfo imageInfo, Animatable animatable) {
+//                super.onFinalImageSet(id, imageInfo, animatable);
+//                if (imageInfo == null) {
+//                    return;
+//                }
+//                Log.i(TAG, "onFinalImageSet: width:" + imageInfo.getWidth() + " height:" + imageInfo.getHeight() + " QualityInfo:" + imageInfo.getQualityInfo());
+//            }
+//
+//            @Override
+//            public void onFailure(String id, Throwable throwable) {
+//                super.onFailure(id, throwable);
+//                Log.e(TAG, "onFailure: ", throwable);
+//            }
+//
+//            @Override
+//            public void onRelease(String id) {
+//                super.onRelease(id);
+//                Log.i(TAG, "onRelease: ");
+//            }
+//        });
+//        draweeView.setController(controllerBuilder.build());
     }
 
     @Override
@@ -37,7 +84,6 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if(id == R.id.action_settings) {
-            draweeView.setImageURI(null);
             return true;
         }
 

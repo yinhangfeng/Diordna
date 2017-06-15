@@ -4,7 +4,10 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Path;
+import android.graphics.RectF;
 import android.os.SystemClock;
+import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
@@ -46,28 +49,58 @@ public class MyView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        canvas.drawCircle(50, 50, 50, paint);
 
-        ++onDrawCount;
-        long curTime = SystemClock.elapsedRealtime();
-        Log.i(TAG, "onDraw: frame dt=" + (curTime - lastOnDrawTime));
-        lastOnDrawTime = curTime;
-        if(lastOnDrawTimeSec == 0) {
-            lastOnDrawTimeSec = curTime;
+        float start = 0;
+        float end = 270;
+        boolean clockwise = false;
+
+        float sweep = end - start;
+        if (clockwise) {
+            if (sweep < 0) {
+                sweep = sweep % 360 + 360;
+            }
         } else {
-            long dt = curTime - lastOnDrawTimeSec;
-            if(dt >= 1000) {
-                Log.i(TAG, "onDraw: dt=" + dt + " onDrawCount=" + onDrawCount);
-                lastOnDrawTimeSec = curTime;
-                onDrawCount = 0;
+            if (sweep > 0) {
+                sweep = sweep % 360 - 360;
             }
         }
-        postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                invalidate();
-            }
-        }, 50);
+
+        Path path = new Path();
+        path.addArc(new RectF(100, 100, 500, 500), start, sweep);
+
+        Paint paint = new Paint();
+        paint.setColor(Color.RED);
+        paint.setStrokeWidth(6);
+        paint.setStyle(Paint.Style.STROKE);
+        canvas.drawPath(path, paint);
+
+        Paint textPaint = new Paint();
+        textPaint.setTextSize(60);
+        textPaint.setColor(Color.RED);
+        canvas.drawText("xxx\naaa", 300, 300, textPaint);
+
+//        canvas.drawCircle(50, 50, 50, paint);
+//
+//        ++onDrawCount;
+//        long curTime = SystemClock.elapsedRealtime();
+//        Log.i(TAG, "onDraw: frame dt=" + (curTime - lastOnDrawTime));
+//        lastOnDrawTime = curTime;
+//        if(lastOnDrawTimeSec == 0) {
+//            lastOnDrawTimeSec = curTime;
+//        } else {
+//            long dt = curTime - lastOnDrawTimeSec;
+//            if(dt >= 1000) {
+//                Log.i(TAG, "onDraw: dt=" + dt + " onDrawCount=" + onDrawCount);
+//                lastOnDrawTimeSec = curTime;
+//                onDrawCount = 0;
+//            }
+//        }
+//        postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                invalidate();
+//            }
+//        }, 50);
         //ViewCompat.postInvalidateOnAnimation(this);
     }
 }
