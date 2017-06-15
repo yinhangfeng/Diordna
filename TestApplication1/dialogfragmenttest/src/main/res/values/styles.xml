@@ -1,0 +1,39 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- 可设置系统栏颜色 -->
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <!-- 设置状态栏为透明 -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <!--<item name="android:windowFullscreen">true</item>-->
+    </style>
+
+    <style name="FullScreenDialog">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <!--<item name="android:windowBackground">@color/colorPrimary</item>-->
+        <item name="android:windowTranslucentStatus">true</item>
+    </style>
+
+    <style name="FullScreenDialogAnimatedSlide" parent="FullScreenDialog">
+        <item name="android:windowAnimationStyle">@style/DialogAnimationSlide</item>
+    </style>
+
+    <style name="FullScreenDialogAnimatedFade" parent="FullScreenDialog">
+        <item name="android:windowAnimationStyle">@style/DialogAnimationFade</item>
+    </style>
+
+    <style name="DialogAnimationSlide">
+        <item name="android:windowEnterAnimation">@anim/slide_up</item>
+        <item name="android:windowExitAnimation">@anim/slide_down</item>
+    </style>
+
+    <style name="DialogAnimationFade">
+        <item name="android:windowEnterAnimation">@android:anim/fade_in</item>
+        <item name="android:windowExitAnimation">@anim/fade_out</item>
+    </style>
+
+</resources>
