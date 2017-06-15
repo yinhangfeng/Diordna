@@ -1,13 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion "23.0.3"
+    compileSdkVersion rootProject.ext.COMPILE_SDK_VERSION
+    buildToolsVersion rootProject.ext.BUILD_TOOLS_VERSION
 
     defaultConfig {
         applicationId "com.github.yinhangfeng.frescotest"
-        minSdkVersion 9
-        targetSdkVersion 22
+        minSdkVersion rootProject.ext.MIN_SDK_VERSION
+        targetSdkVersion rootProject.ext.TARGET_SDK_VERSION
         versionCode 1
         versionName "1.0"
     }
@@ -21,7 +21,7 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.android.support:appcompat-v7:23.4.0'
+    compile "com.android.support:appcompat-v7:${rootProject.ext.SUPPORT_VERSION}"
     compile 'com.squareup.okhttp3:okhttp:3.4.1'
     compile 'com.facebook.fresco:fresco:1.0.0'
     compile 'com.facebook.fresco:imagepipeline-okhttp3:1.0.0'
